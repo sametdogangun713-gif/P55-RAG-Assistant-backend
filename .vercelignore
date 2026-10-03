@@ -1,0 +1,12 @@
+# Vercel'e GONDERILMEYECEKLER (CLI ile yuklemede de gizli dosya ve buyuk klasorler gitmesin)
+.env
+venv/
+.venv/
+data/
+uploads/
+tests/
+docs/
+htmlcov/
+.coverage
+.pytest_cache/
+*.bat

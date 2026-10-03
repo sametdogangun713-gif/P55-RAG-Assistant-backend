@@ -1,0 +1,4 @@
+# Kendi bilgisayarinda calisirken: requirements.txt + yerel (ucretsiz) embedding modeli.
+# Buyuk indirme (torch icerir). Hizli deneme icin .env'de EMBEDDING_BACKEND=hash
+-r requirements.txt
+sentence-transformers>=2.7

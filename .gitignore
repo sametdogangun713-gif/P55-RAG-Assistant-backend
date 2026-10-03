@@ -1,0 +1,33 @@
+# Gizli dosyalar (ASLA depoya girmemeli)
+.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Yerel veritabani ve yuklenen belgeler
+data/*.db
+data/*.db-journal
+data/*.sqlite3
+uploads/*
+!uploads/.gitkeep
+!data/.gitkeep
+
+# Indirilen embedding modelleri
+.cache/
+models/
+
+# Editor / isletim sistemi / log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Vercel CLI'nin yerel klasoru
+.vercel/
