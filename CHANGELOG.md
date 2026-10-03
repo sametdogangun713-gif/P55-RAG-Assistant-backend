@@ -20,6 +20,9 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
   bozuk gösteriyordu; virgül ayraç Türkçe Excel'de satırı tek hücreye yığıyordu. Şimdi dosya blob olarak indirilir (BOM
   korunur), ayraç `;`, ondalık virgül, oranlar yüzde, etiketler Türkçe, dosya adında tarih.
 
+- **Rapor PDF olarak indirilir** (`GET /reports/usage.pdf`, reportlab, Türkçe yazı tipi Vera): CSV Excel'in bölgesel
+  ayarına göre hâlâ sorunlu açılıyordu; arayüzdeki "CSV indir" yerine "PDF indir". CSV ucu API'de kalır.
+
 ### Sınır (değişmedi)
 - Dosya başına 50 MB: Supabase ücretsiz planının sınırı (kodla aşılamaz).
 

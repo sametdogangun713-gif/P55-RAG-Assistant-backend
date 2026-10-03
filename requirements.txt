@@ -10,3 +10,5 @@ python-docx>=1.1
 numpy>=1.26
 # PostgreSQL (Supabase) surucusu
 psycopg[binary]>=3.2
+# Kullanim raporunun PDF hali (GET /reports/usage.pdf)
+reportlab>=4.0
