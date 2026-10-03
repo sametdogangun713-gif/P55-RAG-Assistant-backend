@@ -212,6 +212,13 @@
 - **Kendi yaptığım değişiklik / doğrulama:** _(canlıda belgeni "Yeniden indeksle", aynı soruları sor; önce/sonra farkını kendi gözünle not et)_
 - **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden model değil arama düzeltildi, neden bge-m3, neden animasyonlar kaldırıldı)_
 
+### Kayıt 6 (büyük belge + genel sohbet — 2026-10-03)
+- **Araç:** Claude Code
+- **İstem (özet):** "Bu yükleme olayını daha büyük dosyalar için yapamaz mıyız ve bizimle basit şekilde bir model konuşabilir mi chatbottan." Seçimlerim: parça sınırını kaldır (50 MB Supabase sınırı kalsın); selamlaşma + genel bilgi, etiketli.
+- **Aldığım çıktı (özet):** `indexing.index_next` (süre bütçeli, kaldığı yerden), `chunks.list_unindexed_chunks`, `POST /documents/{id}/index-next`, arayüzde ilerleme döngüsü ve "Devam et"; `chat.general_answer` + `GENERAL_SYSTEM_PROMPT`, durum `general`, arayüz etiketi, rapor. Claude'un doğrulaması: SQLite 294 / PostgreSQL+pgvector 295 test geçti; tarayıcıda 2989 parçalık belge 31 istekte indekslendi (%4 → %98 → hazır); gerçek Groq ile "merhaba / ne yapabilirsin / teşekkürler / başkent / okulun yemekhane ücreti / belgedeki soru" denendi (`istem-deneyleri.md`). Testte bulunan gerçek sorun: Windows saati ~15 ms adımlı → süre bütçesi testleri zamana bağlıydı; sahte saat eklendi. **Canlıda henüz denenmedi.**
+- **Kendi yaptığım değişiklik / doğrulama:** _(canlıda büyük bir belge yükle, yüzdeyi izle; sohbette "merhaba" ve belgede olmayan bir soru sor; ekran görüntüsü)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden indeksleme parçalara bölündü, genel yanıt neden etiketli)_
+
 ## Adım 13 — Final (Hafta 15)
 
 ### Kayıt 1

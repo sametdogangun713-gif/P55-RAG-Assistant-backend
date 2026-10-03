@@ -83,7 +83,8 @@ Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒). Yönetici gerektirenler
 | GET | `/documents/{id}` | 🔒 | Belge (başkasınınsa 404 — varlığı sızdırılmaz) |
 | GET | `/documents/{id}/chunks` | 🔒 | Parçalar (`limit` 1–200, `offset`) |
 | DELETE | `/documents/{id}` | 🔒 | Belgeyi, parçalarını, vektörlerini ve dosyasını sil |
-| POST | `/documents/{id}/reindex` | 🔒 | Yeniden vektörleştir. 503: embedding üretilemedi |
+| POST | `/documents/{id}/reindex` | 🔒 | Yeniden vektörleştir (bulutta kaldığı yerden, süre bütçesi kadar). 503: embedding üretilemedi |
+| POST | `/documents/{id}/index-next` | 🔒 | Büyük belgenin indekslenmesine kaldığı yerden devam (`INDEX_BUDGET_SECONDS` kadar). Durum `chunked` iken yanıtta `indexed_chunks` / `total_chunks`; arayüz `indexed` olana kadar tekrar çağırır |
 | POST | `/search` | 🔒 | `{query, top_k}` → en benzer parçalar ve skorları |
 | POST | `/ask` | 🔒 | Tek seferlik kaynaklı soru |
 | POST/GET | `/conversations` | 🔒 | Sohbet oluştur / listele |

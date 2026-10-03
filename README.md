@@ -107,7 +107,8 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `ALLOWED_ORIGINS` | `http://localhost:5500,http://127.0.0.1:5500` | Backend'e istek atabilecek arayüz adresleri (CORS), virgülle |
 | `UPLOAD_DIR` | `./uploads` (Vercel'de `/tmp/uploads`) | Yüklenen/geçici dosyaların klasörü |
 | `MAX_UPLOAD_MB` | `500` | En büyük dosya. Bulutta **50** (Supabase ücretsiz plan sınırı) |
-| `MAX_CHUNKS_PER_DOCUMENT` | `20000` | Belge başına en fazla parça. Bulutta **2000** önerilir (bge-m3 ~10 parça/sn, istek en fazla 300 sn) |
+| `MAX_CHUNKS_PER_DOCUMENT` | `20000` | Belge başına en fazla parça (≈12 milyon karakter) |
+| `INDEX_BUDGET_SECONDS` | yerelde `0` (sınırsız), Vercel'de `60` | Bir istekte en fazla kaç saniye indekslenir; büyük belge kaldığı yerden devam eden birden çok istekte biter (`/documents/{id}/index-next`) |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `600` / `100` | Parça uzunluğu / örtüşme (karakter) |
 | `EMBEDDING_BACKEND` | `local` | `local` = bilgisayarında model, `hf` = Hugging Face'te bge-m3 (bulut), `hash` = hızlı yedek |
 | `EMBEDDING_MODEL` | `local`: `paraphrase-multilingual-MiniLM-L12-v2`, `hf`: `BAAI/bge-m3` | Çok dilli model |
@@ -117,6 +118,7 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `SUPABASE_SERVICE_ROLE_KEY` | boş | Supabase gizli anahtarı (her şeye erişir!). Yalnızca backend'de |
 | `SUPABASE_BUCKET` | `belgeler` | Dosya kovasının adı |
 | `MIN_SCORE` | `local` 0.30, `hf` 0.40 | Bu benzerliğin altındaki parçalar "ilgisiz" sayılır |
+| `GENERAL_CHAT` | `1` | Sohbette belgelerde yanıt yoksa selamlaşma/genel sorulara modelin genel bilgisiyle, "belgelerinden değil" etiketli yanıt. `0` = yalnızca belgeler |
 | `LLM_PROVIDER` | `claude` | Yanıt üreten sağlayıcı: `claude` ya da `groq` |
 | `GROQ_API_KEY` / `GROQ_MODEL` | boş / `openai/gpt-oss-120b` | Groq anahtarı ve modeli |
 | `ANTHROPIC_API_KEY` / `CLAUDE_MODEL` | boş / `claude-haiku-4-5-20251001` | Claude anahtarı ve modeli |

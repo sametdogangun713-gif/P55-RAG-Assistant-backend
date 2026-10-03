@@ -95,7 +95,7 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_…` | **evet** |
    | `SUPABASE_BUCKET` | `belgeler` | |
    | `MAX_UPLOAD_MB` | `50` | |
-   | `MAX_CHUNKS_PER_DOCUMENT` | `2000` (bge-m3 ~10 parça/sn; istek 300 sn'de bitmeli) | |
+   | `MAX_CHUNKS_PER_DOCUMENT` | `20000` (indeksleme 60 sn'lik isteklere bölünür, 300 sn sınırı sorun olmaz) | |
    | `LLM_PROVIDER` | `groq` | |
    | `GROQ_API_KEY` | `gsk_…` | **evet** |
    | `GROQ_MODEL` | `openai/gpt-oss-120b` | |
@@ -140,7 +140,7 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
 | `prepared statement … already exists` | Doğrudan bağlantı (5432) yerine pooler kullanılıyorsa sorun olmaz; kod `prepare_threshold=None` ile bunu önler. Hâlâ görülürse "Session pooler" adresini dene |
 | Yükleme "Dosya deposu isteği reddedildi (403)" | `SUPABASE_SERVICE_ROLE_KEY` yanlış (publishable/anon anahtarı girilmiş olabilir) |
 | "Hugging Face anahtarı geçersiz" | `HF_TOKEN` yanlış ya da "Inference Providers" izni verilmemiş |
-| Büyük belgede `504 FUNCTION_INVOCATION_TIMEOUT` | 300 sn aşıldı: belgeyi böl ya da `MAX_CHUNKS_PER_DOCUMENT`'ı düşür |
+| Büyük belgede `504 FUNCTION_INVOCATION_TIMEOUT` | Yükleme isteği (indirme + ayrıştırma + parçalama + ilk 60 sn indeksleme) 300 sn'yi aştı. `INDEX_BUDGET_SECONDS`'ı düşür (ör. 30); belge "indeksleniyor" kaldıysa Belgelerim → **Devam et** |
 | Uygulama açılmıyor, Supabase "Paused" | Ücretsiz proje 1 hafta kullanılmayınca durur: Supabase paneli → **Restore project** (demodan önce kontrol et!) |
 
 ## 7. Güvenlik notları

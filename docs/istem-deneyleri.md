@@ -73,3 +73,16 @@ skorlar ayrışmıyor → eşik `0,40` yalnızca tamamen ilgisizleri ayıklar, "
 Kalan zayıflıklar (dürüstçe): "Devamsızlık sınırı nedir?" → model "devam zorunluluğu yüzde yetmiş" cümlesini eşleştiremedi, "oran
 belirtilmemiş" dedi (kısmi). "Servis saatleri nedir?" → kütüphane/laboratuvar saatlerini verdi (soru belirsiz; kaynak gösterdi ama
 ilgisiz). Testler: `tests/test_arama_kalitesi.py`. Canlıdaki eski belgeler yeni modelde görünmez → **Yeniden indeksle**.
+
+## Genel sohbet (`genel-v1`, 2026-10-03)
+Belgelerde yanıt yoksa (ilgili parça yok ya da model `BILGI_YOK` dedi) model genel bilgisiyle yanıt verir; durum `general`,
+kaynak yok, arayüzde "belgelerinden değil" notu. Deneme: HF bge-m3 + Groq `gpt-oss-120b`, aynı 7 bölümlük sentetik yönerge.
+
+| Mesaj | status | Yanıt (özet) | Yorum |
+|---|---|---|---|
+| merhaba | general | "Merhaba! Nasıl yardımcı olabilirim? Belgelerinizle ilgili…" | doğal, belgeleri hatırlattı |
+| ne yapabilirsin? | general | sohbet + belgelerden yardım | doğru |
+| teşekkürler | general | "Rica ederim…" | doğru |
+| Türkiye'nin başkenti neresi? | general | "Ankara'dır." | genel bilgi, etiketli |
+| Okulun yemekhane ücreti ne kadar? | general | "elimde ya da belgelerinizde bulunmuyor" | **uydurmadı** (kural 3) |
+| Final sınavı notun yüzde kaçı? | answered | "%60'ını oluşturur [1]" | belgede olan soru eskisi gibi kaynaklı |

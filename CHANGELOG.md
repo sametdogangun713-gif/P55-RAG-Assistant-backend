@@ -5,6 +5,19 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.17.0] — 2026-10-03 · büyük belge ve genel sohbet
+### Eklendi
+- **Parça parça indeksleme:** bir istekte en fazla `INDEX_BUDGET_SECONDS` (Vercel'de 60 sn) indekslenir; belge `chunked`
+  kalır ve `POST /documents/{id}/index-next` kaldığı yerden devam eder ("bu modelle vektörü olmayan parçalar").
+  Arayüz gerçek yüzdeyi gösterir ("%40 (800 / 2000 parça)"); yarıda kalan belgede **Devam et**. Bulutta parça sınırı
+  2000 → 20000. Model değişince eski vektörler silinmeden yenileriyle değiştirilir; embedding yarıda koparsa o ana
+  kadarkiler korunur.
+- **Genel sohbet (`GENERAL_CHAT=1`):** belgelerde yanıt yoksa (no_context / no_info) selamlaşma ve genel sorulara
+  modelin genel bilgisiyle kısa yanıt; durum `general`, kaynaksız, `grounded=False`, arayüzde kesik çizgili balon ve
+  "belgelerinden değil" notu. Raporda ayrı sayılır, kaynağa dayalı oranına girmez. İstem `genel-v1`.
+### Sınır (değişmedi)
+- Dosya başına 50 MB: Supabase ücretsiz planının sınırı (kodla aşılamaz).
+
 ## [0.16.0] — 2026-10-03 · sohbet kalitesi ve sade tema
 ### Düzeltildi
 - **Canlı sitede sohbet, belgede yazan sorulara "bilgi bulamadım" diyordu.** Kök neden: Hugging Face MiniLM'i 128 token'da
