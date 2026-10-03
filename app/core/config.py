@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover
 ON_VERCEL = bool(os.getenv("VERCEL"))
 
 # Yerel: sqlite:///./data/p55.db   Bulut (Supabase): postgresql://...:6543/postgres (Supabase -> Connect -> Transaction pooler)
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/p55.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/p55.db").strip()   # panele yapistirirken sona Enter kacabiliyor
 DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", "10"))
 UPLOAD_DIR = os.getenv("UPLOAD_DIR") or ("/tmp/uploads" if ON_VERCEL else "./uploads")
 
@@ -38,7 +38,7 @@ ALLOWED_ORIGINS = [o.strip().rstrip("/") for o in os.getenv(
     "ALLOWED_ORIGINS", "http://localhost:5500,http://127.0.0.1:5500").split(",") if o.strip()]
 
 # --- Hafta 5: kimlik dogrulama ---
-SECRET_KEY = os.getenv("SECRET_KEY", "degistir-bunu")
+SECRET_KEY = os.getenv("SECRET_KEY", "degistir-bunu").strip()
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 MIN_PASSWORD_LENGTH = 8
 MAX_FAILED_LOGINS = 5          # bu kadar basarisiz denemeden sonra gecici kilit
@@ -54,18 +54,18 @@ ALLOWED_EXTENSIONS = (".txt", ".pdf", ".docx")
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local")      # "local" | "hf" | "hash"
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
 # "hf": ayni model Hugging Face sunucularinda calisir (Vercel'de torch/model sigmaz). Anahtar yalnizca .env'de.
-HF_TOKEN = os.getenv("HF_TOKEN", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "").strip()
 HF_BASE_URL = os.getenv("HF_BASE_URL", "https://router.huggingface.co/hf-inference")
 HF_TIMEOUT_SECONDS = float(os.getenv("HF_TIMEOUT_SECONDS", "60"))
 SEARCH_TOP_K = int(os.getenv("SEARCH_TOP_K", "5"))
 
 # --- Hafta 9: harici API (Claude) ---
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")           # yalnizca ortam degiskeninden / .env'den
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()           # yalnizca ortam degiskeninden / .env'den
 ANTHROPIC_BASE_URL = os.getenv("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
 CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
 # Yanit ureten saglayici: "claude" (ucretli) | "groq" (OpenAI uyumlu, ucretsiz katmani var)
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "claude").strip().lower()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")                     # yalnizca .env'den
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()                     # yalnizca .env'den
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")              # llama modelleri Groq'tan kaldirildi (2026-10)
 GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "low")       # dusunen modeller icin: low|medium|high, bos = gonderme
@@ -101,8 +101,8 @@ MAX_CHUNKS_PER_DOCUMENT = int(os.getenv("MAX_CHUNKS_PER_DOCUMENT", "20000"))
 # "supabase": tarayici dosyayi dogrudan Supabase Storage'a yukler, backend oradan okur. Vercel bir istekte
 #             en fazla 4,5 MB kabul ettigi icin bulutta zorunlu.
 STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "local").strip().lower()
-SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")                 # https://<proje>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")   # GIZLI: yalnizca .env / Vercel paneli
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")                 # https://<proje>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()   # GIZLI: yalnizca .env / Vercel paneli
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "belgeler")
 STORAGE_TIMEOUT_SECONDS = float(os.getenv("STORAGE_TIMEOUT_SECONDS", "60"))
 
