@@ -79,7 +79,8 @@ class RaporTests(RaporVerisi):
         self.assertEqual((r["scope"], r["from"], r["to"]), ("me", "2026-10-04", "2026-10-10"))
         p = r["period"]
         self.assertEqual((p["questions"], p["answers"]), (3, 3))          # 10-01'deki donem disi
-        self.assertEqual(p["by_status"], {"answered": 2, "no_context": 1, "no_info": 0, "unverified": 0, "unknown": 0})
+        self.assertEqual(p["by_status"], {"answered": 2, "no_context": 1, "no_info": 0, "unverified": 0, "general": 0,
+                                           "unknown": 0})   # general: belge disi genel sohbet (GENERAL_CHAT)
         self.assertEqual(p["grounded_rate"], 0.667)
         self.assertEqual(p["no_answer_rate"], 0.333)
         self.assertEqual(p["avg_latency_ms"], 1003.3)

@@ -3,7 +3,7 @@ import csv
 import io
 from datetime import datetime, timedelta, timezone
 
-STATUSES = ("answered", "no_context", "no_info", "unverified")
+STATUSES = ("answered", "no_context", "no_info", "unverified", "general")   # general: belge disi genel sohbet
 
 
 def _scope(user_id):

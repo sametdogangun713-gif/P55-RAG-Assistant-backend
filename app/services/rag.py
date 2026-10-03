@@ -31,9 +31,14 @@ class RagResult:
                 "sources": self.sources, "best_score": self.best_score}
 
 
+def clean_model_text(text: str) -> str:
+    """Bas/son boslugu atar ve 【1】 / ［1］ gibi alinti bicimlerini [1]'e cevirir."""
+    return _WIDE_CITE.sub(r"[\1]", (text or "").strip())
+
+
 def verify_answer(text: str, n_sources: int):
     """LLM ciktisini dogrular. Doner: (temiz_metin, alinti_yapilan_numaralar, durum)."""
-    text = _WIDE_CITE.sub(r"[\1]", (text or "").strip())
+    text = clean_model_text(text)
     if prompts.NO_INFO_MARKER in text:
         return NO_INFO_TEXT, [], NO_INFO
     cited = sorted({int(m) for m in _CITE.findall(text) if 1 <= int(m) <= n_sources})

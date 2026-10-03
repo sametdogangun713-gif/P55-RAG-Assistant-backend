@@ -4,7 +4,7 @@ import time
 
 from app.core import config
 from app.db import conversations as repo
-from app.services import rag
+from app.services import prompts, rag
 from app.services.llm_client import LLMError
 
 _CITE = re.compile(r"\s*\[\d{1,2}\]")
@@ -152,6 +152,20 @@ def rewrite_question(llm, history: list, question: str) -> str:
     return out if out and len(out) <= 500 else question
 
 
+GENERAL = "general"     # belgelerde yanit yok -> modelin genel bilgisiyle (kaynaksiz, etiketli) yanit
+
+
+def general_answer(llm, history: list, text: str, system_extra: str = ""):
+    """Belgelerde yanit bulunamayinca selamlasma/genel soru icin kisa yanit. Hata olursa None (RAG sonucu kalir)."""
+    system = prompts.GENERAL_SYSTEM_PROMPT + (("\n\n" + system_extra) if system_extra else "")
+    try:
+        out = llm.complete(system, history + [{"role": "user", "content": text}], max_tokens=400)
+    except LLMError:
+        return None
+    out = strip_citations(rag.clean_model_text(out or ""))   # model yine de [1] yazarsa kaynak sanilmasin
+    return out or None
+
+
 def send_message(conn, user: dict, conv_id: int, text: str, llm, embedder=None) -> dict:
     """Soruyu yanitlar ve (soru, yanit, kaynaklar)i kalici olarak kaydeder.
 
@@ -170,6 +184,13 @@ def send_message(conn, user: dict, conv_id: int, text: str, llm, embedder=None) 
     retrieval_query = rewrite_question(llm, history, text)
     result = rag.answer_question(conn, user["id"], text, llm, embedder=embedder, history=history,
                                  retrieval_query=retrieval_query, system_extra=extra)
+    # Belgelerde yanit yoksa (ilgili parca yok ya da model BILGI_YOK dedi) ve genel sohbet aciksa: selamlasma ve
+    # genel sorulara modelin kendi bilgisiyle yanit. Kaynak yok, grounded=False, durum "general" (arayuz etiketler).
+    if config.GENERAL_CHAT and result.status in (rag.NO_CONTEXT, rag.NO_INFO):
+        general = general_answer(llm, history, text,
+                                 system_extra=("Önceki konuşmanın özeti:\n" + conv["summary"]) if conv.get("summary") else "")
+        if general:
+            result = rag.RagResult(general, GENERAL, False, [], result.best_score)
     latency_ms = int((time.perf_counter() - started) * 1000)
 
     if not prior and conv["title"] == repo.DEFAULT_TITLE:
