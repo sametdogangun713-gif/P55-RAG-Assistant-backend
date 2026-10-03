@@ -129,7 +129,7 @@ class ErkenReddetmeHttpTests(unittest.TestCase):
                 r = client.post("/documents", files={"file": ("k.txt", b"kucuk", "text/plain")})
                 self.assertEqual(r.status_code, 401)                     # kucuk istek normal yoldan gecer
 
-                client.post("/auth/register", json={"email": "l@example.com", "password": "Guclu1234"})
+                client.post("/auth/register", json={"full_name": "Deneme Kullanıcı", "email": "l@example.com", "password": "Guclu1234"})
                 tok = client.post("/auth/login", json={"email": "l@example.com", "password": "Guclu1234"}).json()
                 h = {"Authorization": "Bearer " + tok["access_token"]}
                 r = client.get("/documents/limits", headers=h)          # '/{doc_id}' rotasina takilmamali

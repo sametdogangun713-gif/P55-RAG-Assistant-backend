@@ -3,7 +3,7 @@ import time
 import unittest
 
 import jwt
-from fastapi import HTTPException
+from fastapi import BackgroundTasks, HTTPException
 
 from app.api import admin as admin_api
 from app.api import auth as auth_api
@@ -119,7 +119,7 @@ class ApiUcNoktaTests(unittest.TestCase):
         return "Bearer " + r["access_token"]
 
     def test_register_login_me_akisi(self):
-        out = auth_api.register(auth_api.Credentials(email="b@example.com", password=PAROLA), self.conn)
+        out = auth_api.register(auth_api.RegisterRequest(full_name="Deneme Kullanıcı", email="b@example.com", password=PAROLA), BackgroundTasks(), self.conn)
         self.assertNotIn("password_hash", out)
         bearer = self._giris("c@example.com")
         user = deps.get_current_user(authorization=bearer, conn=self.conn)
@@ -127,11 +127,11 @@ class ApiUcNoktaTests(unittest.TestCase):
 
     def test_register_hata_kodlari(self):
         with self.assertRaises(HTTPException) as e:
-            auth_api.register(auth_api.Credentials(email="x", password=PAROLA), self.conn)
+            auth_api.register(auth_api.RegisterRequest(full_name="Deneme Kullanıcı", email="x", password=PAROLA), BackgroundTasks(), self.conn)
         self.assertEqual(e.exception.status_code, 400)
-        auth_api.register(auth_api.Credentials(email="d@example.com", password=PAROLA), self.conn)
+        auth_api.register(auth_api.RegisterRequest(full_name="Deneme Kullanıcı", email="d@example.com", password=PAROLA), BackgroundTasks(), self.conn)
         with self.assertRaises(HTTPException) as e:
-            auth_api.register(auth_api.Credentials(email="d@example.com", password=PAROLA), self.conn)
+            auth_api.register(auth_api.RegisterRequest(full_name="Deneme Kullanıcı", email="d@example.com", password=PAROLA), BackgroundTasks(), self.conn)
         self.assertEqual(e.exception.status_code, 409)
 
     def test_yanlis_giris_401(self):

@@ -11,12 +11,15 @@ from app.services import auth
 
 
 def main():
+    full_name = input("Yonetici ad soyad: ").strip()
     email = input("Yonetici e-postasi: ").strip()
     password = getpass.getpass("Parola (en az 8 karakter, harf+rakam): ")
     conn = database.get_connection()
     database.run_migrations(conn)
     try:
-        user = auth.register_user(conn, email, password, role="admin")
+        # Yoneticiyi betikle sunucunun sahibi olusturur: e-posta dogrulanmis sayilir.
+        user = auth.register_user(conn, email, password, role="admin",
+                                  full_name=auth.validate_name(full_name), verified=True)
     except (auth.ValidationError, auth.DuplicateUserError) as e:
         print("Hata:", e)
         sys.exit(1)

@@ -269,7 +269,7 @@ class BulutHttpTests(unittest.TestCase):
         return TestClient(app)
 
     def _token(self, c):
-        c.post("/auth/register", json={"email": "bulut@example.com", "password": "Parola123"})
+        c.post("/auth/register", json={"full_name": "Deneme Kullanıcı", "email": "bulut@example.com", "password": "Parola123"})
         r = c.post("/auth/login", json={"email": "bulut@example.com", "password": "Parola123"})
         return {"Authorization": "Bearer " + r.json()["access_token"]}
 

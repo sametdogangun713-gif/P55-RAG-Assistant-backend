@@ -6,7 +6,7 @@ import unittest
 from unittest import mock
 
 from app.core import config, security
-from app.db import password_resets, users
+from app.db import email_codes, users
 from app.services import auth, mailer, password_reset
 from tests.helpers import make_conn
 
@@ -50,13 +50,13 @@ class SifirlamaServisiTests(unittest.TestCase):
     def test_kod_alti_haneli_ve_duz_metin_saklanmaz(self):
         kod = self.kod_al()
         self.assertRegex(kod, r"^\d{6}$")
-        satir = password_resets.get_latest(self.conn, self.user["id"])
+        satir = email_codes.get_latest(self.conn, self.user["id"], "reset")
         self.assertNotIn(kod, satir["code_hash"])
         self.assertEqual(satir["expires_at"], SIMDI + config.RESET_CODE_MINUTES * 60)
 
     def test_kayitli_olmayan_eposta_icin_kod_uretilmez(self):
         self.assertIsNone(password_reset.request_reset(self.conn, "yok@example.com", now=SIMDI))
-        self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM password_resets").fetchone()[0], 0)
+        self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM email_codes").fetchone()[0], 0)
 
     def test_eposta_buyuk_kucuk_harf_ve_bosluk_farki_onemsiz(self):
         kod = self.kod_al(email="  Unutkan@Example.com ")
@@ -102,7 +102,7 @@ class SifirlamaServisiTests(unittest.TestCase):
         ilk = self.kod_al()
         self.assertIsNone(password_reset.request_reset(self.conn, "unutkan@example.com", now=SIMDI + 10))
         ikinci = self.kod_al(simdi=SIMDI + config.RESET_RESEND_SECONDS)
-        self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM password_resets").fetchone()[0], 1)
+        self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM email_codes").fetchone()[0], 1)
         if ilk != ikinci:                       # yeni kod gelince eskisi gecersiz
             with self.assertRaises(password_reset.InvalidResetCodeError):
                 password_reset.reset_password(self.conn, "unutkan@example.com", ilk, YENI, now=SIMDI + 61)
@@ -120,7 +120,7 @@ class SifirlamaServisiTests(unittest.TestCase):
     def test_kullanici_silinince_kodlari_da_silinir(self):
         self.kod_al()
         users.delete_user(self.conn, self.user["id"])
-        self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM password_resets").fetchone()[0], 0)
+        self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM email_codes").fetchone()[0], 0)
 
     def test_parola_ozeti_yeni_parolayla_dogrulanir(self):
         kod = self.kod_al()
@@ -172,7 +172,7 @@ class SifirlamaHttpTests(unittest.TestCase):
         auth.reset_failed_attempts()
         self._client = TestClient(app)
         self.client = self._client.__enter__()
-        self.client.post("/auth/register", json={"email": "http@example.com", "password": PAROLA})
+        self.client.post("/auth/register", json={"full_name": "Deneme Kullanıcı", "email": "http@example.com", "password": PAROLA})
         self.gonderilen = []
         self._yama = mock.patch.object(mailer, "send_reset_code", side_effect=lambda e, k: self.gonderilen.append((e, k)))
         self._yama.start()

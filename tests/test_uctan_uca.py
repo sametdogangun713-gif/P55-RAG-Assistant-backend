@@ -111,7 +111,7 @@ class HttpDumanTesti(unittest.TestCase):
             with TestClient(app) as client:
                 self.assertEqual(client.get("/").status_code, 200)
                 self.assertEqual(client.get("/documents").status_code, 401)
-                r = client.post("/auth/register", json={"email": "a@example.com", "password": PAROLA})
+                r = client.post("/auth/register", json={"full_name": "Deneme Kullanıcı", "email": "a@example.com", "password": PAROLA})
                 self.assertEqual(r.status_code, 201)
                 r = client.post("/auth/login", json={"email": "a@example.com", "password": PAROLA})
                 h = {"Authorization": "Bearer " + r.json()["access_token"]}

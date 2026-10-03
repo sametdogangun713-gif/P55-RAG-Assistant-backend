@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from app.api.deps import get_current_user, get_db
 from app.core import config
 from app.services import auth as auth_service
-from app.services import mailer, password_reset
+from app.services import account, email_codes, email_verification, mailer, password_reset
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -14,8 +14,35 @@ class Credentials(BaseModel):
     password: str
 
 
-class ForgotRequest(BaseModel):
+class RegisterRequest(BaseModel):
+    full_name: str
     email: str
+    password: str
+
+
+class EmailRequest(BaseModel):
+    email: str
+
+
+ForgotRequest = EmailRequest
+
+
+class VerifyRequest(BaseModel):
+    email: str
+    code: str
+
+
+class ProfileUpdate(BaseModel):
+    full_name: str
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class AccountDelete(BaseModel):
+    password: str
 
 
 class ResetRequest(BaseModel):
@@ -24,15 +51,65 @@ class ResetRequest(BaseModel):
     new_password: str
 
 
+MAIL_NOT_CONFIGURED = "E-posta gönderimi ayarlanmamış (SMTP). Yöneticine başvur"
+
+
+def _deliver(background: BackgroundTasks, send, to: str, code: str) -> None:
+    """E-postayi gonderir. Normalde arka planda (yanit beklemez). Vercel'de (SEND_EMAIL_INLINE) islev yanittan
+    sonra durdurulabildigi icin yanittan ONCE gonderilir; bedeli yanitin biraz gecikmesi (docs'ta yazili)."""
+    if config.SEND_EMAIL_INLINE:
+        send(to, code)
+    else:
+        background.add_task(send, to, code)
+
+
+def _token_response(user: dict) -> dict:
+    return {"access_token": auth_service.issue_token(user), "token_type": "bearer",
+            "user": auth_service.public_user(user)}
+
+
 @router.post("/register", status_code=201)
-def register(body: Credentials, conn=Depends(get_db)):
+def register(body: RegisterRequest, background: BackgroundTasks, conn=Depends(get_db)):
+    """Kayit: ad soyad + e-posta + parola. Dogrulama aciksa hesap dogrulanmamis acilir ve e-postaya kod gider."""
+    if config.REQUIRE_EMAIL_VERIFICATION and not mailer.can_deliver():
+        raise HTTPException(status_code=503, detail=MAIL_NOT_CONFIGURED)    # kod ulasmayacaksa hesap acma
     try:
-        user = auth_service.register_user(conn, body.email, body.password)
+        user = auth_service.sign_up(conn, body.full_name, body.email, body.password)
     except auth_service.ValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except auth_service.DuplicateUserError as e:
         raise HTTPException(status_code=409, detail=str(e))
-    return auth_service.public_user(user)
+    if user["email_verified_at"]:
+        return {**auth_service.public_user(user), "verification_required": False,
+                "detail": "Kayıt tamamlandı, şimdi giriş yapabilirsin."}
+    code = email_verification.issue_code(conn, user)
+    if code:                                          # None: az once kod gitti, yenisi uretilmedi
+        _deliver(background, mailer.send_verification_code, user["email"], code)
+    return {**auth_service.public_user(user), "verification_required": True,
+            "detail": f"{user['email']} adresine 6 haneli doğrulama kodu gönderildi. "
+                      f"Kod {config.VERIFY_CODE_MINUTES} dakika geçerli."}
+
+
+@router.post("/verify-email")
+def verify_email(body: VerifyRequest, conn=Depends(get_db)):
+    """Kod dogruysa e-posta dogrulanir ve kullanici dogrudan giris yapmis olur (token doner)."""
+    try:
+        user = email_verification.verify(conn, body.email, body.code)
+    except email_codes.InvalidCodeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return _token_response(user)
+
+
+@router.post("/resend-verification")
+def resend_verification(body: EmailRequest, background: BackgroundTasks, conn=Depends(get_db)):
+    """Kayitli ve dogrulanmamis e-postaya yeni kod. Yanit her durumda ayni (kayitli olup olmadigi sizmasin)."""
+    if not mailer.can_deliver():
+        raise HTTPException(status_code=503, detail=MAIL_NOT_CONFIGURED)
+    result = email_verification.request_code(conn, body.email)
+    if result:
+        _deliver(background, mailer.send_verification_code, *result)
+    return {"detail": "Bu e-posta kayıtlı ve doğrulanmamışsa yeni kod gönderildi. Gelen kutunu "
+                      "(ve gereksiz klasörünü) kontrol et."}
 
 
 @router.post("/login")
@@ -43,6 +120,8 @@ def login(body: Credentials, conn=Depends(get_db)):
         raise HTTPException(status_code=429, detail=str(e))
     except auth_service.InvalidCredentialsError as e:
         raise HTTPException(status_code=401, detail=str(e), headers={"WWW-Authenticate": "Bearer"})
+    except auth_service.EmailNotVerifiedError as e:
+        raise HTTPException(status_code=403, detail=str(e))   # arayuz 403'te "kodu gir" paneline gecer
     return {"access_token": result["access_token"], "token_type": "bearer",
             "user": auth_service.public_user(result["user"])}
 
@@ -52,6 +131,37 @@ def me(user: dict = Depends(get_current_user)):
     return auth_service.public_user(user)
 
 
+# --- Hesabim: kullanicinin kendi hesabi ---
+@router.patch("/me")
+def update_me(body: ProfileUpdate, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+    try:
+        return auth_service.public_user(account.update_name(conn, user, body.full_name))
+    except auth_service.ValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/change-password")
+def change_password(body: PasswordChange, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+    try:
+        account.change_password(conn, user, body.current_password, body.new_password)
+    except account.WrongPasswordError as e:
+        raise HTTPException(status_code=400, detail=str(e))     # 401 degil: oturum gecerli, yalnizca parola yanlis
+    except auth_service.ValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"detail": "Parolan değiştirildi."}
+
+
+@router.delete("/me")
+def delete_me(body: AccountDelete, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+    try:
+        account.delete_account(conn, user, body.password)
+    except account.WrongPasswordError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except account.LastAdminError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    return {"detail": "Hesabın ve tüm verilerin silindi."}
+
+
 # --- Hafta 14: parola sifirlama ---
 RESET_SENT_MESSAGE = "Bu e-posta kayıtlıysa sıfırlama kodu gönderildi. Gelen kutunu (ve gereksiz klasörünü) kontrol et."
 
@@ -59,18 +169,12 @@ RESET_SENT_MESSAGE = "Bu e-posta kayıtlıysa sıfırlama kodu gönderildi. Gele
 @router.post("/forgot-password")
 def forgot_password(body: ForgotRequest, background: BackgroundTasks, conn=Depends(get_db)):
     """Kayitli olsun olmasin AYNI yaniti doner. E-posta arka planda gider: kayitli e-postada yanit
-    gecikseydi, sure farkindan hesabin varligi anlasilirdi.
-
-    Istisna (SEND_EMAIL_INLINE, Vercel'de varsayilan): islev yanittan sonra durdurulabildigi icin e-posta
-    yanittan ONCE gonderilir. Bedeli: kayitli e-postada yanit biraz gecikir (bilinen sinir, docs'ta yazili).
-    """
+    gecikseydi, sure farkindan hesabin varligi anlasilirdi (Vercel istisnasi: _deliver)."""
     if not mailer.can_deliver():
-        raise HTTPException(status_code=503, detail="Parola sıfırlama e-postası ayarlanmamış. Yöneticine başvur")
+        raise HTTPException(status_code=503, detail=MAIL_NOT_CONFIGURED)
     result = password_reset.request_reset(conn, body.email)
-    if result and config.SEND_EMAIL_INLINE:
-        mailer.send_reset_code(*result)
-    elif result:
-        background.add_task(mailer.send_reset_code, *result)
+    if result:
+        _deliver(background, mailer.send_reset_code, *result)
     return {"detail": RESET_SENT_MESSAGE}
 
 

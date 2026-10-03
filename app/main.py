@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="P55 - Belge Tabanli Soru-Cevap Asistani (RAG)", version="0.14.0", lifespan=lifespan)
+app = FastAPI(title="P55 - Belge Tabanli Soru-Cevap Asistani (RAG)", version="0.15.0", lifespan=lifespan)
 MULTIPART_OVERHEAD = 1024 * 1024     # form sinirlari ve basliklar icin pay (dosyanin kendisi degil)
 
 
@@ -56,8 +56,10 @@ app.include_router(reports.router)
 
 @app.get("/health")
 def health():
-    """Iskelet calisiyor mu? Hafta 3 demosunda gosterilecek uc nokta."""
-    return {"status": "ok"}
+    """Iskelet calisiyor mu? Hafta 3 demosunda gosterilecek uc nokta.
+    'database' hangi veritabaninin kullanildigini soyler (adres/parola DEGIL): Vercel'deki surumun Supabase'e
+    mi (postgres) yoksa yanlislikla gecici bir SQLite dosyasina mi bagli oldugu buradan anlasilir."""
+    return {"status": "ok", "database": "postgres" if config.is_postgres() else "sqlite"}
 
 
 @app.get("/", include_in_schema=False)

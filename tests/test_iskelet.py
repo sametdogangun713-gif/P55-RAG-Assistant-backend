@@ -43,7 +43,7 @@ class IskeletTests(unittest.TestCase):
 
     def test_health_fonksiyonu(self):
         from app.main import health
-        self.assertEqual(health(), {"status": "ok"})
+        self.assertEqual(health(), {"status": "ok", "database": "sqlite"})   # testler SQLite kullanir
 
 
 try:
@@ -58,7 +58,7 @@ class HealthHttpTests(unittest.TestCase):
         from app.main import app
         r = TestClient(app).get("/health")
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.json(), {"status": "ok"})
+        self.assertEqual(r.json()["status"], "ok")
 
 
 if __name__ == "__main__":

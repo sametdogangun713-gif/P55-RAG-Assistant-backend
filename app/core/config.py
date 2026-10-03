@@ -43,6 +43,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
 MIN_PASSWORD_LENGTH = 8
 MAX_FAILED_LOGINS = 5          # bu kadar basarisiz denemeden sonra gecici kilit
 LOCKOUT_SECONDS = 300
+MIN_NAME_LENGTH = 2            # kayitta alinan ad soyad
+MAX_NAME_LENGTH = 100
+# Kayit olan kisi e-postasina gelen 6 haneli kodu girmeden giris yapamaz ("1" acik, "0" kapali).
+# Kapali ise hesap kayit aninda dogrulanmis sayilir (SMTP'siz bir sunucuda denemek icin).
+REQUIRE_EMAIL_VERIFICATION = os.getenv("REQUIRE_EMAIL_VERIFICATION", "1").strip() == "1"
+VERIFY_CODE_MINUTES = int(os.getenv("VERIFY_CODE_MINUTES", "30"))
 
 # --- Hafta 6: belge yukleme ve parcalama ---
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "500"))     # 10 -> 500 (dosya diske akitilarak yazilir); bulutta 50
@@ -110,6 +116,7 @@ STORAGE_TIMEOUT_SECONDS = float(os.getenv("STORAGE_TIMEOUT_SECONDS", "60"))
 RESET_CODE_MINUTES = int(os.getenv("RESET_CODE_MINUTES", "15"))    # kodun gecerlilik suresi
 RESET_MAX_ATTEMPTS = 5             # bu kadar yanlis denemeden sonra kod gecersiz (6 hane = 1 milyon olasilik)
 RESET_RESEND_SECONDS = 60          # ayni e-postaya bu sureden sik kod gonderilmez (posta kutusunu bombalama onlemi)
+# Son iki sinir e-posta dogrulama kodu icin de gecerlidir (services/email_codes.py).
 # E-posta (SMTP). Bos ise: gelistirmede kod sunucu penceresine yazilir, uretimde sifirlama kapali.
 SMTP_HOST = os.getenv("SMTP_HOST", "")                              # Gmail: smtp.gmail.com
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))                      # 587 = STARTTLS, 465 = SSL
