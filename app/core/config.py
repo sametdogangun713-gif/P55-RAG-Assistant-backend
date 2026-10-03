@@ -55,6 +55,9 @@ MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "500"))     # 10 -> 500 (dosya di
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "600"))        # karakter; yerel embedding modelinin token siniri icin makul
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "100"))  # ardisik parcalar arasi ortak karakter (yaklasik)
 ALLOWED_EXTENSIONS = (".txt", ".pdf", ".docx")
+# Bir istekte en fazla kac saniye indekslenir (0 = sinirsiz, hepsi tek istekte). Vercel'de bir istek en fazla
+# 300 sn; buyuk belge birden cok kisa istekte, kaldigi yerden devam ederek indekslenir (POST /documents/{id}/index-next).
+INDEX_BUDGET_SECONDS = float(os.getenv("INDEX_BUDGET_SECONDS") or ("60" if ON_VERCEL else "0"))
 
 # --- Hafta 7: embedding ve vektor arama ---
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local")      # "local" | "hf" | "hash"
@@ -92,6 +95,9 @@ RAG_TOP_K = int(os.getenv("RAG_TOP_K", "4"))
 _DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.40", "hash": "0.15"}
 MIN_SCORE = float(os.getenv("MIN_SCORE") or _DEFAULT_MIN_SCORE.get(EMBEDDING_BACKEND, "0.30"))
 MAX_QUESTION_CHARS = 1000
+# Sohbette belgelerde yanit yoksa (selamlasma, genel soru) model genel bilgisiyle kisa yanit verir; yanit
+# "general" durumuyla, kaynaksiz ve arayuzde "belgelerinden degil" etiketiyle gosterilir. 0 = yalnizca belgeler.
+GENERAL_CHAT = os.getenv("GENERAL_CHAT", "1") == "1"
 
 # --- Hafta 11: sohbet gecmisi ve baglam ---
 CHAT_HISTORY_CHARS = int(os.getenv("CHAT_HISTORY_CHARS", "4000"))   # bu uzunlugu asan gecmis ozetlenir
