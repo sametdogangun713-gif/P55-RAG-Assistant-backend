@@ -40,10 +40,14 @@ def delete_embeddings_for_document(conn, document_id: int) -> int:
     return cur.rowcount
 
 
-def count_embeddings(conn, document_id: int) -> int:
-    return conn.execute(
-        "SELECT COUNT(*) FROM embeddings e JOIN chunks c ON c.id = e.chunk_id WHERE c.document_id = ?",
-        (document_id,)).fetchone()[0]
+def count_embeddings(conn, document_id: int, model=None) -> int:
+    """Belgenin vektor sayisi; model verilirse yalnizca o modelle uretilenler (indeksleme ilerlemesi)."""
+    sql = "SELECT COUNT(*) FROM embeddings e JOIN chunks c ON c.id = e.chunk_id WHERE c.document_id = ?"
+    params = [document_id]
+    if model is not None:
+        sql += " AND e.model = ?"
+        params.append(model)
+    return conn.execute(sql, params).fetchone()[0]
 
 
 _CHUNK_COLUMNS = ("c.id AS chunk_id, c.chunk_index, c.content, c.page_no, d.id AS document_id, d.filename")

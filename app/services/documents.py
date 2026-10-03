@@ -9,7 +9,7 @@ from app.core import config
 from app.db import chunks as chunks_repo
 from app.db import documents as documents_repo
 from app.services import chunker, indexing, parser, storage
-from app.services.embedder import EmbeddingError
+from app.services.embedder import EmbeddingError, get_embedder
 
 
 class DocumentValidationError(Exception):
@@ -175,18 +175,37 @@ def _process(conn, user, name, ext, path: Path, stored_name, mime_type, size, em
 
 
 def _try_index(conn, doc_id: int, embedder=None) -> None:
-    """Embedding basarisiz olsa da parcalar korunur; belge 'failed' olur ve yeniden indekslenebilir."""
+    """Embedding basarisiz olsa da parcalar (ve o ana kadarki vektorler) korunur; belge 'failed' olur ve
+    yeniden indekslenince kaldigi yerden devam eder. Sure butcesi dolarsa belge 'chunked' kalir: arayuz
+    index-next ile devam ettirir."""
     try:
-        indexing.index_document(conn, doc_id, embedder)
+        indexing.index_next(conn, doc_id, embedder, budget_seconds=config.INDEX_BUDGET_SECONDS)
     except EmbeddingError as e:
         documents_repo.set_status(conn, doc_id, "failed", f"Gömme üretilemedi: {e}")
+
+
+def continue_indexing(conn, user: dict, doc_id: int, embedder=None) -> dict:
+    """Yarida kalan (ya da model degisen) belgenin bekleyen parcalarini bir sure butcesi boyunca indeksler.
+
+    Arayuz belge 'indexed' olana kadar tekrar cagirir. EmbeddingError: belge 'failed' olur, hata yukselir (503).
+    """
+    get_owned_document(conn, user, doc_id)
+    try:
+        indexing.index_next(conn, doc_id, embedder, budget_seconds=config.INDEX_BUDGET_SECONDS)
+    except EmbeddingError as e:
+        documents_repo.set_status(conn, doc_id, "failed", f"Gömme üretilemedi: {e}")
+        raise
+    return documents_repo.get_document(conn, doc_id)
 
 
 def reindex_document(conn, user: dict, doc_id: int, embedder=None) -> dict:
     """Parcalari olan bir belgeyi yeniden vektorlestirir (model degisti ya da onceki deneme basarisiz oldu).
 
+    Sure butcesi varsa (bulut) kaldigi yerden devam eden yol kullanilir; yoksa hepsi bastan uretilir.
     EmbeddingError cagirana yukselir (API 503 doner).
     """
+    if config.INDEX_BUDGET_SECONDS:
+        return continue_indexing(conn, user, doc_id, embedder)
     get_owned_document(conn, user, doc_id)
     indexing.index_document(conn, doc_id, embedder)
     return documents_repo.get_document(conn, doc_id)
@@ -230,3 +249,13 @@ def public_document(doc: dict) -> dict:
     keys = ("id", "filename", "mime_type", "size_bytes", "status", "error", "uploaded_at",
             "chunk_count", "owner_email")
     return {k: doc.get(k) for k in keys}
+
+
+def public_document_with_progress(conn, doc: dict, embedder=None) -> dict:
+    """Indeksleme suruyorsa ('chunked') ilerlemeyi de ekler: arayuz "%40 (800 / 2000)" gosterir."""
+    out = public_document(doc)
+    if doc.get("status") == "chunked":
+        emb = embedder or get_embedder()
+        state = indexing.progress(conn, doc["id"], emb.name)
+        out["indexed_chunks"], out["total_chunks"] = state["indexed"], state["total"]
+    return out

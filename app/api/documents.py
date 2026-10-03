@@ -26,7 +26,7 @@ def upload(file: UploadFile = File(...), user: dict = Depends(get_current_user),
         raise HTTPException(status_code=413, detail=str(e))
     except svc.DocumentValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    return svc.public_document(doc)
+    return svc.public_document_with_progress(conn, doc)
 
 
 class UploadUrlRequest(BaseModel):
@@ -71,7 +71,7 @@ def complete_upload(body: CompleteUploadRequest, user: dict = Depends(get_curren
         raise HTTPException(status_code=400, detail=str(e))
     except StorageError as e:
         raise HTTPException(status_code=503, detail=str(e))
-    return svc.public_document(doc)
+    return svc.public_document_with_progress(conn, doc)
 
 
 @router.get("/limits")
@@ -82,6 +82,7 @@ def upload_limits(user: dict = Depends(get_current_user)):
     """
     return {"max_upload_mb": config.MAX_UPLOAD_MB, "allowed_extensions": list(config.ALLOWED_EXTENSIONS),
             "max_chunks_per_document": config.MAX_CHUNKS_PER_DOCUMENT,
+            "index_budget_seconds": config.INDEX_BUDGET_SECONDS,
             "upload_mode": "storage" if config.STORAGE_BACKEND == "supabase" else "direct"}
 
 
@@ -122,7 +123,24 @@ def delete_document(doc_id: int, user: dict = Depends(get_current_user), conn=De
 def reindex(doc_id: int, user: dict = Depends(get_current_user), conn=Depends(get_db)):
     """Belgeyi yeniden vektorlestirir (embedding modeli degistiginde ya da hata sonrasi)."""
     try:
-        return svc.public_document(svc.reindex_document(conn, user, doc_id))
+        return svc.public_document_with_progress(conn, svc.reindex_document(conn, user, doc_id))
+    except svc.DocumentNotFoundError as e:
+        raise _not_found(e)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except EmbeddingError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+
+@router.post("/{doc_id}/index-next")
+def index_next(doc_id: int, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+    """Buyuk belgenin indekslenmesine kaldigi yerden devam eder (bir sure butcesi kadar).
+
+    Vercel'de bir istek en fazla 300 sn surer; arayuz durum 'indexed' olana kadar bu ucu tekrar cagirir ve
+    yanittaki indexed_chunks / total_chunks ile ilerleme yuzdesini gosterir.
+    """
+    try:
+        return svc.public_document_with_progress(conn, svc.continue_indexing(conn, user, doc_id))
     except svc.DocumentNotFoundError as e:
         raise _not_found(e)
     except ValueError as e:

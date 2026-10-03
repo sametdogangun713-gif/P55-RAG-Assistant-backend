@@ -21,6 +21,18 @@ def list_chunks(conn, document_id: int, limit=None, offset: int = 0) -> list:
     return [dict(r) for r in conn.execute(sql, params)]
 
 
+def list_unindexed_chunks(conn, document_id: int, model: str, limit: int) -> list:
+    """Bu modelle vektoru OLMAYAN parcalar (hic vektoru yok ya da eski bir modelle uretilmis), sirayla.
+
+    Kaldigi yerden devam eden indeksleme bunu kullanir: yarida kalan ya da model degisen belgede yalnizca
+    eksikler islenir. embeddings.chunk_id UNIQUE oldugu icin eski modelin vektoru yenisiyle degistirilir.
+    """
+    return [dict(r) for r in conn.execute(
+        "SELECT c.* FROM chunks c LEFT JOIN embeddings e ON e.chunk_id = c.id"
+        " WHERE c.document_id = ? AND (e.id IS NULL OR e.model <> ?)"
+        " ORDER BY c.chunk_index LIMIT ?", (document_id, model, limit))]
+
+
 def get_chunk(conn, chunk_id: int):
     row = conn.execute("SELECT * FROM chunks WHERE id = ?", (chunk_id,)).fetchone()
     return dict(row) if row else None
