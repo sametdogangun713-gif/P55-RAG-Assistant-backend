@@ -212,6 +212,23 @@ class SahiplikTests(Temel):
             self.assertTrue({"001_init", "002_message_quality", "003_conversation_summary"} <= uygulanan)
 
 
+class YenidenAdlandirmaTests(Temel):
+    def test_ad_temizlenir_kirpilir_bos_olamaz(self):
+        c = chat.rename_conversation(self.conn, self.u, self.conv["id"], "  Vize   hazırlığı  ")
+        self.assertEqual(c["title"], "Vize hazırlığı")
+        c = chat.rename_conversation(self.conn, self.u, self.conv["id"], "x" * 200)
+        self.assertEqual(len(c["title"]), chat.MAX_TITLE_CHARS)
+        with self.assertRaises(ValueError):
+            chat.rename_conversation(self.conn, self.u, self.conv["id"], "   ")
+
+    def test_baskasinin_sohbeti_adlandirilamaz(self):
+        with self.assertRaises(chat.ConversationNotFoundError):
+            chat.rename_conversation(self.conn, self.diger, self.conv["id"], "Ele geçirildi")
+        with self.assertRaises(HTTPException) as e:
+            conv_api.rename_conversation(self.conv["id"], conv_api.RenameConversation(title="X"), self.diger, self.conn)
+        self.assertEqual(e.exception.status_code, 404)
+
+
 class ApiTests(Temel):
     def test_akis(self):
         c = conv_api.create_conversation(conv_api.NewConversation(title="Deneme"), self.u, self.conn)

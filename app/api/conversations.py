@@ -16,6 +16,10 @@ class NewConversation(BaseModel):
     title: Optional[str] = None
 
 
+class RenameConversation(BaseModel):
+    title: str
+
+
 class NewMessage(BaseModel):
     content: str
 
@@ -56,6 +60,18 @@ def send_message(conv_id: int, body: NewMessage, user: dict = Depends(get_curren
         raise HTTPException(status_code=503, detail=str(e))
     except LLMError as e:
         raise llm_http_error(e)
+
+
+@router.patch("/{conv_id}")
+def rename_conversation(conv_id: int, body: RenameConversation, user: dict = Depends(get_current_user),
+                        conn=Depends(get_db)):
+    try:
+        conv = chat.rename_conversation(conn, user, conv_id, body.title)
+    except chat.ConversationNotFoundError as e:
+        raise _not_found(e)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"id": conv["id"], "title": conv["title"]}
 
 
 @router.delete("/{conv_id}")

@@ -56,6 +56,19 @@ def delete_conversation(conn, user: dict, conv_id: int) -> None:
     repo.delete_conversation(conn, conv_id)
 
 
+MAX_TITLE_CHARS = 80
+
+
+def rename_conversation(conn, user: dict, conv_id: int, title: str) -> dict:
+    """Kullanici sohbetine kendi adini verir (varsayilan ad ilk sorudan uretilir)."""
+    get_owned_conversation(conn, user, conv_id)
+    title = " ".join((title or "").split())          # bas/son ve fazla bosluklar
+    if not title:
+        raise ValueError("Sohbet adı boş olamaz")
+    repo.rename_conversation(conn, conv_id, title[:MAX_TITLE_CHARS])
+    return repo.get_conversation(conn, conv_id)
+
+
 def list_messages(conn, user: dict, conv_id: int) -> list:
     get_owned_conversation(conn, user, conv_id)
     out = []
