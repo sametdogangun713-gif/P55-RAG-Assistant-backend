@@ -216,6 +216,32 @@ class StorageTests(unittest.TestCase):
         with self.assertRaises(storage.StorageError):
             storage.create_signed_upload_url("1/x.txt")
 
+    def test_kova_varsa_olusturulmaz(self):
+        from app.services import storage
+        self.s.yanitlar[("GET", "/storage/v1/bucket/belgeler")] = [(200, {"name": "belgeler", "public": False})]
+        self.assertFalse(storage.ensure_bucket())
+        self.assertFalse([i for i in self.s.istekler if i["yontem"] == "POST"])
+
+    def test_kova_yoksa_gizli_ve_boyut_sinirli_olusturulur(self):
+        from app.services import storage
+        self.s.yanitlar[("GET", "/storage/v1/bucket/belgeler")] = [
+            (400, {"statusCode": "404", "error": "Bucket not found", "message": "Bucket not found"})]
+        self.s.yanitlar[("POST", "/storage/v1/bucket")] = [(200, {"name": "belgeler"})]
+        self.assertTrue(storage.ensure_bucket())
+        govde = json.loads(self.s.istekler[-1]["govde"])
+        self.assertEqual((govde["name"], govde["public"], govde["file_size_limit"]), ("belgeler", False, 1024 * 1024))
+
+    def test_kova_olusturma_reddedilirse_zaten_var_denmez(self):
+        # Gercek hata (2026-10-03): ucretsiz planin 50 MB sinirini asan file_size_limit -> 400, betik "zaten var" diyordu
+        from app.services import storage
+        self.s.yanitlar[("GET", "/storage/v1/bucket/belgeler")] = [(400, {"message": "Bucket not found"})]
+        self.s.yanitlar[("POST", "/storage/v1/bucket")] = [
+            (400, {"statusCode": "413", "message": "The object exceeded the maximum allowed size"})]
+        with self.assertRaises(storage.StorageError) as cm:
+            storage.ensure_bucket()
+        self.assertIn("maximum allowed size", str(cm.exception))
+        self.assertNotIn("sahte-service-role", str(cm.exception))
+
 
 # ---------------------------------------------------------------- HTTP: CORS, sinirlar, kok adres
 try:

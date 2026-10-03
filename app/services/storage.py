@@ -40,6 +40,15 @@ def _quote(path: str) -> str:
     return urllib.parse.quote(path, safe="/")
 
 
+def _reason(err) -> str:
+    """Supabase hata govdesindeki kisa aciklama (or. "Bucket not found"). Govdede anahtar olmaz; kisaltilir."""
+    try:
+        msg = json.loads(err.read().decode("utf-8")).get("message") or ""
+    except (ValueError, AttributeError, OSError):
+        return ""
+    return f": {str(msg)[:200]}" if msg else ""
+
+
 def _call(method: str, url: str, body=None):
     data = None if body is None else json.dumps(body).encode("utf-8")
     req = urllib.request.Request(url, data=data, method=method,
@@ -47,7 +56,7 @@ def _call(method: str, url: str, body=None):
     try:
         return urllib.request.urlopen(req, timeout=config.STORAGE_TIMEOUT_SECONDS)
     except urllib.error.HTTPError as e:
-        raise StorageError(f"Dosya deposu isteği reddedildi ({e.code})") from None
+        raise StorageError(f"Dosya deposu isteği reddedildi ({e.code}){_reason(e)}") from None
     except (urllib.error.URLError, TimeoutError) as e:
         raise StorageError(f"Dosya deposuna ulaşılamadı: {getattr(e, 'reason', e)}") from None
 
@@ -77,13 +86,18 @@ def delete_objects(paths) -> None:
 
 
 def ensure_bucket() -> bool:
-    """Gizli kovayi olusturur (kurulum betigi icin). Zaten varsa False doner."""
+    """Gizli kovayi olusturur (kurulum betigi icin). Zaten varsa False doner.
+
+    Once GET ile bakilir. Eskiden "POST 400 = zaten var" varsayiliyordu; ama Supabase baska hatalarda da 400 doner
+    (or. dosya siniri ucretsiz planin 50 MB'ini asinca) ve olusmamis kova "zaten var" gorunuyordu.
+    """
+    try:
+        with _call("GET", f"{_base()}/bucket/{config.SUPABASE_BUCKET}"):
+            return False
+    except StorageError as e:
+        if "not found" not in str(e).lower():
+            raise
     body = {"id": config.SUPABASE_BUCKET, "name": config.SUPABASE_BUCKET, "public": False,
             "file_size_limit": config.MAX_UPLOAD_MB * 1024 * 1024}
-    try:
-        with _call("POST", f"{_base()}/bucket", body):
-            return True
-    except StorageError as e:
-        if "(400)" in str(e) or "(409)" in str(e):      # "already exists"
-            return False
-        raise
+    with _call("POST", f"{_base()}/bucket", body):
+        return True

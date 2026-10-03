@@ -28,6 +28,9 @@ def main() -> int:
         olustu = storage.ensure_bucket()
     except storage.StorageError as e:
         print("Dosya kovası oluşturulamadı:", e)
+        if config.MAX_UPLOAD_MB > 50:
+            print(f"İpucu: MAX_UPLOAD_MB={config.MAX_UPLOAD_MB}. Supabase ücretsiz planında dosya başına sınır 50 MB; "
+                  "MAX_UPLOAD_MB=50 ile tekrar dene.")
         return 1
     print(f"Dosya kovası '{config.SUPABASE_BUCKET}':", "oluşturuldu (gizli)" if olustu else "zaten var")
     return 0
