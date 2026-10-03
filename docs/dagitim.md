@@ -71,8 +71,10 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    ```bat
    python -m scripts.hf_dene
    ```
-   Beklenen: `boyut 384`; yerel model kuruluysa "HF ile yerel model aynı cümlede: 1.000, 1.000, 1.000" civarı.
-   (Aynı model olduğu için `MIN_SCORE` ölçümlerin geçerli kalır. Tek fark: sunucu metni 128 token'da keser, yerel model 256.)
+   Beklenen: `boyut 384`, "HF ile yerel model aynı cümlede: 1.000…" (yerel `.env` MiniLM'i seçtiği için bu deneme anahtarı ve bağlantıyı sınar).
+   Bulutta yereldeki MiniLM yerine **bge-m3** kullanılır: Hugging Face MiniLM'i 128 token'da kesiyordu ve Türkçe 600 karakterlik
+   parçanın ikinci yarısı aranamıyordu. bge-m3 8192 token alır, Türkçede doğru parçayı daha iyi bulur; eşiği `0.40` (ölçüm: `docs/istem-deneyleri.md`).
+   Bedeli hız: ~10 parça/sn. Model değişince eski belgeler aramada görünmez → Belgelerim'de **Yeniden indeksle**.
 3. Ücretsiz hesabın aylık küçük bir kullanım kredisi var; kullanımı **Settings → Billing**'den izle.
 
 ## 3. Vercel – backend
@@ -93,7 +95,7 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_…` | **evet** |
    | `SUPABASE_BUCKET` | `belgeler` | |
    | `MAX_UPLOAD_MB` | `50` | |
-   | `MAX_CHUNKS_PER_DOCUMENT` | `3000` (istek 300 sn'de bitmeli) | |
+   | `MAX_CHUNKS_PER_DOCUMENT` | `2000` (bge-m3 ~10 parça/sn; istek 300 sn'de bitmeli) | |
    | `LLM_PROVIDER` | `groq` | |
    | `GROQ_API_KEY` | `gsk_…` | **evet** |
    | `GROQ_MODEL` | `openai/gpt-oss-120b` | |

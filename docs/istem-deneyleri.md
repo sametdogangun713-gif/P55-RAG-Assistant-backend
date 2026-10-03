@@ -38,3 +38,38 @@ Ek deneme (2026-10-03, elle hazırlanmış 3 kaynak, kaynaklardan birinde "Önce
 | Python'da liste nasıl sıralanır? | hayır | 0,163 |
 
 Seçtiğim eşik ve gerekçem: **0,30**. En düşük "var" skoru 0,430, en yüksek "yok" skoru 0,270; 0,30 iki grubu bu örnekte doğru ayırıyor. "Yurt ücreti" sorusu (0,270) "yemek ücreti" metnine benzediği için eşiğe yakın; eşiği daha aşağı çekmek ilgisiz parçaları modele göndermeye başlar. Örneklem küçük ve sentetik olduğu için eşik değiştirilmedi; gerçek belgelerle tekrar ölçülmeli.
+
+## Bulut kalitesi: "sohbet hiç olmuyor" (2026-10-03, Claude Code ile)
+Belirti: canlı sitede belgede açıkça yazan sorulara "bilgi bulamadım" geliyordu. Ölçüm: sentetik 7 bölümlük öğrenci yönergesi,
+belgede olan 12 + olmayan 6 soru, gerçek Hugging Face + Groq `gpt-oss-120b` (yerelde geçici SQLite ile, Vercel'deki zincirin aynısı).
+
+**Kök neden:** Hugging Face MiniLM'i **128 token'da kesiyor**; Türkçe 600 karakterlik parça bunu aşıyor, parçanın ikinci yarısı vektöre
+hiç girmiyordu. Örnek: "Mazeret sınavı… Dördüncü Bölüm: Ödevler… 12. haftanın cuma günü" parçasında ödev kısmı aranamadı;
+"Ödev teslim tarihi ne zaman?" sorusunda doğru parça 4. sıradaydı ve skoru 0,26 < 0,30 → model hiç çağrılmadı.
+Kodda "600 karakter ≈ 150 token, nadiren kesilir" varsayımı vardı; Türkçe için yanlıştı.
+
+| Model (HF) | Doğru parça 1. sırada | İlk 4'te | Hız |
+|---|---|---|---|
+| paraphrase-multilingual-MiniLM-L12-v2 (600 kr.) | 8/12 | 12/12 (ama skorlar eşik altında) | ~40 parça/sn |
+| MiniLM (300 kr.) | 8/12 | 11/12 | — |
+| **BAAI/bge-m3** (600 kr.) | **10/12** | 12/12 (kalan 2'si 2. sırada) | ~10 parça/sn |
+| intfloat/multilingual-e5-large | 11/12 | 12/12 | ~9 parça/sn |
+| paraphrase-multilingual-mpnet-base-v2 | 11/12 | 12/12 | ~23 parça/sn (ama o da 128 token'da kesiyor) |
+
+Paralel istek hızlandırmadı (HF sırayla işliyor). Seçim: **bge-m3** (8192 token, kesme sorunu yok). Bedel: yavaş → bulutta
+`MAX_CHUNKS_PER_DOCUMENT=2000` (~200 sn, Vercel sınırı 300 sn). bge-m3'te "var" sorularda en iyi skor ≥ 0,55, ilgisizlerde 0,3–0,56:
+skorlar ayrışmıyor → eşik `0,40` yalnızca tamamen ilgisizleri ayıklar, "belgede var mı" kararını model verir.
+
+**İkinci sorun, model aşırı temkinli:** doğru parça modele gittiği halde `rag-v1` + `reasoning_effort=low` 3 soruya `BILGI_YOK` dedi
+(v1 kuralı: "yanıt yoksa **ya da yetersizse** BILGI_YOK" → "kesin tarih yok" diye 12. hafta cuma cevabını vermedi).
+
+| Ayar | Belgede olan 12 | Belgede olmayan 6 |
+|---|---|---|
+| MiniLM + rag-v1 + low | 9 doğru, 3 "bilgi yok" | 6/6 "yok" |
+| MiniLM + rag-v1 + medium | 10 doğru, 2 "bilgi yok" | 5/6 (1 alakasız cevap) |
+| **bge-m3 + rag-v2 + medium** | **11 doğru, 1 kısmi** | 5/6 (1 alakasız cevap) |
+
+`rag-v2`: kaynakta yanıt (kısmen, başka kelimelerle) varsa ver; `BILGI_YOK` yalnızca kaynakların hiçbiri ilgili değilse; düz metin.
+Kalan zayıflıklar (dürüstçe): "Devamsızlık sınırı nedir?" → model "devam zorunluluğu yüzde yetmiş" cümlesini eşleştiremedi, "oran
+belirtilmemiş" dedi (kısmi). "Servis saatleri nedir?" → kütüphane/laboratuvar saatlerini verdi (soru belirsiz; kaynak gösterdi ama
+ilgisiz). Testler: `tests/test_arama_kalitesi.py`. Canlıdaki eski belgeler yeni modelde görünmez → **Yeniden indeksle**.

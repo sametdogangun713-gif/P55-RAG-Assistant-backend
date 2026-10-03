@@ -5,6 +5,20 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.16.0] — 2026-10-03 · sohbet kalitesi ve sade tema
+### Düzeltildi
+- **Canlı sitede sohbet, belgede yazan sorulara "bilgi bulamadım" diyordu.** Kök neden: Hugging Face MiniLM'i 128 token'da
+  kesiyor, Türkçe 600 karakterlik parçanın ikinci yarısı vektöre girmiyordu. Bulutta embedding modeli **BAAI/bge-m3**
+  (8192 token); `hf` için `MIN_SCORE` varsayılanı 0,40. Ölçüm: `docs/istem-deneyleri.md` → "Bulut kalitesi".
+- İstem `rag-v2`: kaynakta yanıt (kısmen ya da başka kelimelerle) varsa verilir; `BILGI_YOK` yalnızca kaynakların hiçbiri
+  ilgili değilse. `GROQ_REASONING_EFFORT` varsayılanı `medium` (low çok sık "bilgi yok" diyordu).
+- Bulutta önerilen `MAX_CHUNKS_PER_DOCUMENT` 3000 → 2000 (bge-m3 ~10 parça/sn, Vercel sınırı 300 sn).
+### Değişti
+- Arayüz (frontend deposu): sinematik sahne, imleç, paralaks ve kayan açılışlar **kaldırıldı** (`fx.js`, `cinema.js`,
+  `vendor/`); yerine keskin siyah-beyaz (monokrom) tema: köşesiz, ince çizgiler, Inter + JetBrains Mono, açık/koyu (seçim yoksa işletim sistemi ayarı). Her hazır
+  belgede "Yeniden indeksle" (model değişince eski belgeler aranabilir olsun). Düzeltilen hata: `hidden` nitelikli
+  düğmeler CSS yüzünden görünür kalıyordu (giriş sonrası "Giriş yap").
+
 ## [0.15.0] — 2026-10-03 · kayıt ve e-posta doğrulama
 ### Eklendi
 - Kayıt ekranı girişten ayrı: **ad soyad**, e-posta, parola + parola tekrarı.

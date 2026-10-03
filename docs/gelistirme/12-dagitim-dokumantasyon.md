@@ -11,7 +11,7 @@ Projeyi başka birinin kurup çalıştırabileceği, belgelenmiş ve buluta taş
 | Konu | Dosyalar | Ne işe yarıyor |
 |---|---|---|
 | Büyük dosya | `services/documents.py` (`_save_stream`), `main.py` (413 ön kontrolü), `GET /documents/limits` | Dosya belleğe alınmadan 1 MB bloklarla diske yazılır; sınırı aşan istek gövdesi okunmadan reddedilir; arayüz sınırı sunucudan okur |
-| Arayüz | frontend `index.html`, `style.css`, `fx.js` | Ana sayfa (proje tanıtımı), koyu/açık tema, masaüstü + mobil düzen, erişilebilir sekmeler, "hareketi azalt" desteği, gerçek yükleme yüzdesi |
+| Arayüz | frontend `index.html`, `style.css`, `app.js` | Ana sayfa (proje tanıtımı), sade tema, açık/koyu (sistem ayarı ya da düğme), masaüstü + mobil düzen, erişilebilir sekmeler, "hareketi azalt" desteği, gerçek yükleme yüzdesi |
 | Şifremi unuttum | `migrations/004_password_reset.sql` (005 ile `email_codes` oldu), `db/email_codes.py`, `services/email_codes.py`, `services/password_reset.py`, `services/mailer.py`, `api/auth.py` | 6 haneli tek kullanımlık kod, e-postayla (SMTP); kodun kendisi değil HMAC özeti saklanır |
 | Kayıt + e-posta doğrulama | `migrations/005_name_and_email_verification.sql` (PG `002`), `services/email_verification.py`, `services/auth.py` (`sign_up`), `api/auth.py` | Ayrı kayıt ekranı, ad soyad, 6 haneli doğrulama kodu; doğrulanmamış hesap giriş yapamaz |
 | **İki depo** | `P55-RAG-Assistant-backend`, `P55-RAG-Assistant-frontend` | Arayüz ayrı bir statik site; backend yalnızca API. Arayüz backend adresini `public/config.js`'ten okur |

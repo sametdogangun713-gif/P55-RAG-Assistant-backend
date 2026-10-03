@@ -205,6 +205,13 @@
 - **Kendi yaptığım değişiklik / doğrulama:** _(sahneyi kendi bilgisayarında izle; "Animasyonlar" düğmesini dene; `?sahne=16` ile istediğin anı aç)_
 - **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden Three.js, neden CDN değil yerel kopya)_
 
+### Kayıt 5 (sohbet kalitesi + sade tema — 2026-10-03)
+- **Araç:** Claude Code
+- **İstem (özet):** "Animasyonlar kalksın, animasyon eklemeden önceki temaya dönüyoruz. Chatbot hiç olmuyor, değiştirmek zorundayız. Modern, dark ve aydınlık geçişi olan bir tema yap, sana bırakıyorum."
+- **Aldığım çıktı (özet):** Sohbetin neden kötü olduğu ölçüldü (yerelde Vercel'deki zincirin aynısı: HF + Groq, sentetik 7 bölümlük yönerge, 12 + 6 soru). Kök neden model değil arama: HF MiniLM'i 128 token'da kesiyor, Türkçe parçanın ikinci yarısı aranamıyordu. 5 embedding modeli karşılaştırıldı → `BAAI/bge-m3`; istem `rag-v2`, `reasoning_effort=medium`. Sonuç: belgede olan 12 sorunun 9'u → 11'i doğru (+1 kısmi). Groq'ta daha güçlü model yok (hesaptaki liste kontrol edildi). Tema: animasyon dosyaları silindi; ilk sade tema (indigo, yuvarlak köşe) kullanıcı tarafından reddedildi ("modern keskin siyah beyaz istedim") → keskin siyah-beyaz tema (açık/koyu, sistem ayarı). Claude'un doğrulaması: backend 278 test, frontend 21 test; tarayıcıda 1440 / 375 px, açık/koyu, tüm sekmeler, yatay taşma yok, sayfada çalışan animasyon 0. Tarayıcıda bulunan gerçek hata: `hidden` düğmeler görünür kalıyordu → düzeltildi + test. **Canlıda (Vercel) henüz denenmedi**; kalan zayıflıklar `docs/istem-deneyleri.md`'de.
+- **Kendi yaptığım değişiklik / doğrulama:** _(canlıda belgeni "Yeniden indeksle", aynı soruları sor; önce/sonra farkını kendi gözünle not et)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden model değil arama düzeltildi, neden bge-m3, neden animasyonlar kaldırıldı)_
+
 ## Adım 13 — Final (Hafta 15)
 
 ### Kayıt 1
