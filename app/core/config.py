@@ -58,8 +58,11 @@ ALLOWED_EXTENSIONS = (".txt", ".pdf", ".docx")
 
 # --- Hafta 7: embedding ve vektor arama ---
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local")      # "local" | "hf" | "hash"
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
-# "hf": ayni model Hugging Face sunucularinda calisir (Vercel'de torch/model sigmaz). Anahtar yalnizca .env'de.
+# "local": kucuk MiniLM bilgisayarda calisir. "hf": Hugging Face sunucusunda BAAI/bge-m3 (Vercel'de torch sigmaz).
+# MiniLM sunucuda metni 128 token'da kesiyordu: Turkce 600 karakterlik parcanin ikinci yarisi aranamiyordu.
+# bge-m3 8192 token alir ve Turkcede dogru parcayi daha iyi bulur (olcum: docs/istem-deneyleri.md). Anahtar yalnizca .env'de.
+_DEFAULT_MODEL = {"hf": "BAAI/bge-m3"}
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL") or _DEFAULT_MODEL.get(EMBEDDING_BACKEND, "paraphrase-multilingual-MiniLM-L12-v2")
 HF_TOKEN = os.getenv("HF_TOKEN", "").strip()
 HF_BASE_URL = os.getenv("HF_BASE_URL", "https://router.huggingface.co/hf-inference")
 HF_TIMEOUT_SECONDS = float(os.getenv("HF_TIMEOUT_SECONDS", "60"))
@@ -74,7 +77,9 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "claude").strip().lower()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()                     # yalnizca .env'den
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")              # llama modelleri Groq'tan kaldirildi (2026-10)
-GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "low")       # dusunen modeller icin: low|medium|high, bos = gonderme
+# Dusunen modeller icin: low|medium|high, bos = gonderme. "low" belgede yazan cevaplarda bile sik sik BILGI_YOK
+# diyordu; "medium" ~1-3 sn daha yavas ama belirgin dogru (olcum: docs/istem-deneyleri.md).
+GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "medium")
 
 LLM_TIMEOUT_SECONDS = float(os.getenv("LLM_TIMEOUT_SECONDS", "60"))
 LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "3"))
@@ -82,7 +87,9 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "800"))
 
 # --- Hafta 10: RAG ---
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "4"))
-_DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.30", "hash": "0.15"}   # hf = ayni model; olcerek ayarla
+# Esik yalnizca belgeyle HIC ilgisi olmayan sorulari ayiklar; "yanit belgede var mi" karari modelindir (BILGI_YOK).
+# hf (bge-m3) olcumu: belgede olan sorularda en iyi skor >= 0,55; ilgisizlerde 0,3-0,56 -> 0,40 hicbir dogru soruyu kesmez.
+_DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.40", "hash": "0.15"}
 MIN_SCORE = float(os.getenv("MIN_SCORE") or _DEFAULT_MIN_SCORE.get(EMBEDDING_BACKEND, "0.30"))
 MAX_QUESTION_CHARS = 1000
 

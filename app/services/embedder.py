@@ -121,9 +121,10 @@ class LocalEmbedder(Embedder):
 class HFEmbedder(Embedder):
     """Hugging Face Inference API ile embedding (POST .../models/<model>/pipeline/feature-extraction).
 
-    Yereldeki LocalEmbedder ile ayni modeli kullanir; bu yuzden skorlar ve MIN_SCORE olcumleri gecerli kalir.
-    Tek fark: sunucu metni 128 token'da keser (yerelde 256). 600 karakterlik parca ~150 token oldugu icin
-    parcanin sonu nadiren kesilir. Anahtar (HF_TOKEN) hata mesajina asla yazilmaz.
+    Varsayilan model BAAI/bge-m3 (config.EMBEDDING_MODEL). Once yereldeki MiniLM kullaniliyordu; ancak sunucu onu
+    128 token'da kesiyordu ve Turkce 600 karakter 128 token'i asiyordu -> parcanin ikinci yarisi aranamiyordu
+    (gercek hata: "Odev teslim tarihi" sorusu bulunamadi). bge-m3 8192 token alir. Bedeli hiz: ~10 parca/sn
+    (MiniLM ~40); paralel istek hizlandirmiyor (sunucu siraya koyuyor). Anahtar (HF_TOKEN) hata mesajina asla yazilmaz.
     """
     RETRY_STATUS = {429, 500, 502, 503, 504}         # 503: model sunucuda henuz yukleniyor
 
