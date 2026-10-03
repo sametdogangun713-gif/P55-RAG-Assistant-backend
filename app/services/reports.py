@@ -92,24 +92,53 @@ def _safe(cell):
     return "'" + s if s[:1] in ("=", "+", "-", "@", "\t", "\r") else s
 
 
+# CSV'deki Turkce etiketler (anahtar adlari API'de Ingilizce kalir; dosyayi insan okuyacak)
+CSV_LABELS = {
+    "users": "Kullanıcı", "documents": "Belge", "indexed_documents": "Hazır belge", "failed_documents": "Hatalı belge",
+    "chunks": "Parça", "conversations": "Sohbet",
+    "questions": "Soru", "answers": "Yanıt", "grounded_rate": "Kaynağa dayalı yanıt oranı (%)",
+    "no_answer_rate": "Yanıtsız kalan oranı (%)", "avg_latency_ms": "Ortalama yanıt süresi (ms)",
+    "avg_best_score": "Ortalama en iyi benzerlik",
+    "answered": "Kaynaklı yanıt", "no_context": "İlgili bölüm bulunamadı", "no_info": "Yeterli bilgi yok",
+    "unverified": "Doğrulanamadı", "general": "Genel yanıt (belge dışı)", "unknown": "Bilinmiyor",
+}
+PERCENT_KEYS = ("grounded_rate", "no_answer_rate")
+
+
+def _tr_number(v, percent=False):
+    """Excel'in Turkce ayarinda sayi olarak okunsun: ondalik ayraci virgul (0.667 -> 66,7 ya da 0,667)."""
+    if v is None:
+        return ""
+    if isinstance(v, float):
+        return f"{v * 100:.1f}".replace(".", ",") if percent else f"{v:g}".replace(".", ",")
+    return v
+
+
 def report_to_csv(report: dict) -> str:
-    """Raporu 'bolum,anahtar,deger' bicimli CSV'ye cevirir (Excel'de Turkce karakterler icin BOM'lu)."""
+    """Raporu 'Bölüm;Ölçüt;Değer' bicimli CSV'ye cevirir.
+
+    Excel uyumu: Turkce Excel'de ondalik ayraci virgul oldugu icin alanlar NOKTALI VIRGUL ile ayrilir (virgulle
+    ayrilan dosyada butun satir tek hucreye yigiliyordu). Bastaki BOM, Excel'in dosyayi UTF-8 okumasini saglar
+    ("bölüm" -> "bÃ¶lÃ¼m" bozulmasin). Formul enjeksiyonu onlemi (_safe) korunur.
+    """
     out = io.StringIO()
-    w = csv.writer(out)
-    w.writerow(["bölüm", "anahtar", "değer"])
-    w.writerow(["rapor", "kapsam", report["scope"]])
-    w.writerow(["rapor", "başlangıç", report["from"]])
-    w.writerow(["rapor", "bitiş", report["to"]])
+    w = csv.writer(out, delimiter=";")
+    label = lambda k: CSV_LABELS.get(k, k)
+    w.writerow(["Bölüm", "Ölçüt", "Değer"])
+    w.writerow(["Rapor", "Kapsam", "Tüm sistem" if report["scope"] == "all" else "Benim kullanımım"])
+    w.writerow(["Rapor", "Başlangıç", report["from"]])
+    w.writerow(["Rapor", "Bitiş", report["to"]])
     for k, v in report["totals"].items():
-        w.writerow(["toplam", k, _safe(v)])
+        if v is not None:                                   # kullanici kapsaminda "Kullanıcı" sayisi yok
+            w.writerow(["Toplam", label(k), _safe(_tr_number(v))])
     for k, v in report["period"].items():
         if k == "by_status":
             for s, n in v.items():
-                w.writerow(["durum", s, n])
+                w.writerow(["Yanıt durumu", label(s), n])
         else:
-            w.writerow(["dönem", k, _safe(v)])
+            w.writerow(["Dönem", label(k), _safe(_tr_number(v, percent=k in PERCENT_KEYS))])
     for s in report["top_sources"]:
-        w.writerow(["kaynak", _safe(s["filename"]), s["answers"]])
+        w.writerow(["En çok kaynak gösterilen", _safe(s["filename"]), s["answers"]])
     for d in report["daily"]:
-        w.writerow(["günlük", d["date"], d["questions"]])
+        w.writerow(["Günlük soru", d["date"], d["questions"]])
     return "\ufeff" + out.getvalue()

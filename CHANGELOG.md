@@ -15,6 +15,11 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 - **Genel sohbet (`GENERAL_CHAT=1`):** belgelerde yanıt yoksa (no_context / no_info) selamlaşma ve genel sorulara
   modelin genel bilgisiyle kısa yanıt; durum `general`, kaynaksız, `grounded=False`, arayüzde kesik çizgili balon ve
   "belgelerinden değil" notu. Raporda ayrı sayılır, kaynağa dayalı oranına girmez. İstem `genel-v1`.
+### Düzeltildi
+- **CSV indir bozuktu:** arayüz dosyayı `res.text()` ile okuyunca UTF-8 BOM'u siliniyordu → Excel Türkçe karakterleri
+  bozuk gösteriyordu; virgül ayraç Türkçe Excel'de satırı tek hücreye yığıyordu. Şimdi dosya blob olarak indirilir (BOM
+  korunur), ayraç `;`, ondalık virgül, oranlar yüzde, etiketler Türkçe, dosya adında tarih.
+
 ### Sınır (değişmedi)
 - Dosya başına 50 MB: Supabase ücretsiz planının sınırı (kodla aşılamaz).
 

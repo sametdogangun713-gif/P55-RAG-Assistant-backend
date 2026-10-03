@@ -141,11 +141,23 @@ class CsvTests(RaporVerisi):
         r = reports.usage_report(self.conn, self.u1["id"], 7, today=BUGUN)
         text = reports.report_to_csv(r)
         self.assertTrue(text.startswith("\ufeff"))
-        satirlar = list(csv.reader(io.StringIO(text.lstrip("\ufeff"))))
-        self.assertEqual(satirlar[0], ["bölüm", "anahtar", "değer"])
-        self.assertIn(["durum", "answered", "2"], satirlar)
-        self.assertIn(["kaynak", "birinci.txt", "2"], satirlar)
-        self.assertEqual(len([s for s in satirlar if s[0] == "günlük"]), 7)
+        satirlar = list(csv.reader(io.StringIO(text.lstrip("\ufeff")), delimiter=";"))
+        self.assertEqual(satirlar[0], ["Bölüm", "Ölçüt", "Değer"])
+        self.assertIn(["Yanıt durumu", "Kaynaklı yanıt", "2"], satirlar)
+        self.assertIn(["En çok kaynak gösterilen", "birinci.txt", "2"], satirlar)
+        self.assertEqual(len([s for s in satirlar if s[0] == "Günlük soru"]), 7)
+
+    def test_csv_turkce_excel_uyumlu(self):
+        """Turkce Excel: ayrac noktali virgul, ondalik virgul, oranlar yuzde; virgulle bolunmus satir kalmaz."""
+        text = reports.report_to_csv(reports.usage_report(self.conn, self.u1["id"], 7, today=BUGUN))
+        satirlar = list(csv.reader(io.StringIO(text.lstrip("\ufeff")), delimiter=";"))
+        self.assertTrue(all(len(s) == 3 for s in satirlar))
+        oran = [s[2] for s in satirlar if s[1] == "Kaynağa dayalı yanıt oranı (%)"][0]
+        self.assertEqual(oran, "66,7")                      # 0.667 -> 66,7
+        self.assertNotIn("grounded_rate", text)              # Ingilizce anahtar dosyada yok
+        self.assertNotIn("Kullanıcı;", text)                 # kullanici kapsaminda bos satir yazilmaz
+        self.assertEqual(reports._tr_number(0.5), "0,5")
+        self.assertEqual(reports._tr_number(None), "")
 
     def test_csv_formul_enjeksiyonu_etkisiz(self):
         kotu = documents_repo.create_document(self.conn, self.u1["id"], "=HYPERLINK(\"http://x\",\"t\").txt")
@@ -156,8 +168,8 @@ class CsvTests(RaporVerisi):
         a = mesaj(self.conn, c, "assistant", "r", "2026-10-10", status="answered", grounded=True, latency_ms=1)
         repo.add_message_sources(self.conn, a, [{"n": 1, "chunk_id": cid, "score": 0.5}])
         text = reports.report_to_csv(reports.usage_report(self.conn, self.u1["id"], 7, today=BUGUN))
-        satirlar = list(csv.reader(io.StringIO(text.lstrip("\ufeff"))))
-        kaynaklar = [s[1] for s in satirlar if s[0] == "kaynak"]
+        satirlar = list(csv.reader(io.StringIO(text.lstrip("\ufeff")), delimiter=";"))
+        kaynaklar = [s[1] for s in satirlar if s[0] == "En çok kaynak gösterilen"]
         self.assertTrue(any(k.startswith("'=HYPERLINK") for k in kaynaklar))
         self.assertFalse(any(k.startswith("=") for k in kaynaklar))
 
