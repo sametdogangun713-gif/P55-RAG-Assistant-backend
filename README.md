@@ -121,7 +121,9 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `GROQ_API_KEY` / `GROQ_MODEL` | boş / `openai/gpt-oss-120b` | Groq anahtarı ve modeli |
 | `ANTHROPIC_API_KEY` / `CLAUDE_MODEL` | boş / `claude-haiku-4-5-20251001` | Claude anahtarı ve modeli |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | Oturum süresi |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` | boş / `587` | "Şifremi unuttum" e-postası (Gmail: uygulama şifresi). Boşsa geliştirmede kod sunucu penceresine yazılır |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` | boş / `587` | Kayıt doğrulama kodu ve "Şifremi unuttum" e-postası (Gmail: uygulama şifresi). Boşsa geliştirmede kod sunucu penceresine yazılır, üretimde kayıt/sıfırlama 503 |
+| `REQUIRE_EMAIL_VERIFICATION` | `1` | Kayıt olan kişi e-postasına gelen kodu girmeden giriş yapamaz (`0`: hesap hemen açılır) |
+| `VERIFY_CODE_MINUTES` | `30` | Doğrulama kodunun geçerlilik süresi |
 | `SEND_EMAIL_INLINE` | Vercel'de `1` | E-postayı yanıttan önce gönder (Vercel işlevi yanıttan sonra durdurabilir) |
 
 Tam liste: [`.env.example`](.env.example) · Bulut için hangi değerin nereye yazılacağı: [`docs/dagitim.md`](docs/dagitim.md).

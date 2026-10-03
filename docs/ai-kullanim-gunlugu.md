@@ -191,6 +191,20 @@
 - **Kendi yaptığım değişiklik / doğrulama:** _(buluta kendin dağıttığında: hangi adımda ne oldu, ekran görüntüleri)_
 - **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden iki depo, neden Supabase, neden HF)_
 
+### Kayıt 3 (ayrı kayıt ekranı, ad soyad, e-posta doğrulama — 2026-10-03)
+- **Araç:** Claude Code
+- **İstem (özet):** Vercel kuruldu ama Supabase'de tablolar görünmüyor, diyagram lazım. Uygulamanın eksikleri: şifremi unuttum, girilen e-postanın doğruluğu, kayıt ve giriş ekranı ayrı olmalı, kullanıcıdan ad alınmalı.
+- **Aldığım çıktı (özet):** Migration `005` / Postgres `002`: `users.full_name`, `users.email_verified_at` (eski hesaplar doğrulanmış sayılır), `password_resets` → `email_codes` (`purpose`: verify/reset). `services/email_codes.py` (ortak kod mantığı), `email_verification.py`, `auth.sign_up`; uçlar `/auth/verify-email`, `/auth/resend-verification`, girişte 403; `/health`'e `database` alanı. Arayüz: giriş / kayıt / doğrulama ayrı paneller, parola tekrarı, üst barda ad. ER diyagramı ve "Supabase'de tablolar neden görünmez" kontrol listesi. Claude'un doğrulaması: SQLite 265 / PostgreSQL 266 test geçti; Supabase'deki duruma benzer yükseltme (001 kurulu + kullanıcı var → 002) denendi; tarayıcıda kayıt → yanlış kod → doğru kod → otomatik giriş, doğrulanmamış girişin engellenmesi, şifre sıfırlama, 375 px. **Gerçek SMTP ile e-posta gönderimi ve Vercel/Supabase üzerinde deneme yapılmadı** (kod geliştirme modunda sunucu konsoluna yazıldı).
+- **Kendi yaptığım değişiklik / doğrulama:** _(Vercel'e SMTP ayarlarını girip kendi e-postanla kayıt ol; kod geldi mi, spam'e mi düştü, ekran görüntüsü)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden e-posta doğrulaması, neden tek kod tablosu)_
+
+### Kayıt 4 (sinematik sahne, animasyon düğmesi, Hesabım, belge/sohbet kullanılabilirliği — 2026-10-03)
+- **Araç:** Claude Code
+- **İstem (özet):** "Kütüphane ve skill ekle" + sinematik sahne tarifi (antika saat mekanizmasının içinden sürekli ilerleyen kamera, pirinç dişliler, ortadaki dişlinin yıldız tozuna dağılıp mor-amber nebulaya dönüşmesi, hacimsel ışık, film greni, hareket bulanıklığı). Ayrıca: profil/hesap ayarları, güncel olmayan ana sayfa metinleri, sohbet/belge kullanılabilirliği.
+- **Aldığım çıktı (özet):** Hazır bir animasyon skill'i bulunamadı (katalogda sonuç yok). `cinema.js` (Three.js 0.186.1, yerel alt küme `vendor/three.min.js`, ~150 KB sıkıştırılmış): yordamsal dişli geometrisi, birbirine geçen dişli takımları, shader ile eriyen metal, GPU'da hesaplanan 16 000 parçacık, ışıma + hareket izi + film greni; WebGL yoksa 2B heykel yedek. Hata ayıklarken bulunan gerçek neden: bilgisayarda Windows "Animasyon efektleri" kapalı → tarayıcı `prefers-reduced-motion: reduce` bildiriyor → sitedeki animasyonların çoğu hiç oynamıyordu; üst bara "Animasyonlar" düğmesi eklendi. Hesabım (ad, parola, hesap silme), sohbet yeniden adlandırma, belge süzme/sıralama. Claude'un doğrulaması: SQLite 273 / PostgreSQL 274 test, frontend 22; tarayıcıda 1440 px / 375 px, koyu/açık tema, döngünün 9 anı ekran görüntüsüyle incelenip ışık ayarları düzeltildi (beyaz patlama, yakut küre hatası).
+- **Kendi yaptığım değişiklik / doğrulama:** _(sahneyi kendi bilgisayarında izle; "Animasyonlar" düğmesini dene; `?sahne=16` ile istediğin anı aç)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden Three.js, neden CDN değil yerel kopya)_
+
 ## Adım 13 — Final (Hafta 15)
 
 ### Kayıt 1

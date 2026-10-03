@@ -29,8 +29,9 @@ flowchart TD
 | `app/api/search.py`, `ask.py` | Anlamsal arama; tek seferlik kaynaklı soru |
 | `app/api/conversations.py` | Sohbet oluşturma/listeleme/silme, mesaj gönderme (RAG + geçmiş) |
 | `app/api/reports.py`, `admin.py` | Kullanım raporu ve CSV; yönetici işlemleri |
-| `app/services/auth.py` | Kayıt/giriş kuralları, e-posta normalleştirme, başarısız giriş kilidi (bellekte) |
-| `app/services/password_reset.py`, `mailer.py` | 6 haneli tek kullanımlık kod (HMAC özeti saklanır), SMTP ile gönderim |
+| `app/services/auth.py` | Kayıt (`sign_up`: ad soyad + e-posta + parola) / giriş kuralları, e-posta normalleştirme, doğrulanmamış hesabın girişini engelleme, başarısız giriş kilidi (bellekte) |
+| `app/services/email_codes.py` | 6 haneli tek kullanımlık kod: üretme, HMAC özeti, süre, 5 deneme, 60 sn yeniden gönderme sınırı (doğrulama ve sıfırlama ortak) |
+| `app/services/email_verification.py`, `password_reset.py`, `mailer.py` | Kayıtta e-posta doğrulama; şifremi unuttum; SMTP ile gönderim |
 | `app/services/documents.py` | Dosya adı temizleme, tür/içerik kontrolü, diske 1 MB bloklarla yazma, ayrıştır → parçala → indeksle; Supabase Storage akışı |
 | `app/services/parser.py` | TXT (UTF-8 / cp1254), PDF (pypdf, sayfa numaralı), DOCX (python-docx, zip-bombası kontrolü) |
 | `app/services/chunker.py` | Paragraf/cümle sınırına saygılı, örtüşmeli parçalama (600/100 karakter) |
@@ -41,6 +42,7 @@ flowchart TD
 | `app/services/chat.py` | Sohbet geçmişi, takip sorusunu bağımsız soruya çevirme, uzun geçmişte özetleme |
 | `app/services/llm_client.py` | Claude ve Groq istemcileri (urllib), yeniden deneme, zaman aşımı, anlaşılır hatalar |
 | `app/services/storage.py` | Supabase Storage: imzalı yükleme adresi, okuma, silme, kova oluşturma |
+| `app/services/account.py` | Hesabım: ad değiştirme, parola değiştirme ve hesap silme (ikisi de mevcut parolayı ister), son yönetici koruması |
 | `app/services/reports.py`, `admin.py` | Toplulaştırma SQL'leri, CSV (formül enjeksiyonu önlemli); kullanıcı + dosyalarını silme |
 | `app/db/database.py` | Bağlantı (SQLite veya PostgreSQL), `PgConnection` sarmalayıcısı, migration çalıştırıcı |
 | `app/db/*.py` | Tablo başına CRUD (parametreli SQL) |
@@ -54,7 +56,7 @@ Tarih sütunları iki veritabanında da `'YYYY-MM-DD HH:MM:SS'` (UTC) metnidir; 
 
 ## 3. Veri modeli
 `users` 1–N `documents` 1–N `chunks` 1–1 `embeddings` · `users` 1–N `conversations` 1–N `messages` N–N `chunks`
-(`message_sources`, `[n]` numarasıyla) · `users` 1–N `password_resets`. Tüm alt kayıtlar `ON DELETE CASCADE` ile silinir.
+(`message_sources`, `[n]` numarasıyla) · `users` 1–N `email_codes` (`purpose`: `verify` / `reset`). Tüm alt kayıtlar `ON DELETE CASCADE` ile silinir.
 Ayrıntı ve diyagram: [`er-diyagrami.md`](er-diyagrami.md).
 
 ## 4. API uç noktaları
@@ -62,12 +64,17 @@ Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒). Yönetici gerektirenler
 
 | Yöntem | Yol | | Açıklama |
 |---|---|---|---|
-| GET | `/health` | | Sağlık kontrolü → `{"status":"ok"}` |
-| POST | `/auth/register` | | Kayıt (e-posta, parola ≥ 8, harf+rakam). 409: e-posta kayıtlı |
-| POST | `/auth/login` | | Giriş → `access_token`. 401 yanlış bilgi, 429 çok fazla deneme |
+| GET | `/health` | | Sağlık kontrolü → `{"status":"ok","database":"postgres"}` (hangi veritabanı; adres/parola değil) |
+| POST | `/auth/register` | | Kayıt: `full_name` (2–100, en az bir harf), `email`, `password` (≥ 8, harf+rakam). Hesap doğrulanmamış açılır, e-postaya 6 haneli kod gider → `verification_required: true`. 409: e-posta kayıtlı ve doğrulanmış · 503: e-posta (SMTP) ayarlı değil |
+| POST | `/auth/verify-email` | | `{email, code}` → kod doğruysa e-posta doğrulanır ve `access_token` döner (doğrudan giriş). 400: kod hatalı/süresi dolmuş |
+| POST | `/auth/resend-verification` | | Yeni doğrulama kodu (kayıtlı/kayıtsız aynı yanıt; 60 sn'de bir) |
+| POST | `/auth/login` | | Giriş → `access_token`. 401 yanlış bilgi, 403 e-posta doğrulanmamış (parola doğruysa), 429 çok fazla deneme |
 | GET | `/auth/me` | 🔒 | Oturumdaki kullanıcı |
+| PATCH | `/auth/me` | 🔒 | `{full_name}` → adı değiştir |
+| POST | `/auth/change-password` | 🔒 | `{current_password, new_password}`. 400: mevcut parola hatalı / yeni parola zayıf veya eskisiyle aynı |
+| DELETE | `/auth/me` | 🔒 | `{password}` → hesabı ve tüm verisini (dosyalar dahil) sil. 409: son yönetici |
 | POST | `/auth/forgot-password` | | Sıfırlama kodu e-postası (kayıtlı/kayıtsız aynı yanıt). 503: e-posta ayarlı değil |
-| POST | `/auth/reset-password` | | Kod + yeni parola |
+| POST | `/auth/reset-password` | | Kod + yeni parola (e-postaya ulaşıldığı kanıtlandığı için doğrulanmamış hesap da doğrulanmış olur) |
 | GET | `/documents/limits` | 🔒 | `max_upload_mb`, izinli uzantılar, `upload_mode` (`direct` / `storage`) |
 | POST | `/documents` | 🔒 | Dosyayı doğrudan yükle (multipart, yerel). 400 tür/içerik, 413 boyut |
 | POST | `/documents/upload-url` | 🔒 | Bulut 1. adım: `{filename, size_bytes}` → `{path, upload_url}` |
@@ -81,6 +88,7 @@ Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒). Yönetici gerektirenler
 | POST | `/ask` | 🔒 | Tek seferlik kaynaklı soru |
 | POST/GET | `/conversations` | 🔒 | Sohbet oluştur / listele |
 | GET/POST | `/conversations/{id}/messages` | 🔒 | Mesajları listele / soru gönder (RAG + geçmiş + özet) |
+| PATCH | `/conversations/{id}` | 🔒 | `{title}` → sohbeti yeniden adlandır (en fazla 80 karakter) |
 | DELETE | `/conversations/{id}` | 🔒 | Sohbeti sil |
 | GET | `/reports/usage` | 🔒 | `days` 1–365, `scope=me` (👑 için `all`) |
 | GET | `/reports/usage.csv` | 🔒 | Aynı rapor, CSV (UTF-8 BOM) |

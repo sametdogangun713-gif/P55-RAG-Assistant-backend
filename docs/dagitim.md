@@ -56,8 +56,8 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    python -m scripts.supabase_kurulum
    python -m scripts.create_admin
    ```
-   Beklenen çıktı: `Migration: 001_init` ve `Dosya kovası 'belgeler': oluşturuldu (gizli)`. Supabase panelinde
-   **Table Editor**'da 8 tablo (hepsinde "RLS enabled"), **Storage**'da gizli `belgeler` kovası görünmeli.
+   Beklenen çıktı: `Migration: 001_init, 002_name_and_email_verification` ve `Dosya kovası 'belgeler': oluşturuldu (gizli)`. Supabase panelinde
+   **Table Editor**'da (şema: `public`) 8 tablo (hepsinde "RLS enabled"; `email_codes` dahil, `schema_migrations` ile 9), **Database → Schema Visualizer**'da ilişki diyagramı, **Storage**'da gizli `belgeler` kovası görünmeli.
    `create_admin` bulut veritabanında yönetici hesabını açar.
 5. Yerel çalışmaya dönmek için `.env`'deki bu satırları eski hâline getir (`DATABASE_URL=sqlite:///./data/p55.db`,
    `STORAGE_BACKEND=local`, `MAX_UPLOAD_MB=500`). Bulut değerleri artık yalnızca Vercel'de duracak.
@@ -97,11 +97,11 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    | `LLM_PROVIDER` | `groq` | |
    | `GROQ_API_KEY` | `gsk_…` | **evet** |
    | `GROQ_MODEL` | `openai/gpt-oss-120b` | |
-   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | isteğe bağlı (Gmail uygulama şifresi). Boşsa üretimde "Şifremi unuttum" kapalıdır (503) | `SMTP_PASSWORD` **evet** |
+   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | **gerekli**: `smtp.gmail.com`, `587`, Gmail adresin, Gmail **uygulama şifresi** (16 harf, boşluksuz), Gmail adresin. Boşsa üretimde kayıt (doğrulama kodu) ve "Şifremi unuttum" 503 döner | `SMTP_PASSWORD` **evet** |
 
    Yazılmayanlar varsayılanı kullanır (`.env.example`). `UPLOAD_DIR` yazma: Vercel'de otomatik `/tmp/uploads`.
 3. **Deploy**. Bitince adres: `https://p55-rag-assistant-backend.vercel.app` (proje adına göre değişir). Dene:
-   - `…/health` → `{"status":"ok"}`
+   - `…/health` → `{"status":"ok","database":"postgres"}` (`"sqlite"` ise `DATABASE_URL` Vercel'de tanımlı değil)
    - `…/docs` → Swagger sayfası
    - `vercel.json`: bölge **fra1** (Frankfurt, Supabase'e yakın), en uzun istek 300 sn.
 4. Ortam değişkenini sonradan değiştirirsen **Deployments → … → Redeploy** gerekir (değişkenler yalnızca yeni dağıtımda okunur).

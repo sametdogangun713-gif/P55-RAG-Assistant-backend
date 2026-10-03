@@ -5,6 +5,22 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.15.0] — 2026-10-03 · kayıt ve e-posta doğrulama
+### Eklendi
+- Kayıt ekranı girişten ayrı: **ad soyad**, e-posta, parola + parola tekrarı.
+- **E-posta doğrulama:** kayıtta 6 haneli kod (30 dk); doğrulanmamış hesap giriş yapamaz (403). `POST /auth/verify-email` (doğru kodda doğrudan giriş), `POST /auth/resend-verification`.
+- `/health` hangi veritabanının kullanıldığını söyler (`"database": "postgres" | "sqlite"`).
+- Ayarlar: `REQUIRE_EMAIL_VERIFICATION`, `VERIFY_CODE_MINUTES`.
+### Değişti
+- `password_resets` tablosu `email_codes` oldu (`purpose`: `verify` / `reset`); kod mantığı `services/email_codes.py`'de ortak. Migration: SQLite `005`, PostgreSQL `002`. Bu migration'dan önceki hesaplar doğrulanmış sayılır.
+- Üretimde SMTP ayarı yoksa kayıt da 503 döner (kod ulaştırılamayacak hesap açılmaz).
+- Parola sıfırlama, doğrulanmamış hesabı da doğrulanmış yapar (koda e-postadan ulaşıldı).
+- Yönetim sekmesinde ad soyad ve "doğrulanmadı" bilgisi.
+### Eklendi (aynı gün, devam)
+- **Hesabım:** `PATCH /auth/me` (ad), `POST /auth/change-password`, `DELETE /auth/me` (hesap + belgeler + dosyalar); parola isteyen işlemler mevcut parolayı ister, son yönetici kendini silemez. `services/account.py`.
+- **Sohbet yeniden adlandırma:** `PATCH /conversations/{id}`.
+- Arayüz (frontend deposu): ana sayfada Three.js ile sinematik 3B sahne (`cinema.js`, `vendor/three.min.js`); üst barda "Animasyonlar" düğmesi (işletim sisteminin "hareketi azalt" ayarını ezer); Hesabım sekmesi; belgelerde Türkçe harf duyarsız süzme, sıralama ve özet; sohbet listesinde satır içi yeniden adlandırma; ana sayfa metinleri bulut mimarisine göre güncellendi.
+
 ## [0.14.0] — 2026-10-03 · dağıtım hazırlığı
 ### Eklendi
 - **İki depo:** arayüz `P55-RAG-Assistant-frontend`'e taşındı; backend yalnızca API (`GET /` artık JSON).
