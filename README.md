@@ -31,7 +31,7 @@ dayanarak**, `[1]`, `[2]` gibi kaynak numaralarıyla üretir (RAG). Belgede bilg
 | Veritabanı | SQLite dosyası (`data/p55.db`) | Supabase PostgreSQL + pgvector |
 | Dosyalar | Sunucu diski (`uploads/`), en fazla 500 MB | Supabase Storage (gizli kova), en fazla 50 MB |
 | Embedding | `sentence-transformers` (yerel, ücretsiz) | Aynı model, Hugging Face Inference API |
-| Kurulum | `baslat.bat` | [`docs/dagitim.md`](docs/dagitim.md) |
+| Kurulum | [Adım adım kurulum](#adım-adım-kurulum-komutlarla) | [`docs/dagitim.md`](docs/dagitim.md) |
 
 Hangisinin kullanılacağına kod değil **ayarlar** (`.env` / Vercel ortam değişkenleri) karar verir. Kod aynıdır.
 
@@ -42,8 +42,8 @@ Hangisinin kullanılacağına kod değil **ayarlar** (`.env` / Vercel ortam değ
    git clone https://github.com/sametdogangun713-gif/P55-RAG-Assistant-backend.git
    git clone https://github.com/sametdogangun713-gif/P55-RAG-Assistant-frontend.git
    ```
-3. `P55-RAG-Assistant-backend` klasöründeki **`baslat.bat`**'a çift tıklayın: sanal ortam ve paketler kurulur (ilk sefer birkaç dakika, internet gerekir), `.env` oluşturulur, API **http://127.0.0.1:8000** adresinde açılır.
-4. `P55-RAG-Assistant-frontend` klasöründeki **`baslat.bat`**'a çift tıklayın: arayüz **http://localhost:5500** adresinde açılır.
+3. Backend'i aşağıdaki [adım adım kurulum](#adım-adım-kurulum-komutlarla) komutlarıyla kurup çalıştırın: sanal ortam ve paketler kurulur (ilk sefer birkaç dakika, internet gerekir), `.env` oluşturulur, API **http://127.0.0.1:8000** adresinde açılır.
+4. İkinci bir pencerede `P55-RAG-Assistant-frontend` klasöründe `python -m http.server 5500 --bind 127.0.0.1 --directory public` çalıştırın: arayüz **http://localhost:5500** adresinde açılır.
 5. **Kayıt ol** ile hesap açın (deneme için `ad@example.com` gibi uydurma bir e-posta yeterli), belge yükleyin, soru sorun.
 
 Testler: **`testleri_calistir.bat`**.

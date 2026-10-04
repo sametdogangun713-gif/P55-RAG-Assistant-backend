@@ -49,14 +49,14 @@ class BelgeTutarlilikTests(unittest.TestCase):
 
     def test_bat_dosyalari_crlf_ve_ascii(self):
         """Windows cmd, LF satir sonlu .bat dosyalarinda etiketleri (goto) yanlis okuyabilir."""
-        for ad in ("baslat.bat", "testleri_calistir.bat"):
+        for ad in ("testleri_calistir.bat",):
             veri = (KOK / ad).read_bytes()
             self.assertTrue(all(b < 128 for b in veri), f"{ad}: ASCII disi karakter")
             self.assertNotIn(b"\n", veri.replace(b"\r\n", b""), f"{ad}: CRLF olmayan satir sonu")
 
     def test_readme_kurulum_adimlarini_iceriyor(self):
         readme = (KOK / "README.md").read_text(encoding="utf-8")
-        for parca in ("baslat.bat", "testleri_calistir.bat", "requirements.txt", "requirements-dev.txt",
+        for parca in ("uvicorn app.main:app", "testleri_calistir.bat", "requirements.txt", "requirements-dev.txt",
                       "scripts.env_olustur", "scripts.create_admin", "pytest", "ANTHROPIC_API_KEY"):
             self.assertIn(parca, readme)
         self.assertNotIn("KULLANICI_ADIN", readme)

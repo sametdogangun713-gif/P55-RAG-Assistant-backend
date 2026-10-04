@@ -9,7 +9,7 @@
 - [ ] Backend testleri: `pytest` → hepsi geçiyor (sayıyı [`../test-raporu.md`](../test-raporu.md)'ye yaz)
 - [ ] Frontend testleri: `python -m unittest discover -s tests`
 - [ ] Bulutta [`../dagitim.md`](../dagitim.md) §5 kontrol listesi **gerçek API ile** (Groq + Hugging Face + Supabase)
-- [ ] Yerelde de aynı senaryo (`baslat.bat` ×2) — internet kesilirse demo yerelden yapılır
+- [ ] Yerelde de aynı senaryo (backend `uvicorn` + frontend `http.server`) — internet kesilirse demo yerelden yapılır
 - [ ] `git grep -n "sb_secret_\|gsk_\|hf_\|sk-ant-"` iki depoda da boş; `.env` depoda yok
 - [ ] Supabase projesi **aktif** (1 hafta kullanılmazsa durur — sunumdan 1 gün önce aç)
 

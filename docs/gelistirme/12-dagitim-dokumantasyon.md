@@ -21,17 +21,17 @@ Projeyi başka birinin kurup çalıştırabileceği, belgelenmiş ve buluta taş
 | **Bulut embedding** | `services/embedder.py` (`HFEmbedder`), `scripts/hf_dene.py` | Aynı model Hugging Face'te; Vercel'e torch/model sığmaz |
 | **Dosya deposu** | `services/storage.py`, `POST /documents/upload-url`, `POST /documents/complete`, frontend `docs.js` | Tarayıcı dosyayı Supabase Storage'a doğrudan yükler (Vercel isteği ≤ 4,5 MB) |
 | Vercel | `vercel.json` (iki depoda), `.python-version`, `.vercelignore`, `requirements*.txt` ayrımı | Bölge Frankfurt, istek ≤ 300 sn; sunucu paketi torch'suz (~120 MB) |
-| Kurulum | `scripts/supabase_kurulum.py`, `baslat.bat` (iki depoda), `scripts/env_olustur.py` | Tek komutla tablolar + kova; tek tıkla yerel çalışma |
+| Kurulum | `scripts/supabase_kurulum.py`, `scripts/env_olustur.py` | Tek komutla tablolar + kova; `.env` + `SECRET_KEY` otomatik |
 | Belgeler | `README.md` (iki depo), `docs/teknik-dokumantasyon.md`, `docs/dagitim.md`, `docs/yol-haritasi.md`, `CHANGELOG.md` | Kurulum, tüm API uçları, bulut adımları, ortam değişkenleri tablosu |
 | Testler | `tests/test_buyuk_yukleme.py`, `test_kurulum.py`, `test_sifre_sifirlama.py`, `test_bulut.py`, frontend `tests/test_arayuz.py` | Bulut kodu sahte Supabase/HF sunucularıyla; tüm testler PostgreSQL'e karşı da |
 
 ### Çalıştırma ve demo
-Yerel: backend `baslat.bat` (API, http://127.0.0.1:8000/docs) + frontend `baslat.bat` (http://localhost:5500).
+Yerel: backend `uvicorn app.main:app` (API, http://127.0.0.1:8000/docs) + frontend `python -m http.server 5500 --directory public` (http://localhost:5500).
 Bulut: [`../dagitim.md`](../dagitim.md).
 Testler: `pytest` (SQLite) · `set P55_TEST_PG_URL=… && pytest` (PostgreSQL) · frontend: `python -m unittest discover -s tests`.
 
 ### Kendi yapacakların
-1. **Temiz ortamda kurulum:** README'yi hiç bilmeyen biri gibi takip et (başka bir klasöre `git clone`, `baslat.bat`). Takıldığın her yeri README'ye ekle.
+1. **Temiz ortamda kurulum:** README'yi hiç bilmeyen biri gibi takip et (başka bir klasöre `git clone`, README'deki kurulum komutları). Takıldığın her yeri README'ye ekle.
 2. **Buluta kendin dağıt:** [`../dagitim.md`](../dagitim.md) 1–4. adımlar ve §5 kontrol listesi; her maddenin ekran görüntüsü. Anahtarları kendin gir.
 3. **Kullanılabilirlik:** arayüzde seni rahatsız eden bir şeyi bul ve düzelt (ör. bir hata mesajını daha anlaşılır yap, bir düğmeye klavye kısayolu ekle). Ne değiştirdiğini ve neden aşağıdaki "Deneyim" bölümüne yaz.
 4. **Erişilebilirlik:** klavyeyle (yalnızca Tab/Enter) giriş → yükleme → arama yapmayı dene; takıldığın yeri not et.
@@ -95,7 +95,7 @@ JavaScript ile istek atmadan önce sunucuya sorar (OPTIONS, "preflight"). Backen
 ### Sözlü sınav soruları ve cevap iskeleti
 **1) README'de hangi bölümler olmalı?** Ne yaptığı, hızlı başlangıç, adım adım kurulum (komutlarla), gereken anahtarlar ve nereye yazılacağı, testlerin nasıl çalıştırılacağı, ayarlar tablosu, sık sorunlar, klasör yapısı, güvenlik, bilinen sınırlar. Benim README'm iki depoyu ve iki çalışma biçimini (yerel / bulut) de anlatıyor.
 **2) Ortam değişkenlerini neden kullanıyorsun?** Gizli değerler koda/depoya girmesin; aynı kod farklı ortamlarda (yerel, test, bulut) farklı ayarlarla çalışsın. Örnek: `DATABASE_URL` yerelde SQLite dosyası, Vercel'de Supabase adresi — kod aynı.
-**3) Projeni başka biri nasıl çalıştırır?** Python 3.10+ → iki depoyu indir → backend `baslat.bat` (sanal ortam, paketler, `.env`, `SECRET_KEY` otomatik) → frontend `baslat.bat`. Bulut için `dagitim.md`.
+**3) Projeni başka biri nasıl çalıştırır?** Python 3.10+ → iki depoyu indir → backend: sanal ortam, `pip install -r requirements-local.txt`, `python -m scripts.env_olustur` (`.env` + `SECRET_KEY`), `uvicorn app.main:app` → frontend: `python -m http.server 5500 --directory public`. Bulut için `dagitim.md`.
 **4) Hangi kullanılabilirlik iyileştirmesini yaptın?** Gerçek yükleme yüzdesi; dosya seçilene kadar pasif "Yükle" düğmesi; sınırı aşan dosyayı göndermeden uyarma; şifremi unuttum; koyu/açık tema; mobil düzen; klavye ve ekran okuyucu için ARIA; "hareketi azalt". *(Kendi yaptığın iyileştirmeyi buraya ekle.)*
 **5) Dağıtımda karşılaşabileceğin sorun?** Vercel'in 4,5 MB istek ve 300 sn süre sınırı (çözüm: doğrudan depoya yükleme, parça sınırı); diskin kalıcı olmaması (Supabase); CORS hatası (`ALLOWED_ORIGINS`); havuzlayıcıda "prepared statement" hatası (`prepare_threshold=None`); Supabase ücretsiz projenin 1 hafta sonra durması; embedding modelinin pakete sığmaması (Hugging Face).
 
