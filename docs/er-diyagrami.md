@@ -1,8 +1,13 @@
 # ER Diyagramı
 
-> Güncel şema (SQLite migration 001–005 = PostgreSQL/Supabase 001–002). Hafta 3 başlangıç modelinden büyüdü;
+> Güncel şema (SQLite migration 001–006 = PostgreSQL/Supabase 001–003). Hafta 3 başlangıç modelinden büyüdü;
 > varlıkları ve ilişkileri kendin gözden geçirip doğrula;
 > sözlüde "neden böyle modelledin" diye sorulacak. Hafta 4'te bu modelden `001_init.sql` üretilir.
+
+![P55 ER diyagramı: 9 tablo, ilişki türleri 1-1, 1-N ve N-N](er-diyagrami.svg)
+
+*Çizgilerin iki ucundaki **1**, **N**, **0..1** ilişki türünü gösterir; kesikli çerçeveli `message_sources` N-N
+ilişkisinin ara tablosudur. Aynı şemanın metin (Mermaid) hâli aşağıda.*
 
 ```mermaid
 erDiagram
@@ -97,13 +102,24 @@ erDiagram
 ```
 
 ## İlişki türleri
-- USERS 1-N DOCUMENTS, USERS 1-N CONVERSATIONS
-- DOCUMENTS 1-N CHUNKS
-- CHUNKS 1-1 EMBEDDINGS (bir parçanın en fazla bir vektörü; `chunk_id` UNIQUE)
-- CONVERSATIONS 1-N MESSAGES
-- MESSAGES N-N CHUNKS — ara tablo MESSAGE_SOURCES (bir cevap birden çok parçaya, bir parça birden çok cevaba dayanabilir)
-- USERS 1-N EMAIL_CODES (`purpose`: `verify` = e-posta doğrulama, `reset` = parola sıfırlama; kullanıcı başına her amaç için en fazla bir geçerli kod, yeni kod eskisini siler)
-- USERS 1-N API_TOKENS (kişisel API anahtarları; kullanıcı başına en fazla `MAX_API_TOKENS_PER_USER`, hesap silinince CASCADE ile silinir)
+| İlişki | Tür | Nasıl kuruldu (yabancı anahtar) | Anlamı |
+|---|---|---|---|
+| users → documents | **1 – N** | `documents.user_id` → `users.id` | Bir kullanıcı çok belge yükler; her belgenin tek sahibi var |
+| users → conversations | **1 – N** | `conversations.user_id` → `users.id` | Bir kullanıcının çok sohbeti olur |
+| users → email_codes | **1 – N** | `email_codes.user_id` → `users.id` | Doğrulama ve sıfırlama kodları (`purpose`: `verify` / `reset`); her amaç için en fazla bir geçerli kod, yenisi eskisini siler |
+| users → api_tokens | **1 – N** | `api_tokens.user_id` → `users.id` | Kişisel API anahtarları; kullanıcı başına en fazla `MAX_API_TOKENS_PER_USER` |
+| documents → chunks | **1 – N** | `chunks.document_id` → `documents.id` | Bir belge çok parçaya bölünür; `(document_id, chunk_index)` UNIQUE |
+| chunks → embeddings | **1 – 1** (0..1) | `embeddings.chunk_id` → `chunks.id`, **UNIQUE** | Bir parçanın en fazla bir vektörü olur; UNIQUE kısıtı ilişkiyi 1-N'den 1-1'e çevirir |
+| conversations → messages | **1 – N** | `messages.conversation_id` → `conversations.id` | Bir sohbet çok mesaj içerir |
+| messages ↔ chunks | **N – N** | ara tablo `message_sources` (`message_id` + `chunk_id`, ikisi birlikte birincil anahtar) | Bir yanıt birçok parçaya dayanır, bir parça birçok yanıta kaynak olur |
+
+**N-N neden ara tabloyla?** İlişkisel veritabanında bir sütun tek değer tutar (1NF); "bu yanıtın kaynakları 3, 7, 12" gibi bir
+liste tek sütuna yazılamaz. Bu yüzden her (yanıt, parça) çifti `message_sources`'ta ayrı bir satırdır; çift birincil anahtar
+olduğu için aynı kaynak aynı yanıta iki kez eklenemez. Satır ayrıca ilişkinin kendi bilgisini taşır: `score` (benzerlik) ve
+`n` (yanıttaki `[n]` numarası).
+
+**Silme kuralı:** Bütün yabancı anahtarlar `ON DELETE CASCADE`: kullanıcı silinince belgeleri, parçaları, vektörleri,
+sohbetleri, mesajları, kodları ve API anahtarları da silinir; yetim (sahipsiz) kayıt kalmaz.
 
 ## Normalizasyon notu
 Her tabloda tek bir konu var ve her alan yalnızca birincil anahtara bağlı (3NF). Örneğin belge adı
