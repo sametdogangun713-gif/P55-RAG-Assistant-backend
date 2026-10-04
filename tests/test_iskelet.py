@@ -18,14 +18,16 @@ class IskeletTests(unittest.TestCase):
         self.assertIn("uploads/*", text)
         self.assertIn("data/*.db", text)
 
-    def test_env_example_gercek_anahtar_icermiyor(self):
-        for line in (ROOT / ".env.example").read_text(encoding="utf-8").splitlines():
+    def test_env_sablonu_gercek_anahtar_icermiyor(self):
+        """.env sablonu (scripts/env_olustur.py) depoya gider: icinde gercek anahtar olmamali."""
+        from scripts.env_olustur import SABLON
+        for line in SABLON.splitlines():
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
             key, value = line.split("=", 1)
             if key.upper().endswith(("KEY", "SECRET", "PASSWORD", "TOKEN")):
-                self.assertTrue(value == "" or "degistir" in value.lower(),
+                self.assertTrue(value == "" or value == "{secret_key}",
                                 f"{key} icin gercek deger yazilmis olabilir")
 
     def test_db_path_sqlite_url_cozumleme(self):

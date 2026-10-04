@@ -14,7 +14,7 @@ Belge yükleme, metin ayrıştırma ve parçalama (chunking) modülünü gelişt
 | `app/services/chunker.py` | Metni cümle sınırlarını koruyarak, örtüşen parçalara böler |
 | `app/services/documents.py` | Yükleme iş kuralları, sahiplik kontrolü, silme |
 | `app/api/documents.py` | `POST /documents`, `GET /documents`, `GET /documents/{id}`, `GET /documents/{id}/chunks`, `DELETE /documents/{id}` |
-| `app/core/config.py`, `.env.example` | `MAX_UPLOAD_MB`, `CHUNK_SIZE`, `CHUNK_OVERLAP` |
+| `app/core/config.py` | `MAX_UPLOAD_MB`, `CHUNK_SIZE`, `CHUNK_OVERLAP` |
 | `requirements*.txt` | python-multipart, pypdf, python-docx (+ reportlab testler için) |
 
 ### Çalıştırma ve demo

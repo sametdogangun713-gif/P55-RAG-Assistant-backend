@@ -143,9 +143,10 @@ class SaglayiciSecimiTests(unittest.TestCase):
 class GroqAnahtarGuvenligiTests(unittest.TestCase):
     def test_groq_anahtari_koda_gomulu_degil(self):
         kok = Path(__file__).resolve().parents[1]
-        for p in list((kok / "app").rglob("*.py")) + [kok / ".env.example"]:
+        from scripts.env_olustur import SABLON
+        for p in list((kok / "app").rglob("*.py")) + list((kok / "scripts").rglob("*.py")):
             self.assertNotIn("gsk_", p.read_text(encoding="utf-8"), f"{p.name}: gercek Groq anahtari gibi gorunen deger")
-        self.assertIn("GROQ_API_KEY=\n", (kok / ".env.example").read_text(encoding="utf-8"))
+        self.assertIn("GROQ_API_KEY=\n", SABLON)
 
 
 if __name__ == "__main__":

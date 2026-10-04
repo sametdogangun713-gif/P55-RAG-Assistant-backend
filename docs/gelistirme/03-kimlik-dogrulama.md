@@ -17,14 +17,13 @@ Kayıt, giriş ve rol tabanlı erişim ile kullanıcı yönetimini kurmak.
 | `app/api/admin.py` | `GET /admin/users` (yalnız yönetici) |
 | `scripts/create_admin.py` | Yönetici hesabı oluşturma |
 | `docs/guvenlik-notu.md` | Kısa güvenlik notu (teslim edilecek çıktı) |
-| `app/core/config.py`, `.env.example`, `requirements.txt` | `SECRET_KEY`, token süresi, PyJWT |
+| `app/core/config.py`, `requirements.txt` | `SECRET_KEY`, token süresi, PyJWT |
 
 ### Çalıştırma ve demo
 ```bat
 pip install -r requirements.txt
-copy .env.example .env
-python -c "import secrets; print(secrets.token_hex(32))"
-:: çıkan değeri .env içindeki SECRET_KEY= satırına yaz
+python -m scripts.env_olustur
+:: .env oluşur ve SECRET_KEY rastgele üretilir (secrets.token_hex(32))
 python -m scripts.create_admin
 uvicorn app.main:app --reload
 ```

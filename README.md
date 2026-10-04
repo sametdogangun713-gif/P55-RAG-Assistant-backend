@@ -61,7 +61,7 @@ python -m scripts.env_olustur
 uvicorn app.main:app
 ```
 - `requirements.txt` = sunucunun çalışması için gerekenler (Vercel yalnızca bunu kurar). `requirements-local.txt` = bunlar + yerel embedding modeli. `requirements-dev.txt` = bunlar + test araçları.
-- `python -m scripts.env_olustur`, `.env.example`'ı `.env` olarak kopyalar ve rastgele bir `SECRET_KEY` üretir.
+- `python -m scripts.env_olustur`, `.env` dosyasını betiğin içindeki şablondan oluşturur ve rastgele bir `SECRET_KEY` üretir (depoda ayrı bir `.env.example` yok).
 - API belgeleri (Swagger): http://127.0.0.1:8000/docs · Sağlık kontrolü: http://127.0.0.1:8000/health
 - macOS / Linux: `python3 -m venv venv` ve `source venv/bin/activate`.
 
@@ -129,7 +129,7 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `MAX_API_TOKENS_PER_USER` | `10` | Bir kullanıcının aynı anda en fazla kaç kişisel API anahtarı olabilir |
 | `SEND_EMAIL_INLINE` | Vercel'de `1` | E-postayı yanıttan önce gönder (Vercel işlevi yanıttan sonra durdurabilir) |
 
-Tam liste: [`.env.example`](.env.example) · Bulut için hangi değerin nereye yazılacağı: [`docs/dagitim.md`](docs/dagitim.md).
+Yazılmayan her ayar `app/core/config.py`'deki varsayılanı kullanır · Bulut için hangi değerin nereye yazılacağı: [`docs/dagitim.md`](docs/dagitim.md).
 
 ## Sık karşılaşılan sorunlar
 | Belirti | Çözüm |

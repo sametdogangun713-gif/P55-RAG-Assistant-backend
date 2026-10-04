@@ -13,7 +13,6 @@ KOK = Path(__file__).resolve().parent.parent
 class EnvOlusturTests(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())
-        shutil.copy(KOK / ".env.example", self.dir / ".env.example")
 
     def tearDown(self):
         shutil.rmtree(self.dir, ignore_errors=True)
@@ -39,13 +38,17 @@ class EnvOlusturTests(unittest.TestCase):
 
 
 class BelgeTutarlilikTests(unittest.TestCase):
-    def test_env_example_degiskenleri_kodda_okunuyor(self):
-        """.env.example'daki her degisken config.py'de gercekten okunuyor mu? (unutulmus/yazim hatali ayar kalmasin)"""
-        ornek = (KOK / ".env.example").read_text(encoding="utf-8")
-        degiskenler = re.findall(r"(?m)^([A-Z_]+)=", ornek)
+    def test_env_sablonu_ve_readme_degiskenleri_kodda_okunuyor(self):
+        """.env sablonundaki ve README ayar tablosundaki her degisken config.py'de gercekten okunuyor mu?
+        (unutulmus/yazim hatali ayar kalmasin)"""
+        degiskenler = re.findall(r"(?m)^([A-Z_]+)=", env_olustur.SABLON)
+        readme = (KOK / "README.md").read_text(encoding="utf-8")
+        degiskenler += re.findall(r"(?m)^\| `([A-Z][A-Z0-9_]+)`", readme)
+        self.assertIn("MAX_API_TOKENS_PER_USER", degiskenler)
         config = (KOK / "app" / "core" / "config.py").read_text(encoding="utf-8")
-        eksik = [d for d in degiskenler if f'"{d}"' not in config]
+        eksik = sorted({d for d in degiskenler if f'"{d}"' not in config})
         self.assertEqual(eksik, [])
+
 
     def test_bat_dosyalari_crlf_ve_ascii(self):
         """Windows cmd, LF satir sonlu .bat dosyalarinda etiketleri (goto) yanlis okuyabilir."""

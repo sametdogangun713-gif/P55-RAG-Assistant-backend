@@ -9,7 +9,7 @@
 | Kaba kuvvet | 5 başarısız denemede 5 dk geçici kilit (bellekte sayaç) |
 | SQL enjeksiyonu | Tüm sorgular parametreli (`?`) |
 | Yönetici hesabı | Kendi kendine kayıtla yönetici olunamaz; `python -m scripts.create_admin` |
-| Gizli anahtarlar | `.env` (git'e girmez), örnek: `.env.example` |
+| Gizli anahtarlar | `.env` (git'e girmez); boş şablon `scripts/env_olustur.py` içinde, depoya gerçek değer girmez |
 
 ## Bulut (Supabase + Vercel) için ek önlemler
 | Konu | Önlem |

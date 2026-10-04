@@ -101,7 +101,7 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    | `GROQ_MODEL` | `openai/gpt-oss-120b` | |
    | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` | **gerekli**: `smtp.gmail.com`, `587`, Gmail adresin, Gmail **uygulama şifresi** (16 harf, boşluksuz), Gmail adresin. Boşsa üretimde kayıt (doğrulama kodu) ve "Şifremi unuttum" 503 döner | `SMTP_PASSWORD` **evet** |
 
-   Yazılmayanlar varsayılanı kullanır (`.env.example`). `UPLOAD_DIR` yazma: Vercel'de otomatik `/tmp/uploads`.
+   Yazılmayanlar varsayılanı kullanır (`app/core/config.py`, liste README'de). `UPLOAD_DIR` yazma: Vercel'de otomatik `/tmp/uploads`.
 3. **Deploy**. Bitince adres: `https://p55-rag-assistant-backend.vercel.app` (proje adına göre değişir). Dene:
    - `…/health` → `{"status":"ok","database":"postgres"}` (`"sqlite"` ise `DATABASE_URL` Vercel'de tanımlı değil)
    - `…/docs` → Swagger sayfası

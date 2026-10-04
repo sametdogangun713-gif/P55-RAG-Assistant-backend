@@ -22,12 +22,12 @@ Gömme ve vektör arama servislerini, harici bir yapay zekâ API'siyle (Claude) 
 | `app/api/deps.py` | `get_llm` bağımlılığı (`LLM_PROVIDER`'a göre istemci; yanlış değer → 503) |
 | `app/services/vector_search.py` | Vektör matrisini daha hızlı kurma (ölçümlü) |
 | `scripts/benchmark_search.py` | Arama hızı ölçümü |
-| `app/core/config.py`, `.env.example` | `LLM_PROVIDER`, `ANTHROPIC_API_KEY` / `GROQ_API_KEY` (boş), modeller, zaman aşımı, deneme sayısı |
+| `app/core/config.py`, `scripts/env_olustur.py` | `LLM_PROVIDER`, `ANTHROPIC_API_KEY` / `GROQ_API_KEY` (boş), modeller, zaman aşımı, deneme sayısı |
 | `tests/test_groq.py` | Groq istek biçimi, yanıt ayrıştırma, sağlayıcı seçimi testleri |
 
 ### API anahtarı kurulumu (ÖNEMLİ)
 1. Anahtarı al: Groq için https://console.groq.com/keys (ücretsiz), Claude için Anthropic Console (ücretli).
-2. **Yalnızca** `.env` dosyasına yaz: `LLM_PROVIDER=groq` ve `GROQ_API_KEY=...` (ya da `LLM_PROVIDER=claude` ve `ANTHROPIC_API_KEY=...`). `.env` git'e girmez; `.env.example` içinde anahtarlar **boş** kalır.
+2. **Yalnızca** `.env` dosyasına yaz: `LLM_PROVIDER=groq` ve `GROQ_API_KEY=...` (ya da `LLM_PROVIDER=claude` ve `ANTHROPIC_API_KEY=...`). `.env` git'e girmez; `scripts/env_olustur.py` şablonunda anahtarlar **boş** kalır.
 3. Anahtarı asla sohbete, koda, ekran görüntüsüne, commit mesajına yazma. Yanlışlıkla GitHub'a gittiyse hemen Console'dan **iptal et ve yenisini üret** (geçmişten silmek yetmez).
 
 ### Çalıştırma ve demo
@@ -117,7 +117,7 @@ Daha da büyürse sıradaki adımlar (yapılmadı, nedenleriyle): kullanıcı ba
 ### Sözlü sınav soruları ve cevap iskeleti
 **1) Vektörleri nerede sakladın?** SQLite'ta `embeddings` tablosunda `float32` BLOB olarak; `chunk_id` ile parçaya, `model` ile üreten modele bağlı. Ayrı vektör veritabanı kullanmadım çünkü ölçek küçük ve tek dosyalı kurulum işimi basitleştiriyor.
 **2) Arama yavaşsa ne yaptın?** Önce ölçtüm (benchmark): maliyet SQL okuma ve matris kurmadaydı, çarpım değil. Matris kurmayı hızlandırdım; daha büyük ölçekte önbellek veya ANN indeksi planlıyorum.
-**3) API anahtarını nasıl ve nerede sakladın?** Ortam değişkeni olarak `.env` dosyasında; `.env` `.gitignore`'da, `.env.example`'da değer boş. Koda gömülü değil, hata mesajına/loga yazılmıyor. Sızarsa iptal edip yenisini üretirim.
+**3) API anahtarını nasıl ve nerede sakladın?** Ortam değişkeni olarak `.env` dosyasında; `.env` `.gitignore`'da, depodaki şablonda değer boş. Koda gömülü değil, hata mesajına/loga yazılmıyor. Sızarsa iptal edip yenisini üretirim.
 **4) API çağrısı başarısızsa ne oluyor?** Geçici hatada (429/5xx/zaman aşımı) üstel geri çekilmeyle yeniden denenir; kalıcı hatada hemen anlaşılır bir istisna fırlar; API katmanı bunu 503/504/429/502'ye çevirir; kullanıcı anlaşılır mesaj görür, sistem çökmez.
 **5) Yanıtı nasıl ayrıştırdın?** JSON'u çözüp `content` blok listesinden `type == "text"` bloklarını birleştiriyorum (Groq'ta `choices[0].message.content`); bozuk JSON, eksik alan ya da boş metin `LLMAPIError` olur.
 **Ek) Neden iki sağlayıcı, kodu nasıl ayırdın?** Claude ücretli, Groq'un ücretsiz katmanı var. Ortak işler (yeniden deneme, hata yönetimi) taban sınıfta; farklı olan istek/yanıt biçimi alt sınıflarda. `.env`'deki `LLM_PROVIDER` ile kod değiştirmeden geçiş yapılır.

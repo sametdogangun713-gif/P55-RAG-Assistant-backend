@@ -15,6 +15,8 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ### Değişti
 - Hesap yönetimi (ad/parola değiştirme, hesap silme, anahtar işlemleri) ve yönetici uçları yalnızca giriş oturumuyla
   (`require_session`); API anahtarıyla 403.
+- `.env.example` ve `baslat.bat` depodan kaldırıldı (geliştirici kararı). `.env` şablonu artık
+  `scripts/env_olustur.py` içinde; ayarların tam listesi README'de. Kurulum komutlarla anlatılıyor.
 
 ## [0.17.0] — 2026-10-03 · büyük belge ve genel sohbet
 ### Eklendi

@@ -15,7 +15,7 @@ Geliştirme ortamını kurmak, mimariyi ve veri modelini tasarlamak, GitHub depo
 | `app/api`, `app/services`, `app/db` | Boş katmanlar (sunum / iş / veri) |
 | `docs/er-diyagrami.md` | ER diyagramı (Mermaid, GitHub'da çizilir) |
 | `docs/mimari.md` | Katmanlı mimari şeması ve gerekçe alanı |
-| `.gitignore`, `.env.example` | Gizli dosyaları dışarıda tutma |
+| `.gitignore`, `scripts/env_olustur.py` | Gizli dosyaları dışarıda tutma; `.env`'i boş şablondan oluşturma |
 | `requirements*.txt`, `pytest.ini` | Bağımlılıklar ve test ayarı |
 
 ### Çalıştırma (Windows)
@@ -23,7 +23,7 @@ Geliştirme ortamını kurmak, mimariyi ve veri modelini tasarlamak, GitHub depo
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements-dev.txt
-copy .env.example .env
+python -m scripts.env_olustur
 uvicorn app.main:app --reload
 ```
 Tarayıcıda `http://127.0.0.1:8000/health` → `{"status":"ok"}`. Swagger: `http://127.0.0.1:8000/docs`

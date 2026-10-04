@@ -141,8 +141,9 @@ class ErkenReddetmeHttpTests(unittest.TestCase):
 
 
 class AyarTests(unittest.TestCase):
-    def test_env_example_500_mb(self):
-        env = (KOK / ".env.example").read_text(encoding="utf-8")
+    def test_env_sablonu_500_mb(self):
+        from scripts.env_olustur import SABLON
+        env = SABLON
         self.assertIn("MAX_UPLOAD_MB=500\n", env)
         self.assertIn("MAX_CHUNKS_PER_DOCUMENT=", env)
 

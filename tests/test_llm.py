@@ -205,11 +205,11 @@ class AnahtarGuvenligiTests(unittest.TestCase):
     def test_anahtar_koda_gomulu_degil(self):
         from pathlib import Path
         kok = Path(__file__).resolve().parents[1]
-        for p in list((kok / "app").rglob("*.py")) + [kok / ".env.example"]:
+        from scripts.env_olustur import SABLON
+        for p in list((kok / "app").rglob("*.py")) + list((kok / "scripts").rglob("*.py")):
             metin = p.read_text(encoding="utf-8")
             self.assertNotIn("sk-ant-", metin, f"{p.name}: gercek anahtar gibi gorunen deger")
-        env = (kok / ".env.example").read_text(encoding="utf-8")
-        self.assertIn("ANTHROPIC_API_KEY=\n", env)
+        self.assertIn("ANTHROPIC_API_KEY=\n", SABLON)
 
 
 if __name__ == "__main__":

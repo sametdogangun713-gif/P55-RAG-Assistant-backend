@@ -14,7 +14,7 @@ Sistemin sınır durumlarını ve hata senaryolarını test etmek, bulunan hatal
 | `app/services/documents.py` | Uzun dosya adında uzantıyı koruma (Hata 1) |
 | `app/core/security.py` | `verify_password` metin dışı girdide çökmez (Hata 2) |
 | `app/services/auth.py` | Başarısız giriş sayacına üst sınır (Hata 3) |
-| `app/core/config.py`, `app/main.py`, `.env.example` | `APP_ENV`, üretimde zayıf `SECRET_KEY` engeli (Hata 4), `MAX_DOCX_UNCOMPRESSED_MB` |
+| `app/core/config.py`, `app/main.py` | `APP_ENV`, üretimde zayıf `SECRET_KEY` engeli (Hata 4), `MAX_DOCX_UNCOMPRESSED_MB` |
 | `app/services/parser.py` | DOCX zip bombası kontrolü (Hata 5) |
 | `app/services/vector_search.py` | Arama sorgusu uzunluk sınırı (Hata 6) |
 | `tests/__init__.py` | Testlere uzun, sahte gizli anahtar (uyarıları giderir) |
@@ -99,7 +99,7 @@ Testlerde **gerçek** SQLite (bellekte, `:memory:`) ve gerçek dosya sistemi (ge
 | `app/services/documents.py` | Dosya adı kırpılırken uzantı korunur | 1 |
 | `app/core/security.py` | `verify_password` metin dışı girdide `False` | 2 |
 | `app/services/auth.py` | `MAX_TRACKED_EMAILS`, `_purge_failed()` | 3 |
-| `app/core/config.py`, `app/main.py`, `.env.example` | `APP_ENV`, `check_secret_key()`, `MAX_DOCX_UNCOMPRESSED_MB` | 4, 5 |
+| `app/core/config.py`, `app/main.py` | `APP_ENV`, `check_secret_key()`, `MAX_DOCX_UNCOMPRESSED_MB` | 4, 5 |
 | `app/services/parser.py` | DOCX açılmış boyut denetimi | 5 |
 | `app/services/vector_search.py` | Sorgu uzunluğu sınırı | 6 |
 | `tests/__init__.py` | Testlere uzun, sahte `SECRET_KEY` | 8 |

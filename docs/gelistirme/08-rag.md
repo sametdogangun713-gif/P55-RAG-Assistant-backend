@@ -13,7 +13,7 @@
 | `app/services/prompts.py` | Sistem istemi (kurallar), kaynak bloklarını güvenli biçimde (escape) biçimleme, istem sürümü |
 | `app/services/rag.py` | Hat: ara → eşik süz → LLM → **yanıtı doğrula** → kaynaklarıyla döndür |
 | `app/api/ask.py` | `POST /ask` (sohbet geçmişsiz tek soru-cevap) |
-| `app/core/config.py`, `.env.example` | `RAG_TOP_K`, `MIN_SCORE` |
+| `app/core/config.py` | `RAG_TOP_K`, `MIN_SCORE` |
 | `docs/istem-deneyleri.md` | İstem ve çıktı günlüğü şablonu (teslim edilecek çıktı) |
 
 ### Halüsinasyon önleme: üç savunma katmanı
