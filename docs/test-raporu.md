@@ -1,13 +1,19 @@
 # Test Raporu
 
-## 0. Son durum (2026-10-03 — iki depo, SQLite + PostgreSQL)
+## 0. Son durum (2026-10-04 — sürüm 0.18.1, SQLite + PostgreSQL)
 Sayılar gerçek çalıştırmadan alındı (Windows 11, Python 3.12.10, FastAPI 0.142.2, pytest 9.1.1, pytest-cov 7.1.0).
 
 | Takım | Veritabanı | Sonuç | Kapsam (`--cov=app`) |
 |---|---|---|---|
-| Backend `pytest` | SQLite (bellekte, varsayılan) | **240 geçti, 2 atlandı, 0 başarısız** | **%91** |
-| Backend `pytest` + `P55_TEST_PG_URL` | PostgreSQL 16.2 + pgvector (yerel, `pgserver` paketi) | **241 geçti, 1 atlandı, 0 başarısız** | **%94** |
-| Frontend `python -m unittest discover -s tests` | — | **16 geçti** | — |
+| Backend `pytest` | SQLite (bellekte, varsayılan) | **319 geçti, 2 atlandı, 0 başarısız** | **%92** |
+| Backend `pytest` + `P55_TEST_PG_URL` | PostgreSQL 16.2 + pgvector (yerel, `pgserver` paketi) | **320 geçti, 1 atlandı, 0 başarısız** | **%95** |
+| Frontend `python -m unittest discover -s tests` | — | **26 geçti** | — |
+
+- 2026-10-03 → 10-04 arasında eklenen testler: e-posta doğrulama, Hesabım, arama kalitesi, parça parça indeksleme, genel
+  sohbet, PDF rapor, kişisel API anahtarı (19: bildirim e-postası ve yönetici iptali dahil). Önceki ölçüm 240 / 241 / 16 idi.
+- Canlı ortam (2026-10-04, giriş gerektirmeyen kontroller): `/health` → `database: postgres`; korumalı uçlar
+  (`/auth/me`, `/documents`, `/reports/usage.pdf`, `/admin/users`, `/admin/tokens`) girişsiz 401; CORS yalnızca frontend
+  adresine izin veriyor; frontend en son sürümü (`admin.js?v=36`) sunuyor.
 
 - Atlananlar: `test_vektor.py` — sentence-transformers *kurulu değilken* verilen hatayı sınar, paket kurulu olduğu için atlanır.
   `test_bulut.py::PgVectorTests` — yalnızca PostgreSQL'de anlamlı; SQLite koşusunda atlanır.
@@ -15,7 +21,7 @@ Sayılar gerçek çalıştırmadan alındı (Windows 11, Python 3.12.10, FastAPI
 - Yeni testler (`tests/test_bulut.py`, 21): Hugging Face istek biçimi / yeniden deneme / anahtar sızmaması; Supabase Storage imzalı adres, yol sahipliği, gerçek boyut kontrolü, silme; HTTP üzerinden depo akışı; CORS; e-postanın yanıttan önce gönderilmesi; **pgvector ile numpy aynı sonucu veriyor**.
 - PostgreSQL koşusu **gerçek bir hata** buldu (NUL karakteri → 500): [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md).
 - Elle deneme (2026-10-03): frontend `http://localhost:5500` + backend `http://127.0.0.1:8000` (PostgreSQL'e bağlı) ayrı adreslerde; tarayıcıda kayıt → giriş → yükleme → arama → rapor çalıştı, CORS ön istekleri (OPTIONS) 200, konsol temiz.
-- **Test edilmeyen:** gerçek Supabase / Hugging Face / Vercel (hesaplar geliştiricide). İstek biçimleri sahte sunucularla doğrulandı.
+- **Test edilmeyen (otomatik testlerde):** gerçek Supabase / Hugging Face / Vercel. İstek biçimleri sahte sunucularla doğrulandı; canlıda elle denenenler [`dagitim.md`](dagitim.md) ve AI günlüğünde.
 
 Aşağıdaki bölümler Hafta 13 (2026-10-02/03) ölçümüdür; tarihçe olarak korunuyor.
 

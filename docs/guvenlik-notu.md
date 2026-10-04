@@ -30,6 +30,11 @@
 - Her anahtarın son kullanma tarihi var (en fazla 1 yıl), tek tek silinebilir; silinen/süresi dolan anahtar 401 alır.
 - Anahtarla **yapılamayanlar** (403): yeni anahtar üretme/listeleme/silme, ad ve parola değiştirme, hesap silme,
   yönetim işlemleri. Sızan bir anahtar kendini kalıcı hale getiremez ve hesabı ele geçiremez.
+- Anahtar oluşturulunca hesap sahibine **bildirim e-postası** gider (ad + ilk 12 karakter; anahtarın kendisi e-postada
+  yok). Parolası ele geçirilip anahtar üretilirse sahibi haberdar olur.
+- **Yönetici** tüm anahtarları sahibiyle görür (ilk 12 karakter, tarihler) ve sızan anahtarı iptal eder; sahibine
+  e-posta gider. Yönetici anahtar **üretemez** ve anahtarın kendisini göremez: hesaba yalnızca anahtarı oluşturan girer.
+  (Kullanıcının haberi olmadan onun adına anahtar üretmek bilerek eklenmedi: bu bir arka kapı olurdu.)
 - Tarayıcıdan çalışan bir 3. parti site, CORS yüzünden ancak `ALLOWED_ORIGINS`'e eklenirse bağlanabilir; sunucudan
   çalışan uygulamalar (Postman, Python betiği, bot) CORS'tan etkilenmez. Anahtar tarayıcı koduna gömülmemeli.
 

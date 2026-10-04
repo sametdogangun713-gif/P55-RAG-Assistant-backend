@@ -18,12 +18,12 @@ görevleri yapılmamış modül %70 görünür.
 | Kimlik doğrulama ve roller | 5 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 · e-posta doğrulama, şifremi unuttum, kişisel API anahtarı da var |
 | Belge yükleme, ayrıştırma, parçalama | 6 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 · TXT/PDF/DOCX; bulutta 50 MB |
 | Embedding + vektör arama | 7 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 · yerel MiniLM / bulut `bge-m3` |
-| Entegrasyon + web arayüzü (vize) | 8 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 · `v0.1-vize` etiketi henüz yok |
+| Entegrasyon + web arayüzü (vize) | 8 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 · `v0.1-vize` etiketi iki depoda var |
 | Harici LLM API istemcisi | 9 | Kod tamam, gösterim bekliyor | 70 | 0 / 5 · Groq (gerçek API ile denendi) + Claude |
 | RAG: kaynaklı yanıt | 10 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 · istem `rag-v2` |
 | Sohbet geçmişi ve bağlam | 11 | Kod tamam, gösterim bekliyor | 70 | 0 / 4 |
 | Kullanım raporu ve yönetim | 12 | Kod tamam, gösterim bekliyor | 70 | 0 / 5 · rapor PDF |
-| Test ve hata ayıklama | 13 | Kod tamam, gösterim bekliyor | 70 | 0 / 5 · 314 test geçiyor (SQLite), kapsam %92 |
+| Test ve hata ayıklama | 13 | Kod tamam, gösterim bekliyor | 70 | 0 / 5 · 319 test geçiyor (SQLite, %92), PostgreSQL 320 (%95) |
 | Dokümantasyon, dağıtım | 14 | Kod tamam, gösterim bekliyor | 70 | 0 / 5 · Supabase + Vercel'de canlı |
 | Final entegrasyon, sunum | 15 | Planlandı | 10 | 0 / 6 · `docs/gelistirme/13-final.md` iskelet |
 
@@ -33,3 +33,4 @@ görevleri yapılmamış modül %70 görünür.
 | Tarih | Değişiklik |
 |---|---|
 | 04.10.2026 | İlk sürüm |
+| 04.10.2026 | 0.18.1 (API anahtarı bildirimi, yönetici denetimi); test sayıları yeniden ölçüldü; `v0.1-vize` etiketi var |

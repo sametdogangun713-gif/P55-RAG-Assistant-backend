@@ -1,7 +1,7 @@
 # Yol haritası ve ilerleme
 
 Ders planındaki (Bilgisayar Uygulamaları I, P55) adımların durumu ve kalan güzergâh.
-Son güncelleme: **2026-10-03**. Ölçüm: backend `pytest` → 240 geçti / 2 atlandı (SQLite, kapsam %91); PostgreSQL 16 + pgvector: 241 geçti / 1 atlandı (kapsam %94); frontend 16 test geçti.
+Son güncelleme: **2026-10-04** (sürüm 0.18.1). Ölçüm: backend `pytest` → 319 geçti / 2 atlandı (SQLite, kapsam %92); PostgreSQL 16 + pgvector: 320 geçti / 1 atlandı (kapsam %95); frontend 26 test geçti.
 
 ## 1. Adımlar
 | Adım | Konu | Ders planı | Kod | Test | Belge | Senin görevlerin |
@@ -20,24 +20,23 @@ Son güncelleme: **2026-10-03**. Ölçüm: backend `pytest` → 240 geçti / 2 a
 | 12 | Dokümantasyon, arayüz, dağıtım (Supabase + Vercel, iki depo) | Hafta 14 | ✅ | ✅ | ✅ | 0 / 5 |
 | 13 | Final entegrasyon, `v1.0-final`, sunum | Hafta 15 | — | — | 🟡 iskelet | 0 / 6 |
 
-**Özet:** kod ve otomatik testler tamam; bulut kodu yazıldı ve yerelde doğrulandı ama **gerçek hesaplarla dağıtım yapılmadı**;
-"senin görevlerin" **0 / 57**. Ders kuralı gereği bu görevleri ve sözlü açıklamayı **sen** yaparsın — açıklanamayan kod puanlanmaz.
+**Özet:** kod ve otomatik testler tamam; uygulama **canlıda** (Supabase + Vercel, 2026-10-03'ten beri; iki depo GitHub'da,
+`v0.1-vize` etiketi iki depoda da var); "senin görevlerin" **0 / 57**. Ders kuralı gereği bu görevleri ve sözlü açıklamayı **sen** yaparsın — açıklanamayan kod puanlanmaz.
 
 ## 2. Kalan güzergâh (sıralı)
 Sıra, birbirine bağımlılığa göre seçildi: önce hesaplar (her şey onlara bağlı), sonra gerçek ortamda doğrulama, sonra kişisel görevler, en son final.
 
-### A. Depolar ve hesaplar — *sen* (≈ 1 saat)
-1. GitHub'da iki **boş, public** depo: `P55-RAG-Assistant-backend`, `P55-RAG-Assistant-frontend` (README ekleme seçeneği kapalı).
-2. Yükleme kararı: ders kuralı "her hafta o haftanın işi yüklenir, dönem sonunda toplu yükleme kabul edilmez" diyor.
-   Bu dosyaların ne zaman ve nasıl yükleneceğini **hocanla netleştir**; commit tarihleri asla geriye çekilmez.
-3. Supabase, Hugging Face, Vercel hesapları → [`dagitim.md`](dagitim.md) 1–4. adımlar. Anahtarları **kendin** yaz.
+### A. Depolar ve hesaplar — ✅ tamam
+1. ✅ GitHub'da iki public depo (`P55-RAG-Assistant-backend`, `P55-RAG-Assistant-frontend`).
+2. ✅ Yükleme kararı: hoca toplu yüklemeye izin verdi (geliştiricinin sözü). Commit tarihleri gerçek.
+3. ✅ Supabase (`eu-central-1`), Hugging Face, Vercel hesapları; tablolar + gizli kova kuruldu; iki proje yayında.
 
-### B. Gerçek ortamda doğrulama — *birlikte*
-1. `python -m scripts.hf_dene` → HF ile yerel model aynı vektörü veriyor mu (≈ 1,00)?
-2. `python -m scripts.supabase_kurulum` → tablolar + gizli kova.
-3. [`dagitim.md`](dagitim.md) §5 uçtan uca kontrol listesi; her maddenin ekran görüntüsü.
-4. Bulutta `MIN_SCORE` kontrolü: belgede **olan** 5 / **olmayan** 5 soru, `best_score` değerleri (yerel ölçüm: var ≥ 0,430 / yok ≤ 0,270).
-5. Gerçek Supabase'te karşılaşılan her sorunu [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md)'ye ekle.
+### B. Gerçek ortamda doğrulama — *birlikte* (kısmen)
+1. ✅ Canlıda: `/health` → postgres, CORS, doğrulama e-postası ulaştı, belge yükleme + yeniden indeksleme + sohbet çalıştı.
+2. ⬜ [`dagitim.md`](dagitim.md) §5 uçtan uca kontrol listesi **maddeleri tek tek, ekran görüntüsüyle** (rapor PDF'i, API anahtarı
+   bildirimi, yönetici iptali, şifremi unuttum canlıda henüz denenmedi).
+3. ⬜ Bulutta `MIN_SCORE` kontrolü (`bge-m3`, eşik 0,40): belgede **olan** 5 / **olmayan** 5 soru, `best_score` değerleri.
+4. ⬜ Canlıda karşılaşılan her sorunu [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md)'ye ekle.
 
 ### C. Senin görevlerin — *sen* (öncelik sırasıyla)
 Her görevin ayrıntısı ilgili adım belgesinde ("Kendi yapacakların"). Sözlüde sorulma olasılığı yüksek olanlar önce:

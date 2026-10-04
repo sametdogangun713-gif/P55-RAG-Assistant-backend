@@ -41,6 +41,7 @@ Her hafta yeni satırlar eklenir. (≤ 02.10: proje dosyalarının devralındı�
 | 04.10 | Claude Code | Kişisel API anahtarı (Adım 12) | 3. parti uygulamalar için kullanıcıya özel token | 💬 | 💬 |
 | 04.10 | Claude Code | Ders formları (raporlar) | Ders paketindeki rapor şablonlarını depoya ekle | 💬 | 💬 |
 | 04.10 | Claude Code | Teslim kontrolü, gerekçeler (Adım 1) | Haftalık teslimler GitHub'da mı; gerekçe bölümlerini doldur | 💬 | 💬 |
+| 04.10 | Claude Code | API anahtarı bildirimi, yönetici denetimi (Adım 12) | Anahtar oluşunca e-posta; yönetici anahtarları görsün | 💬 | 💬 |
 
 ## Adım 1 — Kurulum, mimari ve ER diyagramı (Hafta 3)
 
@@ -277,6 +278,13 @@ Her hafta yeni satırlar eklenir. (≤ 02.10: proje dosyalarının devralındı�
 - **Aldığım çıktı (özet):** Ders paketinin Bölüm 4'ündeki 10 form okundu. `docs/raporlar/`: proje öneri formu (2. hafta çıktısı), risk analizi, proje takvimi, proje izleme formu, GitHub kontrol listesi, haftalık rapor şablonu (ilerleme raporu + kontrol listesi + öz değerlendirme); AI günlüğünün başına Form 8 tablosu; Form 10 için mevcut belgelerle eşleme. Olgusal alanlar dolduruldu; öz değerlendirme, risk puanları, "neden seçtim", "açıklar mı?" gibi alanlar 💬 ile işaretlenip boş bırakıldı. Danışman kontrol formu öğretim elemanına ait olduğu için depoya konmadı.
 - **Kendi yaptığım değişiklik / doğrulama:** _(numaranı yaz; 💬 alanlarını doldur; risk puanlarını kendi değerlendirmene göre düzelt)_
 - **Neden bu çözümü kullandım:** _(kendi cümlelerinle)_
+
+### Kayıt 9 (API anahtarı bildirimi ve yönetici denetimi — 2026-10-04)
+- **Araç:** Claude Code
+- **İstem (özet):** İlk istek: "API anahtarını kullanıcı oluşturmasın, biz oluşturup ekleyelim, kullanıcı haberdar olmasın." Claude bunun kullanıcının haberi olmadan hesabına erişim (arka kapı) anlamına geldiğini, KVKK'ya ve güvenlik notuna aykırı olduğunu söyleyip yapmadı. Asıl amaç netleşti: "Kullanıcının hesabına başkası girmesin, yalnızca anahtarı oluşturan girsin." Claude mevcut tasarımın bunu zaten sağladığını kodla ve testlerle gösterdi. Ardından istek: "E-posta bildirimi ekle; yönetici anahtarı versin ya da görsün." Yönetici anahtar verseydi hesaba ikinci bir kişi girebilirdi, bu yüzden "görsün" seçeneği uygulandı.
+- **Aldığım çıktı (özet):** Anahtar oluşturulunca sahibine bildirim e-postası (`mailer.send_token_created`; yalnızca ad, ilk 12 karakter, tarihler, anahtarın kendisi yok: `api_tokens.public_info`). Yönetici `GET /admin/tokens` (tüm anahtarlar sahibiyle; anahtar/özet dönmez) ve `DELETE /admin/tokens/{id}` (iptal + sahibine e-posta); yönetici anahtar **üretemez**. `_deliver` ortak `deps.deliver_email`'e taşındı. Arayüz: Yönetim sekmesinde "API anahtarları" tablosu. Claude'un doğrulaması: 5 yeni backend testi + 1 arayüz testi, backend 319 / frontend 26 test geçti; tarayıcıda (yerel, sentetik hesaplar) liste ve iptal çalıştı, iki bildirim de geliştirme konsoluna yazıldı (SMTP yok); push sonrası canlıda `/admin/tokens` → 401 (uç yayında, korumalı). **Gerçek e-posta gönderimi ve canlıda yönetici ekranı denenmedi.** PostgreSQL'de testler koşulmadı.
+- **Kendi yaptığım değişiklik / doğrulama:** _(canlıda anahtar oluştur → e-posta geldi mi; yönetici olarak tabloyu gör ve iptal et → ikinci e-posta; ekran görüntüsü)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden yönetici anahtarı göremiyor/üretemiyor, neden e-postada anahtarın kendisi yok)_
 
 ## Adım 13 — Final (Hafta 15)
 
