@@ -72,7 +72,14 @@ Kelime araması yalnızca aynı kelimeyi bulur; soru farklı kelimelerle sorulun
 | Arayüz | HTML + CSS + JavaScript (çerçevesiz) | Ayrı depo; her satırı açıklanabilir |
 | Dağıtım | Vercel (backend + frontend) · Supabase Storage (dosyalar) | Ücretsiz plan |
 
-💬 **Seçimlerimin gerekçesi (kendi cümlelerimle):** _(öğrenci yazar — sözlüde sorulur)_
+💬 **Seçimlerimin gerekçesi (kendi cümlelerimle):** Python'u seçtim çünkü embedding ve yapay zekâ kütüphanelerinin
+çoğu Python'da; FastAPI ise yazdığım uç noktalardan Swagger belgesini kendisi çıkarıyor, API'yi tarayıcıdan
+deneyebiliyorum. Veritabanında saf SQL ve numaralı migration dosyaları kullandım ki tabloları ve kısıtları kendim
+yazıp açıklayabileyim; yerelde kurulum istemeyen SQLite, bulutta ise vektör aramasını da yapabilen PostgreSQL + pgvector
+(Supabase). Embedding ve yanıt modeli için ücretsiz seçenekleri tercih ettim (yerel model / Hugging Face, Groq), çünkü
+proje öğrenci bütçesiyle çalışmalı; sağlayıcı `.env`'den değiştiği için gerekirse Claude API'ye geçilebiliyor. Arayüzü
+çerçevesiz HTML/CSS/JS ile yaptım ki her satırını açıklayabileyim. Vercel ve Supabase'in ücretsiz planları bu ölçekteki
+bir proje için yeterli.
 
 ## 6. Kaynak araştırması
 Projede başvurulan temel kaynaklar:

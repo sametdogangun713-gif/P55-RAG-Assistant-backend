@@ -40,6 +40,7 @@ Her hafta yeni satırlar eklenir. (≤ 02.10: proje dosyalarının devralındı�
 | 03.10 | Claude Code | Büyük belge, genel sohbet (Adım 12) | Büyük dosyalar parça parça; selamlaşma/genel soru | 💬 | 💬 |
 | 04.10 | Claude Code | Kişisel API anahtarı (Adım 12) | 3. parti uygulamalar için kullanıcıya özel token | 💬 | 💬 |
 | 04.10 | Claude Code | Ders formları (raporlar) | Ders paketindeki rapor şablonlarını depoya ekle | 💬 | 💬 |
+| 04.10 | Claude Code | Teslim kontrolü, gerekçeler (Adım 1) | Haftalık teslimler GitHub'da mı; gerekçe bölümlerini doldur | 💬 | 💬 |
 
 ## Adım 1 — Kurulum, mimari ve ER diyagramı (Hafta 3)
 
@@ -58,6 +59,13 @@ Her hafta yeni satırlar eklenir. (≤ 02.10: proje dosyalarının devralındı�
 - **İstem (özet):** Projeyi kendi bilgisayarımda çalıştırmak için ortamı kur; testleri gerçek paketlerle çalıştır.
 - **Aldığım çıktı (özet):** Bilgisayarımda `python` komutu yoktu (yalnızca Visual Studio'nun Python 3.9'u vardı). Python 3.12.10 ve Git 2.55 `winget` ile kuruldu, `venv` sanal ortamı ve `.env` (rastgele `SECRET_KEY`) oluşturuldu.
 - **Kendi yaptığım değişiklik / doğrulama:** Kurulumu kendi bilgisayarımda onayladım; `pytest` ile tüm testlerin geçtiği görüldü (2026-10-02: 176 geçti, 1 atlandı).
+
+### Kayıt 3 (gerekçe bölümleri ve teslim kontrolü — 2026-10-04)
+- **Araç:** Claude Code
+- **İstem (özet):** "Ders dosyasında P55 için her hafta teslim edilmesi gereken her şey GitHub'da mı kontrol et; kendi gerekçem bölümünü doldur."
+- **Aldığım çıktı (özet):** Ders paketindeki P55 haftalık planının (hafta 3–15) "Teslim Edilecek Çıktılar" maddeleri iki depoyla karşılaştırıldı. Eksikler: `v0.1-vize` etiketi atılmamıştı (vize raporunda yazıyordu; bu kayıtla iki depoda atıldı), haftalık ilerleme raporları ve ekran görüntüleri henüz depoda yok, final etiketi ve sunum (hafta 15) bekliyor. `mimari.md` → "Gerekçem", `er-diyagrami.md` → "Kendi gerekçem" ve proje öneri formundaki "Seçimlerimin gerekçesi" metinleri, benim verdiğim teknoloji kararlarına (SQLite → Supabase, iki depo, ücretsiz servisler) göre Claude Code tarafından yazıldı.
+- **Kendi yaptığım değişiklik / doğrulama:** _(gerekçe metinlerini okuyup kendi cümlelerine göre düzelttiğini buraya yaz)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle)_
 
 ## Adım 2 — Veritabanı şeması, migration ve CRUD (Hafta 4)
 

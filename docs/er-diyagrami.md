@@ -146,6 +146,18 @@ Supabase panelinde **Database → Schema Visualizer** (sol menü) bu tabloları 
    `select table_name from information_schema.tables where table_schema = 'public';`
 
 
-## Kendi gerekçem (doldur)
-- Birincil anahtarlar neden bunlar:
-- Hangi varlığı eklerdim / çıkarırdım:
+## Kendi gerekçem
+- **Birincil anahtarlar neden bunlar:** Ana tabloların hepsinde anlamı olmayan, otomatik artan bir `id` (vekil anahtar)
+  kullandım. E-posta gibi "doğal" bir alanı anahtar yapmadım: uzun bir metin her belgede ve sohbette yabancı anahtar olarak
+  tekrar ederdi; tamsayı küçük ve JOIN'de hızlı. Ayrıca e-posta ileride değiştirilebilir hâle gelirse ilişkiler bozulmaz.
+  E-posta yine de `UNIQUE` (büyük/küçük harf duyarsız), yani aynı adresle ikinci hesap açılamıyor. `message_sources` ayrı
+  bir `id` almadı; bileşik anahtar `(message_id, chunk_id)` aynı parçanın aynı yanıta iki kez kaynak yazılmasını
+  veritabanı düzeyinde engelliyor. Benzer kurallar: `embeddings.chunk_id` UNIQUE (bir parçanın tek vektörü olur),
+  `chunks` için `(document_id, chunk_index)` UNIQUE (bir belgede aynı sırada iki parça olmaz).
+- **Hangi varlığı eklerdim / çıkarırdım:** Çıkarmayı düşündüğüm tablo `embeddings`: ilişki 1-1 olduğu için vektör
+  `chunks`'a bir sütun olarak da eklenebilirdi. Ayrı tuttum, çünkü vektör büyük bir veri ve yanında `model` sütunu var;
+  embedding modeli değişince (MiniLM → `BAAI/bge-m3`) yalnızca vektörleri silip yeniden üretmek yetiyor, parça metnine
+  dokunulmuyor. Ekleyeceğim tablo ise yanıt geri bildirimi olurdu (`message_feedback`: kullanıcı yanıtı "doğru / yanlış"
+  diye işaretler). Rapordaki kalite ölçüsü şu an yalnızca yanıtın kaynağa dayalı olup olmadığına bakıyor, doğru olup
+  olmadığını ölçmüyor ("kaynağa dayalı ≠ doğru"). Çok belgeli kullanımda belgeleri gruplamak için bir `collections`
+  (klasör) tablosu da işe yarardı; P55 künyesindeki "kurumsal bilgi tabanı" genişletmesine de uyuyor.

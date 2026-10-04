@@ -39,7 +39,7 @@ Vize ara sürümü etiketlenir: `git tag -a v0.1-vize -m "Vize sürümü"` → `
 - [x] Ara sürüm çalışıyor (kullanıcı + veritabanı + çekirdek modüller uçtan uca)
 - [x] Modüller entegre
 - [ ] Tüm kodu açıklayabiliyorum
-- [ ] `v0.1-vize` etiketi GitHub'da
+- [x] `v0.1-vize` etiketi GitHub'da (2026-10-04, iki depoda)
 
 ## Kod açıklaması
 
