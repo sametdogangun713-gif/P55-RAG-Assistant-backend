@@ -33,6 +33,7 @@ Her dosya: o adımda ne yapıldı, kodun açıklaması, **sözlü sınav sorular
 ## Raporlar ve kayıtlar
 | Belge | Ne var? |
 |---|---|
+| [`raporlar/`](raporlar/README.md) | **Ders formları:** proje öneri formu, risk analizi, proje takvimi, proje izleme formu, GitHub kontrol listesi ve **haftalık raporlar** (her hafta güncellenir) |
 | [`ai-kullanim-gunlugu.md`](ai-kullanim-gunlugu.md) | Her adımda yapay zekânın nasıl kullanıldığı ("kendi" alanlarını geliştirici doldurur) |
 | [`test-raporu.md`](test-raporu.md) | Test sayıları, kapsam, hangi senaryolar neden test edildi |
 | [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md) | Testlerle bulunan ve düzeltilen gerçek hatalar |

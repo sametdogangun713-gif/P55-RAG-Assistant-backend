@@ -4,6 +4,43 @@
 
 > Kayıtlardaki `pytest hafta-XX` komutları eski klasör düzenine aittir (kaydın yazıldığı an). Testler artık `tests/` klasöründe; eşleme `docs/README.md` içinde.
 
+## Form 8 — Yapay Zekâ Kullanım Günlüğü tablosu (ders paketi biçimi)
+
+| | | | |
+|---|---|---|---|
+| **Öğrenci** | Samet DOĞANGÜN | **Numara** | 211161024 |
+| **Proje (Kod/Ad)** | P55 – Belge Tabanlı Soru-Cevap Asistanı (RAG) | **Son güncelleme** | 04.10.2026 |
+
+**İlke (ders paketi):** Öğrenci yapay zekâdan aldığı her anlamlı yardımı bu günlüğe işler. "Açıklar mı?" sütunu **E**
+olmayan hiçbir kod parçası teslim edilemez. Her satırın ayrıntısı (istem, çıktı, gerekçe) aşağıdaki "Adım" kayıtlarında.
+💬 sütunlarını **yalnızca öğrenci** doldurur: kendi değişikliğini/doğrulamasını yazar ve kodu açıklayabiliyorsa **E** koyar.
+Her hafta yeni satırlar eklenir. (≤ 02.10: proje dosyalarının devralındığı 02.10.2026'dan önceki Claude sohbeti.)
+
+| Tarih | Araç | Amaç/Görev | İstem (özet) | Öğrencinin Değişikliği/Doğrulaması | Açıklar mı? (E/H) |
+|---|---|---|---|---|---|
+| ≤ 02.10 | Claude | Mimari, ER (Adım 1) | Kurulum, katmanlı klasör yapısı, ER diyagramı, mimari şema | 💬 | 💬 |
+| 02.10 | Claude Code | Ortam kurulumu (Adım 1) | Python/Git kur, testleri gerçek paketlerle çalıştır | 💬 | 💬 |
+| ≤ 02.10 | Claude | Veritabanı (Adım 2) | SQLite şeması, migration, CRUD, sentetik veri | 💬 | 💬 |
+| ≤ 02.10 | Claude | Kimlik doğrulama (Adım 3) | Kayıt/giriş, parola özetleme, token, roller | 💬 | 💬 |
+| ≤ 02.10 | Claude | Belge işleme (Adım 4) | Yükleme, TXT/PDF/DOCX ayrıştırma, parçalama | 💬 | 💬 |
+| ≤ 02.10 | Claude | Embedding (Adım 5) | Parçaları vektörleştirme, vektör arama, yerel model | 💬 | 💬 |
+| ≤ 02.10 | Claude | Entegrasyon, arayüz (Adım 6) | Modülleri bağlama, web arayüzü, vize hazırlığı | 💬 | 💬 |
+| ≤ 02.10 | Claude | LLM istemcisi (Adım 7) | Claude API istemcisi, zaman aşımı/yeniden deneme | 💬 | 💬 |
+| 03.10 | Claude Code | Groq desteği (Adım 7) | Ücretsiz katmanlı Groq, sağlayıcı `.env`'den seçilsin | 💬 | 💬 |
+| ≤ 02.10 | Claude | RAG (Adım 8) | Kaynaklı yanıt, halüsinasyon önleme, istem tasarımı | 💬 | 💬 |
+| ≤ 02.10 | Claude | Sohbet geçmişi (Adım 9) | Kalıcı geçmiş, özetleme, takip sorusunu yeniden yazma | 💬 | 💬 |
+| ≤ 02.10 | Claude | Rapor, yönetim (Adım 10) | Kullanım raporu, toplulaştırma sorguları, yönetici paneli | 💬 | 💬 |
+| ≤ 02.10 | Claude | Test (Adım 11) | Sınır durumlarını test et, bulunan hataları düzelt | 💬 | 💬 |
+| 02.10 | Claude Code | Gerçek ortamda doğrulama (Adım 11) | Testleri gerçek FastAPI ile, tarayıcıda dene, kapsamı ölç | 💬 | 💬 |
+| 03.10 | Claude Code | Büyük dosya, tema, şifremi unuttum (Adım 12) | 500 MB yükleme, yeni tema, e-postayla parola sıfırlama | 💬 | 💬 |
+| 03.10 | Claude Code | İki depo + bulut (Adım 12) | Frontend/backend ayrı depo, Supabase + Vercel + HF | 💬 | 💬 |
+| 03.10 | Claude Code | Kayıt ekranı, e-posta doğrulama (Adım 12) | Ayrı kayıt ekranı, ad soyad, e-posta kodu | 💬 | 💬 |
+| 03.10 | Claude Code | Hesabım, arayüz (Adım 12) | Profil/hesap ayarları, belge/sohbet kullanılabilirliği | 💬 | 💬 |
+| 03.10 | Claude Code | Sohbet kalitesi, tema (Adım 12) | Chatbot kötü yanıt veriyor; sade siyah-beyaz tema | 💬 | 💬 |
+| 03.10 | Claude Code | Büyük belge, genel sohbet (Adım 12) | Büyük dosyalar parça parça; selamlaşma/genel soru | 💬 | 💬 |
+| 04.10 | Claude Code | Kişisel API anahtarı (Adım 12) | 3. parti uygulamalar için kullanıcıya özel token | 💬 | 💬 |
+| 04.10 | Claude Code | Ders formları (raporlar) | Ders paketindeki rapor şablonlarını depoya ekle | 💬 | 💬 |
+
 ## Adım 1 — Kurulum, mimari ve ER diyagramı (Hafta 3)
 
 > Ders kuralı: her anlamlı yardım için araç, istem, çıktı ve **senin** değişiklik/doğrulaman yazılır.
@@ -218,6 +255,20 @@
 - **Aldığım çıktı (özet):** `indexing.index_next` (süre bütçeli, kaldığı yerden), `chunks.list_unindexed_chunks`, `POST /documents/{id}/index-next`, arayüzde ilerleme döngüsü ve "Devam et"; `chat.general_answer` + `GENERAL_SYSTEM_PROMPT`, durum `general`, arayüz etiketi, rapor. Claude'un doğrulaması: SQLite 294 / PostgreSQL+pgvector 295 test geçti; tarayıcıda 2989 parçalık belge 31 istekte indekslendi (%4 → %98 → hazır); gerçek Groq ile "merhaba / ne yapabilirsin / teşekkürler / başkent / okulun yemekhane ücreti / belgedeki soru" denendi (`istem-deneyleri.md`). Testte bulunan gerçek sorun: Windows saati ~15 ms adımlı → süre bütçesi testleri zamana bağlıydı; sahte saat eklendi. **Canlıda henüz denenmedi.**
 - **Kendi yaptığım değişiklik / doğrulama:** _(canlıda büyük bir belge yükle, yüzdeyi izle; sohbette "merhaba" ve belgede olmayan bir soru sor; ekran görüntüsü)_
 - **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden indeksleme parçalara bölündü, genel yanıt neden etiketli)_
+
+### Kayıt 7 (kişisel API anahtarı — 2026-10-04)
+- **Araç:** Claude Code
+- **İstem (özet):** "Kullanıcıların token'ı, özel kimlik numarası gibi web token'ı tutulacak, 3. parti bir API kullanılacak." Claude üç anlamı sordu (kişisel API anahtarı / girişi 3. parti servise vermek / kullanıcının kendi Groq anahtarı); seçimim: **kişisel API anahtarı**.
+- **Aldığım çıktı (özet):** `api_tokens` tablosu (SQLite `006`, PostgreSQL `003`), `db/api_tokens.py`, `services/api_tokens.py` (`p55_` + `secrets`, SHA-256 özet, 7/30/90/365 gün, kullanıcı başına 10, "son kullanım" dakikada bir yazılır), `deps.get_current_user` iki tür anahtarı ayırır, `require_session` (anahtarla hesap yönetimi/yönetim 403), `GET/POST/DELETE /auth/tokens`; arayüzde Hesabım → "API anahtarları" (bir kez gösterim + Kopyala, liste, Sil). Claude'un doğrulaması: yeni 14 backend testi + 1 arayüz testi; SQLite 313 / PostgreSQL 314 test geçti; gerçek HTTP ile Python betiği "3. parti uygulama" gibi bağlandı, silinen anahtar 401 aldı; tarayıcıda üret/kopyala/sil, sekme değişince anahtar ekrandan silindi, 375 px'te taşma yok. **Canlıda (Vercel/Supabase) henüz denenmedi.**
+- **Kendi yaptığım değişiklik / doğrulama:** _(Postman ya da kendi küçük betiğinle anahtarı dene; sildikten sonra 401 aldığını gör)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle: neden JWT yetmedi, neden anahtarın özeti saklanıyor, neden anahtarla parola değiştirilemiyor)_
+
+### Kayıt 8 (ders formları ve raporlar — 2026-10-04)
+- **Araç:** Claude Code
+- **İstem (özet):** "O rapor şablonlarına da bak; haftalık olarak güncellenecek olanları GitHub deponuza ekle, haftalık olarak güncellersin. İlk haftalar teslim etmen gereken varsa da koyarsın."
+- **Aldığım çıktı (özet):** Ders paketinin Bölüm 4'ündeki 10 form okundu. `docs/raporlar/`: proje öneri formu (2. hafta çıktısı), risk analizi, proje takvimi, proje izleme formu, GitHub kontrol listesi, haftalık rapor şablonu (ilerleme raporu + kontrol listesi + öz değerlendirme); AI günlüğünün başına Form 8 tablosu; Form 10 için mevcut belgelerle eşleme. Olgusal alanlar dolduruldu; öz değerlendirme, risk puanları, "neden seçtim", "açıklar mı?" gibi alanlar 💬 ile işaretlenip boş bırakıldı. Danışman kontrol formu öğretim elemanına ait olduğu için depoya konmadı.
+- **Kendi yaptığım değişiklik / doğrulama:** _(numaranı yaz; 💬 alanlarını doldur; risk puanlarını kendi değerlendirmene göre düzelt)_
+- **Neden bu çözümü kullandım:** _(kendi cümlelerinle)_
 
 ## Adım 13 — Final (Hafta 15)
 
