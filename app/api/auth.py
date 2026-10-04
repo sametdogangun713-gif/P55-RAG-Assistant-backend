@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 
-from app.api.deps import get_current_user, get_db, require_session
+from app.api.deps import deliver_email, get_current_user, get_db, require_session
 from app.core import config
 from app.services import auth as auth_service
 from app.services import account, api_tokens, email_codes, email_verification, mailer, password_reset
@@ -60,14 +60,7 @@ class ResetRequest(BaseModel):
 
 MAIL_NOT_CONFIGURED = "E-posta gönderimi ayarlanmamış (SMTP). Yöneticine başvur"
 
-
-def _deliver(background: BackgroundTasks, send, to: str, code: str) -> None:
-    """E-postayi gonderir. Normalde arka planda (yanit beklemez). Vercel'de (SEND_EMAIL_INLINE) islev yanittan
-    sonra durdurulabildigi icin yanittan ONCE gonderilir; bedeli yanitin biraz gecikmesi (docs'ta yazili)."""
-    if config.SEND_EMAIL_INLINE:
-        send(to, code)
-    else:
-        background.add_task(send, to, code)
+_deliver = deliver_email
 
 
 def _token_response(user: dict) -> dict:
@@ -177,14 +170,20 @@ def list_tokens(user: dict = Depends(require_session), conn=Depends(get_db)):
 
 
 @router.post("/tokens", status_code=201)
-def create_token(body: TokenCreate, user: dict = Depends(require_session), conn=Depends(get_db)):
-    """Yanittaki "token" alani anahtarin TEK gosterimidir: kullanici hemen kopyalamali."""
+def create_token(body: TokenCreate, background: BackgroundTasks, user: dict = Depends(require_session),
+                 conn=Depends(get_db)):
+    """Yanittaki "token" alani anahtarin TEK gosterimidir: kullanici hemen kopyalamali.
+
+    Hesap sahibine bildirim e-postasi gider: parolasini ele geciren biri anahtar uretirse sahibi haberdar olur.
+    E-postada anahtarin kendisi YOK, yalnizca adi ve ilk 12 karakteri (public_info)."""
     try:
-        return api_tokens.create_token(conn, user, body.name, body.expires_in_days)
+        created = api_tokens.create_token(conn, user, body.name, body.expires_in_days)
     except api_tokens.TokenValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except api_tokens.TokenLimitError as e:
         raise HTTPException(status_code=409, detail=str(e))
+    _deliver(background, mailer.send_token_created, user["email"], api_tokens.public_info(created))
+    return created
 
 
 @router.delete("/tokens/{token_id}")

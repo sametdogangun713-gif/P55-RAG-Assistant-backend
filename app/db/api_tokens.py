@@ -37,6 +37,27 @@ def touch(conn, token_id: int, now: str) -> None:
     conn.commit()
 
 
+# Yonetici listesi: anahtar bilgisi + sahibi. token_hash yine YOK.
+_WITH_OWNER = ("SELECT t.id, t.name, t.prefix, t.created_at, t.last_used_at, t.expires_at, t.user_id,"
+               " u.email AS owner_email, u.full_name AS owner_name"
+               " FROM api_tokens t JOIN users u ON u.id = t.user_id")
+
+
+def list_all(conn) -> list:
+    return [dict(r) for r in conn.execute(_WITH_OWNER + " ORDER BY t.id DESC")]
+
+
+def get_with_owner(conn, token_id: int):
+    return _row(conn.execute(_WITH_OWNER + " WHERE t.id = ?", (token_id,)).fetchone())
+
+
+def delete_by_id(conn, token_id: int) -> bool:
+    """Yalnizca yonetici iptali icin (services/api_tokens.admin_revoke): sahibi kim olursa olsun siler."""
+    cur = conn.execute("DELETE FROM api_tokens WHERE id = ?", (token_id,))
+    conn.commit()
+    return cur.rowcount > 0
+
+
 def delete_token(conn, user_id: int, token_id: int) -> bool:
     """Yalnizca kullanicinin KENDI anahtarini siler (user_id kosulu): baskasinin anahtar numarasini bilmek yetmez."""
     cur = conn.execute("DELETE FROM api_tokens WHERE id = ? AND user_id = ?", (token_id, user_id))

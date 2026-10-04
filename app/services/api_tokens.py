@@ -12,6 +12,7 @@ Guvenlik kararlari:
     ve tahmin edilebilir; 256 bitlik rastgele bir anahtari kaba kuvvetle bulmak imkansiz oldugundan hizli bir ozet
     yeterli ve her istekte calistigi icin hizli olmasi da gerekli (GitHub'in kisisel anahtarlari da boyle).
   - Anahtar yalnizca uretildigi yanitta bir kez dondurulur; sonra kimse (yonetici dahil) goremez.
+  - Anahtar uretilince ve yonetici iptal edince hesap sahibine e-posta gider (anahtarin kendisi e-postada yok).
   - Anahtarla anahtar uretilemez/silinemez, parola degistirilemez, hesap silinemez (api/deps.py require_session):
     sizan bir anahtar kendini kalici hale getiremesin ve hesabi ele geciremesin.
 """
@@ -87,6 +88,27 @@ def list_tokens(conn, user: dict) -> list:
 
 def revoke_token(conn, user: dict, token_id: int) -> bool:
     return repo.delete_token(conn, user["id"], token_id)
+
+
+def public_info(row: dict) -> dict:
+    """Bildirim e-postasina giden bilgi: anahtarin kendisi ("token") ve ozeti asla bu sozluge girmez."""
+    return {k: row.get(k) for k in ("name", "prefix", "created_at", "expires_at")}
+
+
+# --- Yonetici: anahtarlari GORUR (ad, ilk 12 karakter, sahibi, tarihler) ve sizan anahtari IPTAL EDER.
+# Yonetici anahtar URETEMEZ ve anahtarin kendisini goremez: boylece hesaba yalnizca anahtari olusturan sahibi
+# girebilir; yonetici ikinci bir giris yolu acamaz. Iptal edilince sahibine e-posta gider (api/admin.py).
+def list_all_tokens(conn) -> list:
+    now_text = _text(_now())
+    return [_with_status(r, now_text) for r in repo.list_all(conn)]
+
+
+def admin_revoke(conn, token_id: int):
+    """Anahtari siler ve silinen satiri (sahibinin e-postasiyla) dondurur; yoksa None."""
+    row = repo.get_with_owner(conn, token_id)
+    if row is None or not repo.delete_by_id(conn, token_id):
+        return None
+    return row
 
 
 def authenticate(conn, token: str):

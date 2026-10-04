@@ -1,9 +1,9 @@
-"""Ortak bagimliliklar: veritabani baglantisi, mevcut kullanici, yonetici yetkisi."""
+"""Ortak bagimliliklar: veritabani baglantisi, mevcut kullanici, yonetici yetkisi, e-posta gonderimi."""
 from typing import Optional
 
-from fastapi import Depends, Header, HTTPException
+from fastapi import BackgroundTasks, Depends, Header, HTTPException
 
-from app.core import security
+from app.core import config, security
 from app.db import database, users
 from app.services import api_tokens
 from app.services.llm_client import LLMConfigError, get_llm_client
@@ -66,6 +66,15 @@ def require_admin(user: dict = Depends(require_session)) -> dict:
     if user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Bu işlem için yönetici yetkisi gerekli")
     return user
+
+
+def deliver_email(background: BackgroundTasks, send, *args) -> None:
+    """E-postayi gonderir. Normalde arka planda (yanit beklemez). Vercel'de (SEND_EMAIL_INLINE) islev yanittan
+    sonra durdurulabildigi icin yanittan ONCE gonderilir; bedeli yanitin biraz gecikmesi (docs'ta yazili)."""
+    if config.SEND_EMAIL_INLINE:
+        send(*args)
+    else:
+        background.add_task(send, *args)
 
 
 def get_llm():

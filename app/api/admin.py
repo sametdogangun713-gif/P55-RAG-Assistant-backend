@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 
-from app.api.deps import get_db, get_llm, require_admin
+from app.api.deps import deliver_email, get_db, get_llm, require_admin
 from app.api.errors import llm_http_error
 from app.db import documents as documents_repo
 from app.db import users
 from app.services import admin as admin_service
+from app.services import api_tokens, mailer
 from app.services import auth as auth_service
 from app.services import documents as documents_service
 from app.services.llm_client import LLMError
@@ -39,6 +40,24 @@ def delete_user(user_id: int, admin: dict = Depends(require_admin), conn=Depends
 def list_all_documents(admin: dict = Depends(require_admin), conn=Depends(get_db)):
     """Yalnizca yonetici: tum belgeler (sahibiyle)."""
     return [documents_service.public_document(d) for d in documents_repo.list_documents(conn)]
+
+
+@router.get("/tokens")
+def list_all_tokens(admin: dict = Depends(require_admin), conn=Depends(get_db)):
+    """Yalnizca yonetici: tum API anahtarlari (sahibi, adi, ilk 12 karakteri, tarihleri).
+    Anahtarin kendisi ve ozeti DONMEZ: yonetici baskasinin hesabina anahtarla giremez."""
+    return api_tokens.list_all_tokens(conn)
+
+
+@router.delete("/tokens/{token_id}")
+def revoke_token(token_id: int, background: BackgroundTasks, admin: dict = Depends(require_admin),
+                 conn=Depends(get_db)):
+    """Yalnizca yonetici: sizan/supheli anahtari iptal eder; hesap sahibine e-postayla bildirilir."""
+    row = api_tokens.admin_revoke(conn, token_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="API anahtarı bulunamadı")
+    deliver_email(background, mailer.send_token_revoked, row["owner_email"], api_tokens.public_info(row))
+    return {"detail": "API anahtarı iptal edildi. Sahibine e-postayla bildirildi."}
 
 
 @router.post("/llm-test")

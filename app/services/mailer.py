@@ -1,4 +1,5 @@
-"""E-posta gonderimi: kayitta dogrulama kodu, "Sifremi unuttum"da sifirlama kodu (Hafta 14).
+"""E-posta gonderimi: kayitta dogrulama kodu, "Sifremi unuttum"da sifirlama kodu (Hafta 14),
+API anahtari olusturulunca / yonetici iptal edince hesap sahibine bildirim.
 Standart kutuphane smtplib kullanilir; ek paket yok.
 
 SMTP ayari (.env) yoksa:
@@ -50,13 +51,37 @@ def build_verification_message(to: str, code: str) -> EmailMessage:
     ))
 
 
-def _send(msg: EmailMessage, label: str, to: str, code: str) -> None:
+def _token_lines(token: dict) -> str:
+    return (f"  Anahtar adı : {token['name']}\n"
+            f"  Anahtar     : {token['prefix']}… (yalnızca ilk 12 karakter)\n"
+            f"  Oluşturma   : {token['created_at']} (UTC)\n"
+            f"  Bitiş       : {token['expires_at']} (UTC)\n")
+
+
+def build_token_created_message(to: str, token: dict) -> EmailMessage:
+    """Anahtarin KENDISI e-postaya yazilmaz (e-posta kutusu sizarsa anahtar da sizmasin): token = public_info."""
+    return _message(to, "P55 hesabında yeni API anahtarı oluşturuldu", (
+        "Merhaba,\n\nP55 hesabında yeni bir API anahtarı oluşturuldu:\n\n" + _token_lines(token) +
+        "\nBunu sen yaptıysan bir şey yapmana gerek yok.\n"
+        "Sen yapmadıysan: hemen giriş yap, Hesabım > API anahtarları bölümünden bu anahtarı sil ve parolanı değiştir.\n"
+    ))
+
+
+def build_token_revoked_message(to: str, token: dict) -> EmailMessage:
+    return _message(to, "P55 API anahtarın yönetici tarafından iptal edildi", (
+        "Merhaba,\n\nP55 hesabındaki şu API anahtarı yönetici tarafından iptal edildi:\n\n" + _token_lines(token) +
+        "\nBu anahtarı kullanan uygulamalar artık bağlanamaz. Gerekirse Hesabım > API anahtarları bölümünden "
+        "yeni bir anahtar oluşturabilirsin.\n"
+    ))
+
+
+def _send(msg: EmailMessage, label: str, to: str, detail: str) -> None:
     """Arka planda (ya da Vercel'de yanittan once) calisir. Hata olursa yalnizca loglanir:
     kullaniciya hata donmek 'bu e-posta kayitli' bilgisini sizdirirdi."""
     if not smtp_configured():
         if config.APP_ENV != "production":
             # ASCII: Windows konsolunun kod sayfasi Turkce harfleri bozabiliyor (olcum: "s?f?rlama" goruldu)
-            print(f"[P55] {label} (gelistirme modu, SMTP ayari yok): {to} -> {code}", flush=True)
+            print(f"[P55] {label} (gelistirme modu, SMTP ayari yok): {to} -> {detail}", flush=True)
         return
     try:
         if config.SMTP_PORT == 465:
@@ -78,3 +103,11 @@ def send_reset_code(to: str, code: str) -> None:
 
 def send_verification_code(to: str, code: str) -> None:
     _send(build_verification_message(to, code), "E-posta dogrulama kodu", to, code)
+
+
+def send_token_created(to: str, token: dict) -> None:
+    _send(build_token_created_message(to, token), "Yeni API anahtari bildirimi", to, token["prefix"])
+
+
+def send_token_revoked(to: str, token: dict) -> None:
+    _send(build_token_revoked_message(to, token), "API anahtari iptal bildirimi", to, token["prefix"])

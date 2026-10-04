@@ -5,6 +5,16 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.18.1] — 2026-10-04 · API anahtarı bildirimi ve yönetici denetimi
+### Eklendi
+- Anahtar oluşturulunca hesap sahibine **bildirim e-postası** (ad, ilk 12 karakter, tarihler; anahtarın kendisi yok):
+  parolası ele geçirilip anahtar üretilirse sahibi haberdar olur.
+- **Yönetici:** `GET /admin/tokens` (tüm anahtarlar, sahibiyle; anahtarın kendisi/özeti yok) ve
+  `DELETE /admin/tokens/{id}` (iptal; sahibine e-posta). Yönetim sekmesinde "API anahtarları" tablosu.
+  Yönetici anahtar **üretemez**: hesaba yalnızca anahtarı oluşturan sahibi girebilir.
+### Değişti
+- E-posta gönderme yardımcısı `api/auth._deliver` → ortak `api/deps.deliver_email` (yönetici ucu da kullanıyor).
+
 ## [0.18.0] — 2026-10-04 · kişisel API anahtarları
 ### Eklendi
 - **Kişisel API anahtarı (3. parti uygulamalar için):** Hesabım → "API anahtarları"ndan ad + geçerlilik (7/30/90/365 gün)

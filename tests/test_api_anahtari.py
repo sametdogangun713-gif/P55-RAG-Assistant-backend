@@ -1,4 +1,5 @@
-"""Kisisel API anahtari: uretme, ozetle saklama, sure, sinir, iptal ve 3. parti uygulamanin anahtarla baglanmasi."""
+"""Kisisel API anahtari: uretme, ozetle saklama, sure, sinir, iptal, 3. parti uygulamanin anahtarla baglanmasi,
+sahibine e-posta bildirimi ve yoneticinin anahtarlari gorup (anahtarin kendisini degil) iptal etmesi."""
 import os
 import shutil
 import tempfile
@@ -7,7 +8,7 @@ from unittest import mock
 
 from app.core import config
 from app.db import api_tokens as repo
-from app.services import api_tokens, auth
+from app.services import api_tokens, auth, mailer
 from tests.helpers import make_conn
 from tests.test_sifre_sifirlama import Ayar
 
@@ -106,6 +107,36 @@ class AnahtarServisiTests(unittest.TestCase):
         account.delete_account(self.conn, self.user, PAROLA)
         self.assertIsNone(repo.get_by_hash(self.conn, api_tokens.hash_token(token)))
 
+    def test_bildirim_epostasinda_anahtarin_kendisi_yok(self):
+        yeni = api_tokens.create_token(self.conn, self.user, "Postman")
+        bilgi = api_tokens.public_info(yeni)
+        self.assertEqual(set(bilgi), {"name", "prefix", "created_at", "expires_at"})
+        for mesaj in (mailer.build_token_created_message(self.user["email"], bilgi),
+                      mailer.build_token_revoked_message(self.user["email"], bilgi)):
+            govde = mesaj.get_content()
+            self.assertNotIn(yeni["token"], govde)
+            self.assertIn(yeni["prefix"], govde)
+            self.assertIn("Postman", govde)
+
+    def test_yonetici_listesi_sahibiyle_anahtarsiz(self):
+        baskasi = auth.register_user(self.conn, "baskasi@example.com", PAROLA)
+        api_tokens.create_token(self.conn, self.user, "Benim")
+        api_tokens.create_token(self.conn, baskasi, "Onun")
+        liste = api_tokens.list_all_tokens(self.conn)
+        self.assertEqual({(t["name"], t["owner_email"]) for t in liste},
+                         {("Benim", "anahtar@example.com"), ("Onun", "baskasi@example.com")})
+        for t in liste:
+            self.assertNotIn("token", t)
+            self.assertNotIn("token_hash", t)
+            self.assertFalse(t["expired"])
+
+    def test_yonetici_iptali(self):
+        yeni = api_tokens.create_token(self.conn, self.user, "Sizan")
+        silinen = api_tokens.admin_revoke(self.conn, yeni["id"])
+        self.assertEqual((silinen["name"], silinen["owner_email"]), ("Sizan", "anahtar@example.com"))
+        self.assertIsNone(api_tokens.authenticate(self.conn, yeni["token"]))
+        self.assertIsNone(api_tokens.admin_revoke(self.conn, yeni["id"]))
+
 
 @unittest.skipIf(TestClient is None, "TestClient (httpx) kurulu degil")
 class AnahtarHttpTests(unittest.TestCase):
@@ -178,6 +209,44 @@ class AnahtarHttpTests(unittest.TestCase):
         r = self.c.delete(f"/auth/tokens/{yeni['id']}", headers={"Authorization": "Bearer " + tok})
         self.assertEqual(r.status_code, 404)
         self.assertEqual(self.c.get("/auth/me", headers={"Authorization": "Bearer " + yeni["token"]}).status_code, 200)
+
+    def _yonetici_oturumu(self):
+        from app.db import database, users
+        self.c.post("/auth/register", json={"full_name": "Yönetici", "email": "y@example.com", "password": PAROLA})
+        conn = database.get_connection()
+        try:
+            users.update_user_role(conn, users.get_user_by_email(conn, "y@example.com")["id"], "admin")
+        finally:
+            conn.close()
+        tok = self.c.post("/auth/login", json={"email": "y@example.com", "password": PAROLA}).json()["access_token"]
+        return {"Authorization": "Bearer " + tok}
+
+    def test_anahtar_olusunca_sahibine_eposta_gider(self):
+        gonderilen = []
+        with mock.patch.object(mailer, "send_token_created", side_effect=lambda *a: gonderilen.append(a)):
+            yeni = self._anahtar_uret("Postman")
+        self.assertEqual(len(gonderilen), 1)
+        alici, bilgi = gonderilen[0]
+        self.assertEqual((alici, bilgi["name"], bilgi["prefix"]), ("h@example.com", "Postman", yeni["prefix"]))
+        self.assertNotIn(yeni["token"], repr(gonderilen))              # anahtarin kendisi e-postaya gitmez
+
+    def test_yonetici_anahtarlari_gorur_ve_iptal_eder(self):
+        yeni = self._anahtar_uret("Sizan")
+        yonetici = self._yonetici_oturumu()
+        liste = self.c.get("/admin/tokens", headers=yonetici).json()
+        self.assertEqual([(t["name"], t["owner_email"], t["prefix"]) for t in liste],
+                         [("Sizan", "h@example.com", yeni["prefix"])])
+        self.assertNotIn("token", liste[0])
+        self.assertNotIn("token_hash", liste[0])
+        self.assertEqual(self.c.get("/admin/tokens", headers=self.oturum).status_code, 403)   # normal kullanici
+        self.assertEqual(self.c.delete(f"/admin/tokens/{yeni['id']}", headers=self.oturum).status_code, 403)
+        gonderilen = []
+        with mock.patch.object(mailer, "send_token_revoked", side_effect=lambda *a: gonderilen.append(a)):
+            r = self.c.delete(f"/admin/tokens/{yeni['id']}", headers=yonetici)
+        self.assertEqual(r.status_code, 200, r.text)
+        self.assertEqual([(a, b["name"]) for a, b in gonderilen], [("h@example.com", "Sizan")])
+        self.assertEqual(self.c.get("/auth/me", headers={"Authorization": "Bearer " + yeni["token"]}).status_code, 401)
+        self.assertEqual(self.c.delete(f"/admin/tokens/{yeni['id']}", headers=yonetici).status_code, 404)
 
 
 if __name__ == "__main__":

@@ -74,7 +74,7 @@ Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒) ya da 3. parti uygulamal
 | PATCH | `/auth/me` | 🔑 | `{full_name}` → adı değiştir |
 | POST | `/auth/change-password` | 🔑 | `{current_password, new_password}`. 400: mevcut parola hatalı / yeni parola zayıf veya eskisiyle aynı |
 | GET | `/auth/tokens` | 🔑 | Kendi API anahtarların: `id, name, prefix, created_at, last_used_at, expires_at, expired` (anahtarın kendisi yok) |
-| POST | `/auth/tokens` | 🔑 | `{name, expires_in_days}` (7/30/90/365, varsayılan 90) → 201, `token` alanı anahtarın **tek** gösterimi. 400 ad/süre, 409 sayı sınırı |
+| POST | `/auth/tokens` | 🔑 | `{name, expires_in_days}` (7/30/90/365, varsayılan 90) → 201, `token` alanı anahtarın **tek** gösterimi. 400 ad/süre, 409 sayı sınırı. Sahibine bildirim e-postası gider (anahtarın kendisi e-postada yok) |
 | DELETE | `/auth/tokens/{id}` | 🔑 | Anahtarı iptal et; o anahtarla gelen sonraki istek 401. Başkasının anahtarı 404 |
 | DELETE | `/auth/me` | 🔑 | `{password}` → hesabı ve tüm verisini (dosyalar dahil) sil. 409: son yönetici |
 | POST | `/auth/forgot-password` | | Sıfırlama kodu e-postası (kayıtlı/kayıtsız aynı yanıt). 503: e-posta ayarlı değil |
@@ -99,6 +99,8 @@ Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒) ya da 3. parti uygulamal
 | GET | `/reports/usage.csv` | 🔒 | Aynı rapor, CSV (UTF-8 BOM) |
 | GET | `/admin/users`, `/admin/documents` | 👑 | Tüm kullanıcılar / belgeler |
 | DELETE | `/admin/users/{id}` | 👑 | Kullanıcıyı tüm verisi ve dosyalarıyla sil (kendini silemez) |
+| GET | `/admin/tokens` | 👑 | Tüm API anahtarları: sahibi (`owner_email`, `owner_name`), ad, ilk 12 karakter, tarihler. Anahtarın kendisi ve özeti **yok** |
+| DELETE | `/admin/tokens/{id}` | 👑 | Sızan/şüpheli anahtarı iptal et; sahibine e-posta gider. 404 yoksa. Yönetici anahtar **üretemez** |
 | POST | `/admin/llm-test` | 👑 | LLM bağlantısını dener |
 
 Hata biçimi her yerde aynıdır: `{"detail": "Türkçe açıklama"}`. Anahtarlar hata mesajına asla yazılmaz.
