@@ -154,6 +154,9 @@ docs/          tüm belgeler: mimari, geliştirme adımları, AI günlüğü, te
 Mimari: `api → services → db` (tek yönlü bağımlılık). Ayrıntı: [`docs/mimari.md`](docs/mimari.md) ·
 Teknik dokümantasyon (tüm uç noktalar): [`docs/teknik-dokumantasyon.md`](docs/teknik-dokumantasyon.md) ·
 Belgelerin dizini: [`docs/README.md`](docs/README.md).
+Ekran görüntüleri (sentetik veriyle): [`docs/ekran-goruntuleri/`](docs/ekran-goruntuleri/README.md).
+
+![Sohbet ekranı: kaynaklı yanıtlar](docs/ekran-goruntuleri/04-sohbet.jpg)
 
 ## Güvenlik ve gizlilik
 Anahtarlar ve parolalar depoya yüklenmez; gizli değerler `.env`'de (yerel) ve Vercel ortam değişkenlerinde (bulut) tutulur.

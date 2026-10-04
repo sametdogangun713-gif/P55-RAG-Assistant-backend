@@ -38,6 +38,7 @@ Her dosya: o adımda ne yapıldı, kodun açıklaması, **sözlü sınav sorular
 | [`test-raporu.md`](test-raporu.md) | Test sayıları, kapsam, hangi senaryolar neden test edildi |
 | [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md) | Testlerle bulunan ve düzeltilen gerçek hatalar |
 | [`istem-deneyleri.md`](istem-deneyleri.md) | Gerçek LLM ile istem (prompt) denemeleri |
+| [`ekran-goruntuleri/`](ekran-goruntuleri/README.md) | Uygulamanın ekran görüntüleri (güncel sürüm + ilk sürüm), sentetik veriyle |
 | [`demo-senaryosu.md`](demo-senaryosu.md) · [`vize-sozlu-hazirlik.md`](vize-sozlu-hazirlik.md) · [`ilerleme-raporu-vize.md`](ilerleme-raporu-vize.md) | Vize demosu ve hazırlığı |
 | [`../CHANGELOG.md`](../CHANGELOG.md) | Sürüm değişiklikleri |
 
