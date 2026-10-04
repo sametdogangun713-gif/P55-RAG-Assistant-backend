@@ -1,10 +1,12 @@
+from typing import Optional
+
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 
-from app.api.deps import get_current_user, get_db
+from app.api.deps import get_current_user, get_db, require_session
 from app.core import config
 from app.services import auth as auth_service
-from app.services import account, email_codes, email_verification, mailer, password_reset
+from app.services import account, api_tokens, email_codes, email_verification, mailer, password_reset
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -43,6 +45,11 @@ class PasswordChange(BaseModel):
 
 class AccountDelete(BaseModel):
     password: str
+
+
+class TokenCreate(BaseModel):
+    name: str
+    expires_in_days: Optional[int] = None      # None -> varsayilan (90 gun)
 
 
 class ResetRequest(BaseModel):
@@ -133,7 +140,7 @@ def me(user: dict = Depends(get_current_user)):
 
 # --- Hesabim: kullanicinin kendi hesabi ---
 @router.patch("/me")
-def update_me(body: ProfileUpdate, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+def update_me(body: ProfileUpdate, user: dict = Depends(require_session), conn=Depends(get_db)):
     try:
         return auth_service.public_user(account.update_name(conn, user, body.full_name))
     except auth_service.ValidationError as e:
@@ -141,7 +148,7 @@ def update_me(body: ProfileUpdate, user: dict = Depends(get_current_user), conn=
 
 
 @router.post("/change-password")
-def change_password(body: PasswordChange, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+def change_password(body: PasswordChange, user: dict = Depends(require_session), conn=Depends(get_db)):
     try:
         account.change_password(conn, user, body.current_password, body.new_password)
     except account.WrongPasswordError as e:
@@ -152,7 +159,7 @@ def change_password(body: PasswordChange, user: dict = Depends(get_current_user)
 
 
 @router.delete("/me")
-def delete_me(body: AccountDelete, user: dict = Depends(get_current_user), conn=Depends(get_db)):
+def delete_me(body: AccountDelete, user: dict = Depends(require_session), conn=Depends(get_db)):
     try:
         account.delete_account(conn, user, body.password)
     except account.WrongPasswordError as e:
@@ -160,6 +167,32 @@ def delete_me(body: AccountDelete, user: dict = Depends(get_current_user), conn=
     except account.LastAdminError as e:
         raise HTTPException(status_code=409, detail=str(e))
     return {"detail": "Hesabın ve tüm verilerin silindi."}
+
+
+# --- Kisisel API anahtarlari: 3. parti uygulamalar "Authorization: Bearer p55_..." ile baglanir ---
+@router.get("/tokens")
+def list_tokens(user: dict = Depends(require_session), conn=Depends(get_db)):
+    """Anahtarlarin adi, ilk 12 karakteri ve tarihleri. Anahtarin kendisi bir daha gosterilmez."""
+    return api_tokens.list_tokens(conn, user)
+
+
+@router.post("/tokens", status_code=201)
+def create_token(body: TokenCreate, user: dict = Depends(require_session), conn=Depends(get_db)):
+    """Yanittaki "token" alani anahtarin TEK gosterimidir: kullanici hemen kopyalamali."""
+    try:
+        return api_tokens.create_token(conn, user, body.name, body.expires_in_days)
+    except api_tokens.TokenValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except api_tokens.TokenLimitError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+
+
+@router.delete("/tokens/{token_id}")
+def delete_token(token_id: int, user: dict = Depends(require_session), conn=Depends(get_db)):
+    """Anahtari iptal eder: o anahtarla gelen sonraki istek 401 alir. Baskasinin anahtari 404 (var oldugu sizmaz)."""
+    if not api_tokens.revoke_token(conn, user, token_id):
+        raise HTTPException(status_code=404, detail="API anahtarı bulunamadı")
+    return {"detail": "API anahtarı silindi. Bu anahtarı kullanan uygulamalar artık bağlanamaz."}
 
 
 # --- Hafta 14: parola sifirlama ---

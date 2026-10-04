@@ -5,6 +5,17 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.18.0] — 2026-10-04 · kişisel API anahtarları
+### Eklendi
+- **Kişisel API anahtarı (3. parti uygulamalar için):** Hesabım → "API anahtarları"ndan ad + geçerlilik (7/30/90/365 gün)
+  seçilerek `p55_…` anahtarı üretilir; Postman, betik ya da bot `Authorization: Bearer p55_…` ile API'ye bağlanır.
+  Veritabanında yalnızca SHA-256 özeti (`api_tokens`, migration `006` / PostgreSQL `003`); anahtar bir kez gösterilir,
+  sekmeden çıkınca ekrandan silinir. Liste: ad, ilk 12 karakter, son kullanım, bitiş; tek tek silinebilir.
+- `GET/POST /auth/tokens`, `DELETE /auth/tokens/{id}`; `MAX_API_TOKENS_PER_USER` (10).
+### Değişti
+- Hesap yönetimi (ad/parola değiştirme, hesap silme, anahtar işlemleri) ve yönetici uçları yalnızca giriş oturumuyla
+  (`require_session`); API anahtarıyla 403.
+
 ## [0.17.0] — 2026-10-03 · büyük belge ve genel sohbet
 ### Eklendi
 - **Parça parça indeksleme:** bir istekte en fazla `INDEX_BUDGET_SECONDS` (Vercel'de 60 sn) indekslenir; belge `chunked`

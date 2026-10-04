@@ -23,8 +23,9 @@ flowchart TD
 | `app/main.py` | FastAPI uygulaması: açılışta migration, yükleme boyutu ön kontrolü (gövde okunmadan 413), CORS, router'lar |
 | `app/core/config.py` | Tüm ayarlar; `is_postgres()`, `check_secret_key()` (üretimde zayıf anahtarla açılmaz) |
 | `app/core/security.py` | scrypt parola özeti, JWT üretme/doğrulama |
-| `app/api/deps.py` | Ortak bağımlılıklar: istek başına veritabanı bağlantısı, `get_current_user` (rol her istekte DB'den), `require_admin`, `get_llm` |
-| `app/api/auth.py` | Kayıt, giriş, `/auth/me`, şifremi unuttum / sıfırla |
+| `app/api/deps.py` | Ortak bağımlılıklar: istek başına veritabanı bağlantısı, `get_current_user` (JWT ya da `p55_` API anahtarı; rol her istekte DB'den), `require_session` (hesap yönetimi yalnızca giriş oturumuyla), `require_admin`, `get_llm` |
+| `app/api/auth.py` | Kayıt, giriş, `/auth/me`, Hesabım, API anahtarları, şifremi unuttum / sıfırla |
+| `app/services/api_tokens.py` | Kişisel API anahtarı: `secrets` ile üretim, SHA-256 özetle saklama, süre/sayı sınırı, doğrulama, iptal |
 | `app/api/documents.py` | Yükleme (doğrudan ve depo üzerinden), listeleme, parçalar, silme, yeniden indeksleme, sınırlar |
 | `app/api/search.py`, `ask.py` | Anlamsal arama; tek seferlik kaynaklı soru |
 | `app/api/conversations.py` | Sohbet oluşturma/listeleme/silme, mesaj gönderme (RAG + geçmiş) |
@@ -60,7 +61,7 @@ Tarih sütunları iki veritabanında da `'YYYY-MM-DD HH:MM:SS'` (UTC) metnidir; 
 Ayrıntı ve diyagram: [`er-diyagrami.md`](er-diyagrami.md).
 
 ## 4. API uç noktaları
-Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒). Yönetici gerektirenler 👑. Canlı belge: `/docs` (Swagger).
+Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒) ya da 3. parti uygulamalar için `Authorization: Bearer p55_…` (kişisel API anahtarı, aynı başlık). 🔑 = yalnızca giriş oturumu (JWT); API anahtarıyla 403. Yönetici gerektirenler 👑 (yönetim işlemleri de yalnızca oturumla). Canlı belge: `/docs` (Swagger).
 
 | Yöntem | Yol | | Açıklama |
 |---|---|---|---|
@@ -70,9 +71,12 @@ Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒). Yönetici gerektirenler
 | POST | `/auth/resend-verification` | | Yeni doğrulama kodu (kayıtlı/kayıtsız aynı yanıt; 60 sn'de bir) |
 | POST | `/auth/login` | | Giriş → `access_token`. 401 yanlış bilgi, 403 e-posta doğrulanmamış (parola doğruysa), 429 çok fazla deneme |
 | GET | `/auth/me` | 🔒 | Oturumdaki kullanıcı |
-| PATCH | `/auth/me` | 🔒 | `{full_name}` → adı değiştir |
-| POST | `/auth/change-password` | 🔒 | `{current_password, new_password}`. 400: mevcut parola hatalı / yeni parola zayıf veya eskisiyle aynı |
-| DELETE | `/auth/me` | 🔒 | `{password}` → hesabı ve tüm verisini (dosyalar dahil) sil. 409: son yönetici |
+| PATCH | `/auth/me` | 🔑 | `{full_name}` → adı değiştir |
+| POST | `/auth/change-password` | 🔑 | `{current_password, new_password}`. 400: mevcut parola hatalı / yeni parola zayıf veya eskisiyle aynı |
+| GET | `/auth/tokens` | 🔑 | Kendi API anahtarların: `id, name, prefix, created_at, last_used_at, expires_at, expired` (anahtarın kendisi yok) |
+| POST | `/auth/tokens` | 🔑 | `{name, expires_in_days}` (7/30/90/365, varsayılan 90) → 201, `token` alanı anahtarın **tek** gösterimi. 400 ad/süre, 409 sayı sınırı |
+| DELETE | `/auth/tokens/{id}` | 🔑 | Anahtarı iptal et; o anahtarla gelen sonraki istek 401. Başkasının anahtarı 404 |
+| DELETE | `/auth/me` | 🔑 | `{password}` → hesabı ve tüm verisini (dosyalar dahil) sil. 409: son yönetici |
 | POST | `/auth/forgot-password` | | Sıfırlama kodu e-postası (kayıtlı/kayıtsız aynı yanıt). 503: e-posta ayarlı değil |
 | POST | `/auth/reset-password` | | Kod + yeni parola (e-postaya ulaşıldığı kanıtlandığı için doğrulanmamış hesap da doğrulanmış olur) |
 | GET | `/documents/limits` | 🔒 | `max_upload_mb`, izinli uzantılar, `upload_mode` (`direct` / `storage`) |

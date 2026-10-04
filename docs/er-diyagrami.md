@@ -14,6 +14,7 @@ erDiagram
     MESSAGES ||--o{ MESSAGE_SOURCES : kaynak_gosterir
     CHUNKS ||--o{ MESSAGE_SOURCES : kaynak_olur
     USERS ||--o{ EMAIL_CODES : kod_alir
+    USERS ||--o{ API_TOKENS : anahtar_uretir
 
     USERS {
         int id PK
@@ -83,6 +84,16 @@ erDiagram
         int attempts
         int created_at
     }
+    API_TOKENS {
+        int id PK
+        int user_id FK
+        string name
+        string prefix
+        string token_hash UK
+        string created_at
+        string last_used_at
+        string expires_at
+    }
 ```
 
 ## İlişki türleri
@@ -92,6 +103,7 @@ erDiagram
 - CONVERSATIONS 1-N MESSAGES
 - MESSAGES N-N CHUNKS — ara tablo MESSAGE_SOURCES (bir cevap birden çok parçaya, bir parça birden çok cevaba dayanabilir)
 - USERS 1-N EMAIL_CODES (`purpose`: `verify` = e-posta doğrulama, `reset` = parola sıfırlama; kullanıcı başına her amaç için en fazla bir geçerli kod, yeni kod eskisini siler)
+- USERS 1-N API_TOKENS (kişisel API anahtarları; kullanıcı başına en fazla `MAX_API_TOKENS_PER_USER`, hesap silinince CASCADE ile silinir)
 
 ## Normalizasyon notu
 Her tabloda tek bir konu var ve her alan yalnızca birincil anahtara bağlı (3NF). Örneğin belge adı
@@ -103,6 +115,7 @@ Her tabloda tek bir konu var ve her alan yalnızca birincil anahtara bağlı (3N
 - `003_conversation_summary.sql` (Hafta 11): `conversations.summary`, `conversations.summary_upto` (uzun sohbet özeti)
 - `004_password_reset.sql` (Hafta 14): `password_resets` tablosu (parola sıfırlama kodu; kodun kendisi değil HMAC özeti saklanır, 15 dk geçerli, en fazla 5 yanlış deneme)
 - `005_name_and_email_verification.sql` (PostgreSQL: `postgres/002_...`): `users.full_name` (kayıtta alınan ad soyad), `users.email_verified_at` (boş = e-posta doğrulanmadı, giriş yapamaz; bu migration'dan önceki hesaplar doğrulanmış sayılır). `password_resets` → `email_codes`: doğrulama ve sıfırlama kodu aynı kurallarla çalıştığı için tek tablo + `purpose` sütunu.
+- `006_api_tokens.sql` (PostgreSQL: `postgres/003_...`): `api_tokens` tablosu (kişisel API anahtarı; anahtarın kendisi değil SHA-256 özeti saklanır, `prefix` listede hangi anahtar olduğu anlaşılsın diye ilk 12 karakter, en fazla 1 yıl geçerli).
 
 ## Supabase'de diyagramı görmek
 Supabase panelinde **Database → Schema Visualizer** (sol menü) bu tabloları ve aralarındaki yabancı anahtar

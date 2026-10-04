@@ -23,11 +23,22 @@
 | Üretim ayarı | `APP_ENV=production` iken zayıf/varsayılan `SECRET_KEY` ile uygulama açılmaz; SMTP yoksa şifre sıfırlama kapalı (503) |
 | Veri konumu (KVKK) | Supabase ve Vercel bölgesi Frankfurt (AB). Demo verisi yine sentetik |
 
+## Kişisel API anahtarları (3. parti uygulamalar)
+- Anahtar `p55_` + 32 rastgele bayt (`secrets`). Veritabanında yalnızca **SHA-256 özeti** saklanır; anahtar yalnızca
+  üretildiği yanıtta bir kez gösterilir. Parolada yavaş scrypt kullanılır çünkü parolalar kısa ve tahmin edilebilir;
+  256 bitlik rastgele anahtarda kaba kuvvet imkânsız olduğu için hızlı özet yeterlidir (her istekte çalışır).
+- Her anahtarın son kullanma tarihi var (en fazla 1 yıl), tek tek silinebilir; silinen/süresi dolan anahtar 401 alır.
+- Anahtarla **yapılamayanlar** (403): yeni anahtar üretme/listeleme/silme, ad ve parola değiştirme, hesap silme,
+  yönetim işlemleri. Sızan bir anahtar kendini kalıcı hale getiremez ve hesabı ele geçiremez.
+- Tarayıcıdan çalışan bir 3. parti site, CORS yüzünden ancak `ALLOWED_ORIGINS`'e eklenirse bağlanabilir; sunucudan
+  çalışan uygulamalar (Postman, Python betiği, bot) CORS'tan etkilenmez. Anahtar tarayıcı koduna gömülmemeli.
+
 ## Bilinen sınırlar (dürüst not)
 - Kilit sayacı bellekte tutulur: sunucu yeniden başlarsa ve birden çok süreç çalışırsa sıfırlanır/paylaşılmaz.
 - Token iptali yok (çıkış yapınca token sunucuda geçersiz kılınmaz, süresi dolana kadar geçerli).
   Bu yüzden süre kısa tutuldu. Kullanıcı silinirse token zaten reddedilir (kullanıcı DB'den okunur).
 - Üretimde HTTPS zorunludur; token açık HTTP üzerinden gönderilmemeli.
+- API anahtarı için istek sayısı sınırı (rate limit) yok; parola değişince anahtarlar iptal edilmez (ayrı silinir).
 
 ## Kendi notlarım (doldur)
 -

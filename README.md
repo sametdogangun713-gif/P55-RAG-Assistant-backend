@@ -126,6 +126,7 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` | boş / `587` | Kayıt doğrulama kodu ve "Şifremi unuttum" e-postası (Gmail: uygulama şifresi). Boşsa geliştirmede kod sunucu penceresine yazılır, üretimde kayıt/sıfırlama 503 |
 | `REQUIRE_EMAIL_VERIFICATION` | `1` | Kayıt olan kişi e-postasına gelen kodu girmeden giriş yapamaz (`0`: hesap hemen açılır) |
 | `VERIFY_CODE_MINUTES` | `30` | Doğrulama kodunun geçerlilik süresi |
+| `MAX_API_TOKENS_PER_USER` | `10` | Bir kullanıcının aynı anda en fazla kaç kişisel API anahtarı olabilir |
 | `SEND_EMAIL_INLINE` | Vercel'de `1` | E-postayı yanıttan önce gönder (Vercel işlevi yanıttan sonra durdurabilir) |
 
 Tam liste: [`.env.example`](.env.example) · Bulut için hangi değerin nereye yazılacağı: [`docs/dagitim.md`](docs/dagitim.md).

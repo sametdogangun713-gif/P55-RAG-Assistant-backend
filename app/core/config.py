@@ -49,6 +49,8 @@ MAX_NAME_LENGTH = 100
 # Kapali ise hesap kayit aninda dogrulanmis sayilir (SMTP'siz bir sunucuda denemek icin).
 REQUIRE_EMAIL_VERIFICATION = os.getenv("REQUIRE_EMAIL_VERIFICATION", "1").strip() == "1"
 VERIFY_CODE_MINUTES = int(os.getenv("VERIFY_CODE_MINUTES", "30"))
+# Kisisel API anahtari (Hesabim -> API anahtarlari): bir kullanicinin ayni anda en fazla kac anahtari olabilir
+MAX_API_TOKENS_PER_USER = int(os.getenv("MAX_API_TOKENS_PER_USER", "10"))
 
 # --- Hafta 6: belge yukleme ve parcalama ---
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "500"))     # 10 -> 500 (dosya diske akitilarak yazilir); bulutta 50
