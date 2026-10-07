@@ -5,6 +5,13 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.21.1] — 2026-10-07 · Gemini dakikalık sınır
+### Düzeltildi (canlıda bulundu)
+- Gemini'ye geçince 185 parçalı PDF "dakikalık kullanım sınırı (429)" ile durdu. Ölçüm: ücretsiz katman toplu
+  istekteki her metni ayrı sayıyor (dakikada 100 metin; 64 + 64 → 429, 64 + 30 → başarılı). `GeminiEmbedder`
+  artık son 60 sn'de gönderdiği metni sayıp sınırı aşmadan bekliyor (`GEMINI_TEXTS_PER_MINUTE=90`); Google'ın
+  `retryDelay`'i (59 sn) için bekleme üst sınırı 30 → 60 sn. `tests/test_gemini.py` +4 test.
+
 ## [0.21.0] — 2026-10-07 · Google Gemini embedding
 ### Düzeltildi (canlıda bulundu)
 - Büyük bir PDF yüklenince "Gömme üretilemedi: Hugging Face embedding hatası (402)". 402 = Hugging Face'in ücretsiz

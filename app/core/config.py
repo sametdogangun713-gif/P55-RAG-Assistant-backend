@@ -79,6 +79,9 @@ GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googl
 GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
 GEMINI_EMBEDDING_DIM = int(os.getenv("GEMINI_EMBEDDING_DIM", "768"))     # 3072'ye kadar; 768 yeterli ve kucuk
 GEMINI_BATCH_SIZE = int(os.getenv("GEMINI_BATCH_SIZE", "64"))            # bir istekte kac parca
+# Ucretsiz katman dakikada 100 "istek" der ama toplu istekteki HER METNI ayri sayar (olcum 2026-10-07: 64+64 -> 429,
+# 64+30 -> basarili). Biz 60 sn'de bundan fazla metin gondermeyiz; pay birakmak icin 90.
+GEMINI_TEXTS_PER_MINUTE = int(os.getenv("GEMINI_TEXTS_PER_MINUTE", "90"))
 GEMINI_TIMEOUT_SECONDS = float(os.getenv("GEMINI_TIMEOUT_SECONDS", "60"))
 SEARCH_TOP_K = int(os.getenv("SEARCH_TOP_K", "5"))
 

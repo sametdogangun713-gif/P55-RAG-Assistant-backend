@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Belge Tabanlı Soru Asistanı (RAG)", version="0.21.0", lifespan=lifespan)
+app = FastAPI(title="Belge Tabanlı Soru Asistanı (RAG)", version="0.21.1", lifespan=lifespan)
 MULTIPART_OVERHEAD = 1024 * 1024     # form sinirlari ve basliklar icin pay (dosyanin kendisi degil)
 
 

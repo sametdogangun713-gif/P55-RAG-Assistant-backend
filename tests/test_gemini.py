@@ -1,4 +1,5 @@
-"""Gemini embedding: istek bicimi, gruplama, normalizasyon, 429 (dakikalik / gunluk sinir), gecersiz anahtar.
+"""Gemini embedding: istek bicimi, gruplama, normalizasyon, 429 (dakikalik / gunluk sinir), kendi hiz sinirimiz,
+gecersiz anahtar.
 
 Gercek Google'a gidilmez: yerelde sahte bir sunucu Gemini'nin yanit bicimini taklit eder.
 Hugging Face'in 402 (aylik ucretsiz kredi bitti) hatasinin anlasilir mesaji da burada denenir.
@@ -102,7 +103,7 @@ class GeminiEmbedderTests(unittest.TestCase):
             self.e.embed_documents(["a"])
         self.assertIn("dakikalık", str(cm.exception))
         self.assertIn("Devam et", str(cm.exception))
-        self.assertEqual(self.bekleme, [GeminiEmbedder.MAX_WAIT] * 2)        # 2 yeniden deneme, her biri en fazla 30 sn
+        self.assertEqual(self.bekleme, [GeminiEmbedder.MAX_WAIT] * 2)        # 2 yeniden deneme, her biri en fazla 60 sn
 
     def test_gunluk_sinirda_beklemeden_anlasilir_hata(self):
         self.sahte.yanitlar = [sinir_hatasi(gunluk=True)]
@@ -147,6 +148,50 @@ class GeminiEmbedderTests(unittest.TestCase):
     def test_ayarla_secilir(self):
         with mock.patch.object(config, "EMBEDDING_BACKEND", "gemini"), mock.patch.dict(emb_mod._cache, clear=True):
             self.assertIsInstance(emb_mod.get_embedder(), GeminiEmbedder)
+
+
+class DakikalikSinirTests(unittest.TestCase):
+    """Ucretsiz katman toplu istekteki her metni ayri sayar (gercek olcum: 64+64 -> 429, 64+30 -> basarili).
+    Gonderim oncesi kendi hiz sinirimiz 429'a hic takilmadan bekler. Sahte saat: bekleme saati ileri alir."""
+
+    def setUp(self):
+        self.sahte = SahteGemini()
+        self.saat, self.bekleme = [1000.0], []
+        self.e = GeminiEmbedder(api_key=ANAHTAR, base_url=self.sahte.url, dim=8, batch_size=64,
+                                texts_per_minute=90, sleep=self._bekle, clock=lambda: self.saat[0])
+
+    def _bekle(self, sn):
+        self.bekleme.append(sn)
+        self.saat[0] += sn
+
+    def tearDown(self):
+        self.sahte.close()
+
+    def test_sinir_asilacaksa_gondermeden_once_beklenir(self):
+        self.e.embed_documents(["x"] * 64)
+        self.saat[0] += 4                                   # ilk grup 4 sn surdu
+        self.e.embed_documents(["x"] * 64)                  # 64 + 64 > 90 -> ilk grup pencereden cikana kadar
+        self.assertEqual(self.bekleme, [56.0])
+        self.assertEqual(len(self.sahte.istekler), 2)       # hic 429 yok, yeniden deneme yok
+
+    def test_sinira_sigan_grup_beklemez(self):
+        self.e.embed_documents(["x"] * 64)
+        self.e.embed_documents(["x"] * 26)                  # 64 + 26 = 90
+        self.assertEqual(self.bekleme, [])
+
+    def test_pencere_gecince_sayac_sifirlanir(self):
+        self.e.embed_documents(["x"] * 64)
+        self.saat[0] += 61
+        self.e.embed_documents(["x"] * 64)
+        self.assertEqual(self.bekleme, [])
+
+    def test_grup_boyu_dakikalik_sinirdan_buyuk_olamaz(self):
+        e = GeminiEmbedder(api_key=ANAHTAR, base_url=self.sahte.url, dim=8, batch_size=200, texts_per_minute=90,
+                           sleep=self._bekle, clock=lambda: self.saat[0])
+        v = e.embed_documents(["x"] * 180)                  # 90 + 90: ikinci grup 60 sn bekler
+        self.assertEqual(v.shape, (180, 8))
+        self.assertEqual([len(i["govde"]["requests"]) for i in self.sahte.istekler], [90, 90])
+        self.assertEqual(self.bekleme, [60.0])
 
 
 class HF402Tests(unittest.TestCase):

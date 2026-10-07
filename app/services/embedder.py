@@ -15,7 +15,7 @@ import time
 import urllib.error
 import urllib.request
 import zlib
-from collections import Counter
+from collections import Counter, deque
 
 import numpy as np
 
@@ -201,21 +201,45 @@ class GeminiEmbedder(Embedder):
     - 403 PERMISSION_DENIED gecici sayilir: olcumde (2026-10-07) GECERLI anahtarla isteklerin ~%12'si nedensiz 403
       dondu (25'te 3). Ilk surumde 403 = "anahtar gecersiz" diye hemen vazgeciliyordu; buyuk belge yarida kaliyordu.
       Gercekten gecersiz anahtar 400 API_KEY_INVALID (ya da 401) doner; o hemen bildirilir.
+    - Dakikalik sinir toplu istekteki HER METNI ayri sayar (olcum 2026-10-07). Bu yuzden 429'u beklemeden once
+      kendimiz yavaslariz: son 60 sn'de gonderilen metin + yeni grup > texts_per_minute ise bekleriz (_throttle).
     """
     RETRY_STATUS = {403, 429, 500, 502, 503, 504}
-    MAX_WAIT = 30.0
+    MAX_WAIT = 60.0          # Google retryDelay'i 60 sn'ye kadar soyluyor (olcumde 59s)
+    WINDOW = 60.0            # dakikalik sinirin penceresi (sn)
 
     def __init__(self, model_name=None, api_key=None, base_url=None, dim=None, batch_size=None, timeout=None,
-                 max_retries=2, sleep=time.sleep):
+                 max_retries=2, sleep=time.sleep, texts_per_minute=None, clock=time.monotonic):
         self.model_name = model_name or config.GEMINI_EMBEDDING_MODEL
         self.dim = dim or config.GEMINI_EMBEDDING_DIM
         self.name = f"gemini:{self.model_name}:{self.dim}"     # boyut da adda: farkli boyutlu vektorler karismasin
         self.api_key = config.GEMINI_API_KEY if api_key is None else api_key
         self.base_url = (base_url or config.GEMINI_BASE_URL).rstrip("/")
-        self.batch_size = batch_size or config.GEMINI_BATCH_SIZE
+        self.texts_per_minute = texts_per_minute or config.GEMINI_TEXTS_PER_MINUTE
+        self.batch_size = min(batch_size or config.GEMINI_BATCH_SIZE, self.texts_per_minute)
         self.timeout = config.GEMINI_TIMEOUT_SECONDS if timeout is None else timeout
         self.max_retries = max_retries
         self._sleep = sleep
+        self._clock = clock
+        self._sent = deque()     # (zaman, metin sayisi): son WINDOW sn'de gonderilenler; ornek surec boyunca tekrar kullanilir
+
+    def _throttle(self, n: int):
+        """n metin gondermeden once: son WINDOW sn'deki metinler + n sinirlari asacaksa yer acilana kadar bekler."""
+        now = self._clock()
+        while self._sent and now - self._sent[0][0] >= self.WINDOW:
+            self._sent.popleft()
+        excess = sum(c for _, c in self._sent) + n - self.texts_per_minute
+        if excess > 0:
+            for t, c in self._sent:              # en eski gonderimler pencereden ciktikca yer acilir
+                excess -= c
+                if excess <= 0:
+                    wait = t + self.WINDOW - now
+                    break
+            self._sleep(wait)
+            now = max(self._clock(), now + wait)
+            while self._sent and now - self._sent[0][0] >= self.WINDOW:
+                self._sent.popleft()
+        self._sent.append((now, n))
 
     def _request(self, texts, task) -> urllib.request.Request:
         url = f"{self.base_url}/models/{self.model_name}:batchEmbedContents"
@@ -283,7 +307,9 @@ class GeminiEmbedder(Embedder):
             raise EmbeddingError("GEMINI_API_KEY ayarlı değil (.env dosyasına ya da Vercel ortam değişkenlerine ekleyin)")
         rows = []
         for i in range(0, len(texts), self.batch_size):
-            data = self._post(texts[i:i + self.batch_size], task)
+            group = texts[i:i + self.batch_size]
+            self._throttle(len(group))
+            data = self._post(group, task)
             try:
                 rows += [e["values"] for e in data["embeddings"]]
             except (KeyError, TypeError):

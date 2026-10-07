@@ -99,6 +99,20 @@ döndü. İlk sürüm 403'ü "anahtar geçersiz" sayıp hemen vazgeçiyordu: 18 
 büyük belgede indeksleme neredeyse kesin yarıda kalırdı. Düzeltme: nedensiz 403 geçici sayılır, 1–2 sn bekleyip yeniden denenir;
 gerçekten geçersiz anahtar (`API_KEY_INVALID`, 401) hemen bildirilir. Sonra 18/18 hatasız. Test: `test_nedensiz_403_gecici_sayilir_ve_yeniden_denenir`.
 
+**Gerçek hata (canlıda bulundu, 2026-10-07):** Vercel'de Gemini'ye geçince 185 parçalı PDF ilk denemede
+"dakikalık kullanım sınırı (429)" ile durdu. Ölçüm (yerel anahtar, art arda `batchEmbedContents`):
+
+| Deneme | Sonuç |
+|---|---|
+| 64 metin | 200 |
+| hemen ardından 64 metin | **429** `EmbedContentRequestsPerMinutePerUserPerProjectPerModel-FreeTier`, değer 100, `retryDelay` 59s |
+| 64 yerine 30 metin | 200 (64 + 30 = 94 ≤ 100) |
+
+Yani "dakikada 100 istek" aslında **dakikada 100 metin**: toplu istek kotadan tasarruf ettirmez. Kod 64'lük gruplarla
+ikinci grupta sınırı aşıyordu; bekleme üst sınırı da 30 sn'ydi (Google 59 sn diyordu). Düzeltme: `GeminiEmbedder._throttle`
+son 60 sn'de gönderilen metni sayar, yeni grup `GEMINI_TEXTS_PER_MINUTE` (90) sınırını aşacaksa göndermeden bekler;
+`MAX_WAIT` 60 sn. Testler: `DakikalikSinirTests` (sahte saat).
+
 ## Genel sohbet (`genel-v1`, 2026-10-03)
 Belgelerde yanıt yoksa (ilgili parça yok ya da model `BILGI_YOK` dedi) model genel bilgisiyle yanıt verir; durum `general`,
 kaynak yok, arayüzde "belgelerinden değil" notu. Deneme: HF bge-m3 + Groq `gpt-oss-120b`, aynı 7 bölümlük sentetik yönerge.

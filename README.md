@@ -116,6 +116,7 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `GEMINI_API_KEY` | boş | Google AI Studio anahtarı (`EMBEDDING_BACKEND=gemini` iken). Yalnızca `.env` / Vercel paneli |
 | `GEMINI_EMBEDDING_MODEL` / `GEMINI_EMBEDDING_DIM` | `gemini-embedding-001` / `768` | Gemini modeli ve vektör boyutu (`EMBEDDING_MODEL`'den bağımsız) |
 | `GEMINI_BATCH_SIZE` | `64` | Bir istekte kaç parça gönderilir |
+| `GEMINI_TEXTS_PER_MINUTE` | `90` | 60 sn'de en fazla kaç metin gönderilir (ücretsiz katman toplu istekteki her metni ayrı sayar, sınır 100) |
 | `STORAGE_BACKEND` | `local` | `local` = sunucu diski, `supabase` = Supabase Storage (bulutta zorunlu) |
 | `SUPABASE_URL` | boş | `https://<proje>.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | boş | Supabase gizli anahtarı (her şeye erişir!). Yalnızca backend'de |

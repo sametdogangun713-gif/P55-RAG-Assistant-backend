@@ -74,7 +74,10 @@ Hugging Face'in ücretsiz aylık kredisi büyük bir PDF'te bitti (2026-10-07, h
    Beklenen: `boyut 768`; belgede olan sorular ~0,7+, olmayanlar ~0,5–0,6 (ölçüm: `docs/istem-deneyleri.md`).
 3. Vercel (backend) → ortam değişkenleri: `EMBEDDING_BACKEND=gemini`, `GEMINI_API_KEY=AIza…` (gizli) → **Redeploy**.
 4. Model değişince eski vektörler kullanılmaz: Belgelerim'de her belge için **Yeniden indeksle**.
-5. Sınırlar: ücretsiz katmanda dakika ve gün başına sınır var. Sınıra takılınca kod Google'ın söylediği kadar bekler;
+5. Sınırlar: ücretsiz katman toplu istekteki **her metni (parçayı) ayrı istek sayar**: dakikada 100 parça (ölçüldü,
+   2026-10-07). Kod 60 sn'de en fazla `GEMINI_TEXTS_PER_MINUTE=90` parça gönderir, gerisini bekletir: indeksleme
+   ≈ 90 parça/dk. Günlük sınır büyük olasılıkla aynı şekilde parça başına (~1000/gün, ölçülmedi): çok büyük bir belge
+   birkaç günde biter. Sınıra yine takılınca kod Google'ın söylediği kadar (en fazla 60 sn) bekler;
    yine dolarsa indeksleme o ana kadarkini kaydeder ve "Devam et" ile kalan yerden sürer. Ücretsiz katmanda Google
    gönderilen metni ürün geliştirmede kullanabilir: **gerçek kişisel veri içeren belge yükleme** (KVKK).
 
