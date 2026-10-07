@@ -5,6 +5,22 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.19.0] — 2026-10-07 · Animasyonlu ana sayfa (frontend)
+### Eklendi
+- Ana sayfa yeniden tasarlandı (siyah-beyaz kalır), animasyonlar **GSAP 3.15** + ScrollTrigger + SplitText ile
+  (`public/home.js`; kütüphane `public/vendor/`, internetsiz de çalışır):
+  - Başlıklar satır satır maskenin altından açılır.
+  - **Canlı örnek:** soru yazılır, belge taranır, ilgili madde işaretlenir, yanıt `[1]` ile o maddeye bağlanır;
+    üçüncü örnekte belgede bilgi yoktur ve asistan uydurmaz.
+  - **Nasıl çalışır:** geniş ekranda bölüm sabitlenir, kaydırdıkça sahne ilerler (yükle → parçala → anlam
+    uzayında noktalar → soruya en yakın üç parça → `[1] [2] [3]` kaynaklı yanıt). Dar ekranda sabitleme yok.
+- Üst barda **Animasyonları kapat/aç** düğmesi (tercih tarayıcıda hatırlanır). Kapatınca `gsap.matchMedia().revert()`
+  her şeyi HTML'deki animasyonsuz hâline döndürür; giriş yapınca ana sayfa animasyonları durur.
+- Yazı tipleri: başlıklar Archivo (dar), belge örnekleri Source Serif 4.
+### Düzeltildi (geliştirirken bulundu)
+- Kaydırmaya bağlı zaman çizelgesi geri alınınca SVG sahnesinde gizleme stilleri kalıyordu (animasyon kapatılınca
+  sahne boş görünüyordu) → `stop()` SVG'deki satır içi stilleri siler.
+
 ## [0.18.2] — 2026-10-07 · Ürün adı: Belge Tabanlı Soru Asistanı
 ### Değişti
 - Arayüzde, e-postalarda, PDF raporunda, API başlığında ve belgelerde "P55" yerine **Belge Tabanlı Soru Asistanı**.
