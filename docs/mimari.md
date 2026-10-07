@@ -6,7 +6,7 @@ flowchart TD
     UI[Tarayıcı arayüzü<br/>P55-RAG-Assistant-frontend] -->|HTTP + JWT| API
     API[Sunum katmanı: app/api<br/>HTTP uç noktaları, yetki kontrolü] --> BL
     BL[İş katmanı: app/services<br/>ayrıştırma, parçalama, gömme, arama, RAG, sohbet] --> DL
-    BL --> EXT[(Harici servisler<br/>Groq / Claude, Hugging Face, Supabase Storage)]
+    BL --> EXT[(Harici servisler<br/>Groq / Claude, Google Gemini, Supabase Storage)]
     BL --> EMB[Yerel embedding modeli<br/>yalnızca yerelde]
     DL[Veri katmanı: app/db<br/>SQL, migration, CRUD] --> DB[(SQLite yerelde<br/>PostgreSQL + pgvector bulutta)]
     CORE[app/core<br/>ayarlar, güvenlik] -.-> API
@@ -21,7 +21,7 @@ flowchart LR
     U -->|imzalı adresle dosya| ST[(Supabase Storage)]
     BE --> PG[(Supabase PostgreSQL<br/>+ pgvector)]
     BE --> ST
-    BE --> HF[Hugging Face<br/>embedding]
+    BE --> HF[Google Gemini<br/>embedding]
     BE --> LLM[Groq / Claude]
 ```
 Arayüz ve API ayrı depolarda, ayrı adreslerde çalışır. Arayüz backend adresini `config.js`'ten okur; backend yalnızca

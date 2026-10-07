@@ -18,7 +18,7 @@ Projeyi başka birinin kurup çalıştırabileceği, belgelenmiş ve buluta taş
 | **CORS** | `main.py`, `ALLOWED_ORIGINS` | Tarayıcı yalnızca izinli arayüz adresinden backend'e istek atabilir |
 | **PostgreSQL** | `db/database.py` (`PgConnection`), `migrations/postgres/001_init.sql`, depo modüllerinde taşınabilir SQL | Aynı kod yerelde SQLite, bulutta Supabase PostgreSQL ile çalışır |
 | **pgvector** | `db/embeddings.py` (`nearest`), `services/vector_search.py` | Bulutta benzerlik SQL'de hesaplanır (`<=>`) |
-| **Bulut embedding** | `services/embedder.py` (`HFEmbedder`), `scripts/hf_dene.py` | Aynı model Hugging Face'te; Vercel'e torch/model sığmaz |
+| **Bulut embedding** | `services/embedder.py` (`HFEmbedder`, 2026-10-07'den beri `GeminiEmbedder`), `scripts/gemini_dene.py` | Vercel'e torch/model sığmaz; HF'nin ücretsiz kredisi bitince (402) Gemini'ye geçildi |
 | **Dosya deposu** | `services/storage.py`, `POST /documents/upload-url`, `POST /documents/complete`, frontend `docs.js` | Tarayıcı dosyayı Supabase Storage'a doğrudan yükler (Vercel isteği ≤ 4,5 MB) |
 | Vercel | `vercel.json` (iki depoda), `.python-version`, `.vercelignore`, `requirements*.txt` ayrımı | Bölge Frankfurt, istek ≤ 300 sn; sunucu paketi torch'suz (~120 MB) |
 | Kurulum | `scripts/supabase_kurulum.py`, `scripts/env_olustur.py` | Tek komutla tablolar + kova; `.env` + `SECRET_KEY` otomatik |

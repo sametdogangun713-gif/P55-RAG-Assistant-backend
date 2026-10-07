@@ -36,7 +36,7 @@ flowchart TD
 | `app/services/documents.py` | Dosya adı temizleme, tür/içerik kontrolü, diske 1 MB bloklarla yazma, ayrıştır → parçala → indeksle; Supabase Storage akışı |
 | `app/services/parser.py` | TXT (UTF-8 / cp1254), PDF (pypdf, sayfa numaralı), DOCX (python-docx, zip-bombası kontrolü) |
 | `app/services/chunker.py` | Paragraf/cümle sınırına saygılı, örtüşmeli parçalama (600/100 karakter) |
-| `app/services/embedder.py` | `LocalEmbedder` (sentence-transformers), `HFEmbedder` (aynı model, Hugging Face API), `HashingEmbedder` (test yedeği). Hepsi L2-normalize |
+| `app/services/embedder.py` | `LocalEmbedder` (sentence-transformers), `GeminiEmbedder` (Google Gemini API, bulutta), `HFEmbedder` (Hugging Face API, eski bulut seçeneği), `HashingEmbedder` (test yedeği). Hepsi L2-normalize |
 | `app/services/indexing.py` | Parçaları 64'lük gruplarla vektörleştirir; önce hepsini üretir, sonra eskileri silip yazar |
 | `app/services/vector_search.py` | SQLite'ta numpy ile nokta çarpımı; PostgreSQL'de pgvector (`<=>`) |
 | `app/services/rag.py`, `prompts.py` | Bağlam oluşturma, `MIN_SCORE` eşiği, `[n]` alıntı doğrulama, `BILGI_YOK` kuralı |
@@ -121,7 +121,7 @@ sequenceDiagram
     T->>S: PUT upload_url (dosya, ilerleme yüzdesi)
     T->>B: POST /documents/complete {path, ad}
     B->>S: dosyayı oku (1 MB bloklarla /tmp'ye)
-    B->>B: tür/boyut kontrolü, ayrıştır, parçala, vektörleştir (HF)
+    B->>B: tür/boyut kontrolü, ayrıştır, parçala, vektörleştir (Gemini)
     B-->>T: belge (status: indexed)
 ```
 Neden? Vercel bir istekte en fazla 4,5 MB kabul eder. Bu düzende büyük dosya backend'den hiç geçmez.
@@ -138,12 +138,12 @@ Supabase'te RLS açık, gizli anahtar yalnızca backend'de, depo yolları kullan
 
 ## 7. Testler
 `tests/` — birim testleri (servisler, parçalama, güvenlik), entegrasyon testleri (FastAPI `TestClient` ile gerçek HTTP),
-harici servisler için yerel sahte HTTP sunucuları (LLM, Hugging Face, Supabase Storage). Varsayılan veritabanı bellekteki
+harici servisler için yerel sahte HTTP sunucuları (LLM, Gemini, Hugging Face, Supabase Storage). Varsayılan veritabanı bellekteki
 SQLite; `TEST_PG_URL` verilirse **aynı testler PostgreSQL'e karşı** koşar. Arayüz testleri frontend deposundadır.
 Sonuçlar: [`test-raporu.md`](test-raporu.md).
 
 ## 8. Bilinen sınırlar
 Başarısız giriş sayacı bellekte (bulutta her sunucu örneğinin ayrı sayacı var; kalıcı tablo gelecekte) · oturum iptali yok ·
-yükleme isteği indeksleme bitene kadar bekler (bulutta ≤ 300 sn) · bulutta dosya ≤ 50 MB · Hugging Face sunucusu metni
-128 token'da keser (yerelde 256) · pgvector sütunu boyutsuz olduğu için indeks yok (tam tarama; küçük veri için yeterli) ·
+yükleme isteği indeksleme bitene kadar bekler (bulutta ≤ 300 sn) · bulutta dosya ≤ 50 MB · Gemini ücretsiz katmanı dakika/gün
+başına sınırlı (büyük belge "Devam et" ile birden çok seferde indekslenir) · pgvector sütunu boyutsuz olduğu için indeks yok (tam tarama; küçük veri için yeterli) ·
 Supabase ücretsiz projesi 1 hafta kullanılmazsa durur · "kaynağa dayalı" ≠ "doğru".

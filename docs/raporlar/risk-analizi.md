@@ -13,7 +13,7 @@
 | No | Risk | Kategori | Ol. | Etki | Skor | Önlem / Aksiyon |
 |---|---|---|---|---|---|---|
 | 1 | Kodun büyük kısmı yapay zekâ ile yazıldığı için öğrencinin kodu sözlüde açıklayamaması | AI/Etik | 3 | 3 | **9** | Her adımın belgesindeki açıklama ve sözlü sorular haftasında birlikte çalışılır; "Kendi yapacakların" görevlerini öğrenci kendisi yapar; AI günlüğü; açıklayamadığı kod teslim edilmez |
-| 2 | RAG, embedding, vektör arama gibi yeni kavramların öğrenilmesinin uzun sürmesi | Teknik | 2 | 3 | **6** | Her hafta yalnızca o haftanın kavramına odaklanmak; küçük denemeler (ör. `scripts/hf_dene.py`); kavram notları `docs/gelistirme/` içinde |
+| 2 | RAG, embedding, vektör arama gibi yeni kavramların öğrenilmesinin uzun sürmesi | Teknik | 2 | 3 | **6** | Her hafta yalnızca o haftanın kavramına odaklanmak; küçük denemeler (ör. `scripts/gemini_dene.py`); kavram notları `docs/gelistirme/` içinde |
 | 3 | Gizli anahtarın (API anahtarı, parola) depoya, ekrana ya da sohbete sızması | Güvenlik | 2 | 3 | **6** | Anahtarlar yalnızca `.env` / Vercel ortam değişkenlerinde; `.gitignore`; commit öncesi tarama; sızarsa anahtar hemen iptal edilip yenisi üretilir |
 | 4 | Demo günü internet ya da bulut servisinin (Vercel, Supabase, Groq) çalışmaması | Dış | 2 | 3 | **6** | Aynı kod yerelde de çalışır (SQLite + yerel embedding); demo senaryosu yerelde de prova edilir |
 | 5 | Harici API'nin (Groq, Hugging Face) ücretsiz katman limiti, model kaldırılması ya da ücret çıkarması | Dış | 2 | 2 | 4 | Sağlayıcı ve model `.env`'den değişir (Groq ↔ Claude); embedding yerelde de çalışır; hata mesajları anlaşılır (503) |

@@ -67,7 +67,11 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
 ## 2a. Google Gemini (embedding, önerilen)
 Hugging Face'in ücretsiz aylık kredisi büyük bir PDF'te bitti (2026-10-07, hata `402`). Gemini'nin ücretsiz katmanı kart istemez.
 1. https://aistudio.google.com → Google hesabıyla giriş → **Get API key → Create API key** → `AIza…` anahtarını kopyala.
-2. Yerelde: `.env` → `EMBEDDING_BACKEND=gemini` ve `GEMINI_API_KEY=AIza…` (anahtarı sohbete/ekrana yazma).
+2. Yerelde: `.env` → `GEMINI_API_KEY=AIza…` (anahtarı sohbete/ekrana yazma), sonra dene:
+   ```bat
+   python -m scripts.gemini_dene
+   ```
+   Beklenen: `boyut 768`; belgede olan sorular ~0,7+, olmayanlar ~0,5–0,6 (ölçüm: `docs/istem-deneyleri.md`).
 3. Vercel (backend) → ortam değişkenleri: `EMBEDDING_BACKEND=gemini`, `GEMINI_API_KEY=AIza…` (gizli) → **Redeploy**.
 4. Model değişince eski vektörler kullanılmaz: Belgelerim'de her belge için **Yeniden indeksle**.
 5. Sınırlar: ücretsiz katmanda dakika ve gün başına sınır var. Sınıra takılınca kod Google'ın söylediği kadar bekler;
@@ -77,11 +81,7 @@ Hugging Face'in ücretsiz aylık kredisi büyük bir PDF'te bitti (2026-10-07, h
 ## 2. Hugging Face (embedding, eski)
 1. https://huggingface.co → hesap aç → **Settings → Access Tokens → Create new token** → "Fine-grained" →
    **"Make calls to Inference Providers"** kutusunu işaretle → oluştur, `hf_…` anahtarını kopyala.
-2. Yerelde dene: `.env` → `HF_TOKEN=hf_…`, sonra
-   ```bat
-   python -m scripts.hf_dene
-   ```
-   Beklenen: `boyut 384`, "HF ile yerel model aynı cümlede: 1.000…" (yerel `.env` MiniLM'i seçtiği için bu deneme anahtarı ve bağlantıyı sınar).
+2. Yerelde: `.env` → `HF_TOKEN=hf_…` ve `EMBEDDING_BACKEND=hf`.
    Bulutta yereldeki MiniLM yerine **bge-m3** kullanılır: Hugging Face MiniLM'i 128 token'da kesiyordu ve Türkçe 600 karakterlik
    parçanın ikinci yarısı aranamıyordu. bge-m3 8192 token alır, Türkçede doğru parçayı daha iyi bulur; eşiği `0.40` (ölçüm: `docs/istem-deneyleri.md`).
    Bedeli hız: ~10 parça/sn. Model değişince eski belgeler aramada görünmez → Belgelerim'de **Yeniden indeksle**.

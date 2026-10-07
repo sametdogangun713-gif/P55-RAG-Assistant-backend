@@ -35,7 +35,7 @@ Sıra, birbirine bağımlılığa göre seçildi: önce hesaplar (her şey onlar
 1. ✅ Canlıda: `/health` → postgres, CORS, doğrulama e-postası ulaştı, belge yükleme + yeniden indeksleme + sohbet çalıştı.
 2. ⬜ [`dagitim.md`](dagitim.md) §5 uçtan uca kontrol listesi **maddeleri tek tek, ekran görüntüsüyle** (rapor PDF'i, API anahtarı
    bildirimi, yönetici iptali, şifremi unuttum canlıda henüz denenmedi).
-3. ⬜ Bulutta `MIN_SCORE` kontrolü (`bge-m3`, eşik 0,40): belgede **olan** 5 / **olmayan** 5 soru, `best_score` değerleri.
+3. ✅ `MIN_SCORE` ölçümü (2026-10-07, gerçek Gemini): belgede olan 12 / olmayan 6 soru → eşik 0,55 ([`istem-deneyleri.md`](istem-deneyleri.md)).
 4. ⬜ Canlıda karşılaşılan her sorunu [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md)'ye ekle.
 
 ### C. Senin görevlerin — *sen* (öncelik sırasıyla)

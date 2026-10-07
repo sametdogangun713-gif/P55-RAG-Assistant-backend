@@ -33,17 +33,6 @@ def list_unindexed_chunks(conn, document_id: int, model: str, limit: int) -> lis
         " ORDER BY c.chunk_index LIMIT ?", (document_id, model, limit))]
 
 
-def get_chunk(conn, chunk_id: int):
-    row = conn.execute("SELECT * FROM chunks WHERE id = ?", (chunk_id,)).fetchone()
-    return dict(row) if row else None
-
-
 def count_chunks(conn, document_id: int) -> int:
     return conn.execute("SELECT COUNT(*) FROM chunks WHERE document_id = ?",
                         (document_id,)).fetchone()[0]
-
-
-def delete_chunks(conn, document_id: int) -> int:
-    cur = conn.execute("DELETE FROM chunks WHERE document_id = ?", (document_id,))
-    conn.commit()
-    return cur.rowcount

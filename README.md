@@ -20,7 +20,7 @@ dayanarak**, `[1]`, `[2]` gibi kaynak numaralarıyla üretir (RAG). Belgede bilg
 |---|---|
 | Hesaplar | Kayıt / giriş (scrypt parola özeti, JWT oturum), kullanıcı ve yönetici rolleri, e-postayla şifre sıfırlama |
 | Belgeler | TXT, PDF, DOCX yükleme, ayrıştırma, parçalama; her kullanıcı yalnızca kendi belgelerini görür |
-| Arama | Türkçe anlamsal arama (çok dilli model; yerelde bilgisayarında, bulutta Hugging Face'te) |
+| Arama | Türkçe anlamsal arama (çok dilli model; yerelde bilgisayarında, bulutta Google Gemini) |
 | Sohbet | Kaynaklı yanıt, sohbet geçmişi, uzun sohbetlerde özetleme (Groq ya da Claude) |
 | Rapor | Kullanım ve kaynak raporu, CSV dışa aktarma |
 | Yönetim | Kullanıcılar, tüm belgeler, sistem raporu (yalnızca yönetici) |
@@ -30,7 +30,7 @@ dayanarak**, `[1]`, `[2]` gibi kaynak numaralarıyla üretir (RAG). Belgede bilg
 |---|---|---|
 | Veritabanı | SQLite dosyası (`data/asistan.db`) | Supabase PostgreSQL + pgvector |
 | Dosyalar | Sunucu diski (`uploads/`), en fazla 500 MB | Supabase Storage (gizli kova), en fazla 50 MB |
-| Embedding | `sentence-transformers` (yerel, ücretsiz) | Aynı model, Hugging Face Inference API |
+| Embedding | `sentence-transformers` (yerel, ücretsiz) | Google Gemini `gemini-embedding-001` (ücretsiz katman) |
 | Kurulum | [Adım adım kurulum](#adım-adım-kurulum-komutlarla) | [`docs/dagitim.md`](docs/dagitim.md) |
 
 Hangisinin kullanılacağına kod değil **ayarlar** (`.env` / Vercel ortam değişkenleri) karar verir. Kod aynıdır.
@@ -90,7 +90,7 @@ pip install -r requirements-dev.txt
 pytest
 pytest --cov=app
 ```
-Testler internet ve API anahtarı gerektirmez: embedding için hızlı yedek model, dil modeli / Hugging Face / Supabase Storage
+Testler internet ve API anahtarı gerektirmez: embedding için hızlı yedek model, dil modeli / Gemini / Hugging Face / Supabase Storage
 için yerel sahte sunucular kullanılır. Varsayılan veritabanı bellekteki SQLite'tır. **Aynı testler PostgreSQL'e karşı da koşar:**
 ```bat
 set TEST_PG_URL=postgresql://kullanici@localhost:5432/veritabani
