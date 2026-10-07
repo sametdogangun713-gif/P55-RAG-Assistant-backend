@@ -64,7 +64,17 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
 
 > `create extension vector` hatası alırsan: Supabase → **Database → Extensions → vector → Enable**, sonra 4. adımı tekrarla.
 
-## 2. Hugging Face (embedding)
+## 2a. Google Gemini (embedding, önerilen)
+Hugging Face'in ücretsiz aylık kredisi büyük bir PDF'te bitti (2026-10-07, hata `402`). Gemini'nin ücretsiz katmanı kart istemez.
+1. https://aistudio.google.com → Google hesabıyla giriş → **Get API key → Create API key** → `AIza…` anahtarını kopyala.
+2. Yerelde: `.env` → `EMBEDDING_BACKEND=gemini` ve `GEMINI_API_KEY=AIza…` (anahtarı sohbete/ekrana yazma).
+3. Vercel (backend) → ortam değişkenleri: `EMBEDDING_BACKEND=gemini`, `GEMINI_API_KEY=AIza…` (gizli) → **Redeploy**.
+4. Model değişince eski vektörler kullanılmaz: Belgelerim'de her belge için **Yeniden indeksle**.
+5. Sınırlar: ücretsiz katmanda dakika ve gün başına sınır var. Sınıra takılınca kod Google'ın söylediği kadar bekler;
+   yine dolarsa indeksleme o ana kadarkini kaydeder ve "Devam et" ile kalan yerden sürer. Ücretsiz katmanda Google
+   gönderilen metni ürün geliştirmede kullanabilir: **gerçek kişisel veri içeren belge yükleme** (KVKK).
+
+## 2. Hugging Face (embedding, eski)
 1. https://huggingface.co → hesap aç → **Settings → Access Tokens → Create new token** → "Fine-grained" →
    **"Make calls to Inference Providers"** kutusunu işaretle → oluştur, `hf_…` anahtarını kopyala.
 2. Yerelde dene: `.env` → `HF_TOKEN=hf_…`, sonra
@@ -88,8 +98,8 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    | `SECRET_KEY` | **yeni** 64 karakter: `python -c "import secrets; print(secrets.token_hex(32))"` (yereldekinden farklı olsun) | **evet** |
    | `DATABASE_URL` | 1.2'deki Transaction pooler adresi (parolalı) | **evet** |
    | `ALLOWED_ORIGINS` | frontend adresin, ör. `https://p55-rag-assistant-frontend.vercel.app` (4. adımdan sonra kesinleşir) | |
-   | `EMBEDDING_BACKEND` | `hf` | |
-   | `HF_TOKEN` | `hf_…` | **evet** |
+   | `EMBEDDING_BACKEND` | `gemini` (eskisi `hf`) | |
+   | `GEMINI_API_KEY` | `AIza…` | **evet** |
    | `STORAGE_BACKEND` | `supabase` | |
    | `SUPABASE_URL` | `https://<proje-kodu>.supabase.co` | |
    | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_…` | **evet** |
@@ -140,6 +150,9 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
 | `prepared statement … already exists` | Doğrudan bağlantı (5432) yerine pooler kullanılıyorsa sorun olmaz; kod `prepare_threshold=None` ile bunu önler. Hâlâ görülürse "Session pooler" adresini dene |
 | Yükleme "Dosya deposu isteği reddedildi (403)" | `SUPABASE_SERVICE_ROLE_KEY` yanlış (publishable/anon anahtarı girilmiş olabilir) |
 | "Hugging Face anahtarı geçersiz" | `HF_TOKEN` yanlış ya da "Inference Providers" izni verilmemiş |
+| "Hugging Face'in aylık ücretsiz kullanım hakkı doldu (402)" | Ücretsiz kredi bitti. `EMBEDDING_BACKEND=gemini` + `GEMINI_API_KEY` (2a. adım), sonra **Yeniden indeksle** |
+| "Gemini'nin dakikalık/günlük kullanım sınırı (429)" | Ücretsiz katman sınırı. Kaydedilen parçalar korunur; bir dakika (ya da ertesi gün) sonra **Devam et** |
+| "Gemini API anahtarı geçersiz" | `GEMINI_API_KEY` yanlış kopyalanmış; AI Studio'da yeni anahtar üret |
 | Büyük belgede `504 FUNCTION_INVOCATION_TIMEOUT` | Yükleme isteği (indirme + ayrıştırma + parçalama + ilk 60 sn indeksleme) 300 sn'yi aştı. `INDEX_BUDGET_SECONDS`'ı düşür (ör. 30); belge "indeksleniyor" kaldıysa Belgelerim → **Devam et** |
 | Uygulama açılmıyor, Supabase "Paused" | Ücretsiz proje 1 hafta kullanılmayınca durur: Supabase paneli → **Restore project** (demodan önce kontrol et!) |
 

@@ -1,8 +1,9 @@
 """Embedding: metni, anlamini temsil eden sabit uzunluklu bir vektore cevirir.
 
-Uc arka uc (.env -> EMBEDDING_BACKEND):
+Dort arka uc (.env -> EMBEDDING_BACKEND):
 - LocalEmbedder   : sentence-transformers (yerel, ucretsiz, cok dilli) -> kendi bilgisayarinda
-- HFEmbedder      : AYNI model, Hugging Face'in sunucusunda (HTTP) -> bulutta (Vercel'e torch ve model sigmaz)
+- HFEmbedder      : Hugging Face'in sunucusunda bge-m3 (HTTP) -> bulut; ucretsiz aylik kredisi kucuk (402)
+- GeminiEmbedder  : Google Gemini API (gemini-embedding-001, HTTP) -> bulut; ucretsiz katman, dakika/gun sinirli
 - HashingEmbedder : indirme gerektirmeyen, kelime/harf-n-gram tabanli basit yedek -> testler ve hizli deneme
 Tum vektorler L2-normalizedir; bu yuzden iki vektorun nokta carpimi = kosinus benzerligidir.
 """
@@ -160,6 +161,9 @@ class HFEmbedder(Embedder):
                     continue
                 if e.code in (401, 403):
                     raise EmbeddingError("Hugging Face anahtarı (HF_TOKEN) geçersiz veya yetkisiz") from None
+                if e.code == 402:                        # gercek hata (2026-10-07): ucretsiz aylik kredi bitti
+                    raise EmbeddingError("Hugging Face'in aylık ücretsiz kullanım hakkı doldu (402). "
+                                         "Başka bir embedding sağlayıcısı seçin (EMBEDDING_BACKEND=gemini)") from None
                 raise EmbeddingError(f"Hugging Face embedding hatası ({e.code})") from None
             except (socket.timeout, TimeoutError, urllib.error.URLError) as e:
                 if not last:
@@ -184,6 +188,111 @@ class HFEmbedder(Embedder):
         return arr / np.where(norms > 0, norms, 1.0)    # normalize: nokta carpimi = kosinus (sunucuya guvenme)
 
 
+class GeminiEmbedder(Embedder):
+    """Google Gemini API ile embedding (POST .../models/<model>:batchEmbedContents, anahtar x-goog-api-key basliginda).
+
+    Neden? Hugging Face'in ucretsiz aylik kredisi buyuk bir PDF'te bitiyordu (402). Gemini'nin ucretsiz katmani
+    kartsiz; ama dakika ve gun basina sinirlari var. Sinira takilinca (429) Google'in yanitta soyledigi sure kadar
+    beklenir (en fazla MAX_WAIT sn) ve yeniden denenir; gunluk sinir dolduysa beklenmez. Indeksleme o ana kadar
+    kaydettigi parcalari korur ("Devam et" kalan yerden surer).
+    - Belge parcalari taskType=RETRIEVAL_DOCUMENT, soru RETRIEVAL_QUERY ile gonderilir (arama icin ayarli vektorler).
+    - outputDimensionality 3072'den kucukse vektorler normalize gelmez -> burada normalize edilir.
+    - Anahtar URL'de degil baslikta; hata mesajina asla yazilmaz.
+    """
+    RETRY_STATUS = {429, 500, 502, 503, 504}
+    MAX_WAIT = 30.0
+
+    def __init__(self, model_name=None, api_key=None, base_url=None, dim=None, batch_size=None, timeout=None,
+                 max_retries=2, sleep=time.sleep):
+        self.model_name = model_name or config.GEMINI_EMBEDDING_MODEL
+        self.dim = dim or config.GEMINI_EMBEDDING_DIM
+        self.name = f"gemini:{self.model_name}:{self.dim}"     # boyut da adda: farkli boyutlu vektorler karismasin
+        self.api_key = config.GEMINI_API_KEY if api_key is None else api_key
+        self.base_url = (base_url or config.GEMINI_BASE_URL).rstrip("/")
+        self.batch_size = batch_size or config.GEMINI_BATCH_SIZE
+        self.timeout = config.GEMINI_TIMEOUT_SECONDS if timeout is None else timeout
+        self.max_retries = max_retries
+        self._sleep = sleep
+
+    def _request(self, texts, task) -> urllib.request.Request:
+        url = f"{self.base_url}/models/{self.model_name}:batchEmbedContents"
+        body = {"requests": [{"model": f"models/{self.model_name}", "content": {"parts": [{"text": t}]},
+                              "taskType": task, "outputDimensionality": self.dim} for t in texts]}
+        return urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), method="POST", headers={
+            "x-goog-api-key": self.api_key, "Content-Type": "application/json", "User-Agent": "P55-RAG-Assistant/1.0"})
+
+    @staticmethod
+    def _error_info(raw: bytes):
+        """Hata govdesinden (bekleme suresi, gunluk sinir mi, API anahtari gecersiz mi) bilgisini cikarir."""
+        try:
+            err = json.loads(raw.decode("utf-8")).get("error", {})
+        except (ValueError, AttributeError):
+            return None, False, False
+        wait, daily = None, False
+        for d in err.get("details", []):
+            if str(d.get("retryDelay", "")).endswith("s"):          # RetryInfo: "37s"
+                try:
+                    wait = float(d["retryDelay"][:-1])
+                except ValueError:
+                    pass
+            for v in d.get("violations", []):                         # QuotaFailure: hangi sinir doldu
+                if "PerDay" in str(v.get("quotaId", "")):
+                    daily = True
+        bad_key = "API_KEY_INVALID" in json.dumps(err) or "API key not valid" in str(err.get("message", ""))
+        return wait, daily, bad_key
+
+    def _post(self, texts, task):
+        for attempt in range(self.max_retries + 1):
+            last = attempt >= self.max_retries
+            try:
+                with urllib.request.urlopen(self._request(texts, task), timeout=self.timeout) as resp:
+                    return json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                wait, daily, bad_key = self._error_info(e.read())
+                if bad_key or e.code in (401, 403):
+                    raise EmbeddingError("Gemini API anahtarı (GEMINI_API_KEY) geçersiz veya yetkisiz") from None
+                if e.code == 429 and daily:
+                    raise EmbeddingError("Gemini'nin günlük ücretsiz kullanım sınırı doldu (429). İndekslenen parçalar "
+                                         "kaydedildi; yarın 'Devam et' ile kalan yerden sürer") from None
+                if e.code in self.RETRY_STATUS and not last:
+                    self._sleep(min(wait if wait is not None else 2 ** (attempt + 2), self.MAX_WAIT))
+                    continue
+                if e.code == 429:
+                    raise EmbeddingError("Gemini'nin dakikalık kullanım sınırına takıldı (429). İndekslenen parçalar "
+                                         "kaydedildi; bir dakika sonra 'Devam et'e bas") from None
+                raise EmbeddingError(f"Gemini embedding hatası ({e.code})") from None
+            except (socket.timeout, TimeoutError, urllib.error.URLError) as e:
+                if not last:
+                    self._sleep(min(2 ** attempt, 8))
+                    continue
+                raise EmbeddingError(f"Gemini'ye ulaşılamadı: {getattr(e, 'reason', e)}") from None
+            except ValueError:
+                raise EmbeddingError("Gemini yanıtı JSON değil") from None
+
+    def _embed(self, texts, task) -> np.ndarray:
+        texts = list(texts)
+        if not self.api_key:
+            raise EmbeddingError("GEMINI_API_KEY ayarlı değil (.env dosyasına ya da Vercel ortam değişkenlerine ekleyin)")
+        rows = []
+        for i in range(0, len(texts), self.batch_size):
+            data = self._post(texts[i:i + self.batch_size], task)
+            try:
+                rows += [e["values"] for e in data["embeddings"]]
+            except (KeyError, TypeError):
+                raise EmbeddingError("Gemini yanıtı beklenen biçimde değil") from None
+        arr = np.asarray(rows, dtype=np.float32)
+        if arr.ndim != 2 or arr.shape != (len(texts), self.dim):
+            raise EmbeddingError(f"Gemini yanıtı beklenen biçimde değil (boyut {arr.shape})")
+        norms = np.linalg.norm(arr, axis=1, keepdims=True)
+        return arr / np.where(norms > 0, norms, 1.0)
+
+    def embed_documents(self, texts) -> np.ndarray:
+        return self._embed(texts, "RETRIEVAL_DOCUMENT")
+
+    def embed_query(self, text: str) -> np.ndarray:
+        return self._embed([text], "RETRIEVAL_QUERY")[0]
+
+
 _cache = {}
 
 
@@ -197,6 +306,8 @@ def get_embedder() -> Embedder:
             _cache[key] = LocalEmbedder()
         elif config.EMBEDDING_BACKEND == "hf":
             _cache[key] = HFEmbedder()
+        elif config.EMBEDDING_BACKEND == "gemini":
+            _cache[key] = GeminiEmbedder()
         else:
             raise EmbeddingError(f"Bilinmeyen EMBEDDING_BACKEND: {config.EMBEDDING_BACKEND}")
     return _cache[key]

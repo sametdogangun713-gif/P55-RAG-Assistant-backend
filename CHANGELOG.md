@@ -5,6 +5,18 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.21.0] — 2026-10-07 · Google Gemini embedding
+### Düzeltildi (canlıda bulundu)
+- Büyük bir PDF yüklenince "Gömme üretilemedi: Hugging Face embedding hatası (402)". 402 = Hugging Face'in ücretsiz
+  aylık Inference kredisi bitti. Mesaj artık nedeni ve çözümü söylüyor.
+### Eklendi
+- `EMBEDDING_BACKEND=gemini`: `GeminiEmbedder` (Google `gemini-embedding-001`, 768 boyut, `batchEmbedContents`,
+  belge `RETRIEVAL_DOCUMENT` / soru `RETRIEVAL_QUERY`, anahtar `x-goog-api-key` başlığında). Ücretsiz katmanın
+  sınırına (429) takılınca Google'ın söylediği süre kadar bekler (en fazla 30 sn, 2 deneme); günlük sınırda beklemez,
+  indekslenenler korunur ve "Devam et" kalan yerden sürer. Ayarlar: `GEMINI_API_KEY`, `GEMINI_EMBEDDING_MODEL`,
+  `GEMINI_EMBEDDING_DIM`, `GEMINI_BATCH_SIZE`. `MIN_SCORE` varsayılanı 0,50 (tahmin; `scripts/gemini_dene.py` ile ölçülecek).
+- `tests/test_gemini.py` (10 test, sahte Gemini sunucusu). Backend 330 test.
+
 ## [0.20.0] — 2026-10-07 · Ana sayfa "stüdyo" tasarımı (frontend)
 ### Değişti
 - Ana sayfa, kullanıcının gösterdiği örnekteki (Keychron K4 tanıtım sitesi) yapıya göre yeniden tasarlandı:

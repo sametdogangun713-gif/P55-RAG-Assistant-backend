@@ -110,14 +110,17 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `MAX_CHUNKS_PER_DOCUMENT` | `20000` | Belge başına en fazla parça (≈12 milyon karakter) |
 | `INDEX_BUDGET_SECONDS` | yerelde `0` (sınırsız), Vercel'de `60` | Bir istekte en fazla kaç saniye indekslenir; büyük belge kaldığı yerden devam eden birden çok istekte biter (`/documents/{id}/index-next`) |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `600` / `100` | Parça uzunluğu / örtüşme (karakter) |
-| `EMBEDDING_BACKEND` | `local` | `local` = bilgisayarında model, `hf` = Hugging Face'te bge-m3 (bulut), `hash` = hızlı yedek |
+| `EMBEDDING_BACKEND` | `local` | `local` = bilgisayarında model, `gemini` = Google Gemini (bulut, önerilen), `hf` = Hugging Face'te bge-m3 (bulut; ücretsiz aylık kredisi büyük belgede biter, 402), `hash` = hızlı yedek |
 | `EMBEDDING_MODEL` | `local`: `paraphrase-multilingual-MiniLM-L12-v2`, `hf`: `BAAI/bge-m3` | Çok dilli model |
 | `HF_TOKEN` | boş | Hugging Face anahtarı (`EMBEDDING_BACKEND=hf` iken). Yalnızca `.env` / Vercel paneli |
+| `GEMINI_API_KEY` | boş | Google AI Studio anahtarı (`EMBEDDING_BACKEND=gemini` iken). Yalnızca `.env` / Vercel paneli |
+| `GEMINI_EMBEDDING_MODEL` / `GEMINI_EMBEDDING_DIM` | `gemini-embedding-001` / `768` | Gemini modeli ve vektör boyutu (`EMBEDDING_MODEL`'den bağımsız) |
+| `GEMINI_BATCH_SIZE` | `64` | Bir istekte kaç parça gönderilir |
 | `STORAGE_BACKEND` | `local` | `local` = sunucu diski, `supabase` = Supabase Storage (bulutta zorunlu) |
 | `SUPABASE_URL` | boş | `https://<proje>.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | boş | Supabase gizli anahtarı (her şeye erişir!). Yalnızca backend'de |
 | `SUPABASE_BUCKET` | `belgeler` | Dosya kovasının adı |
-| `MIN_SCORE` | `local` 0.30, `hf` 0.40 | Bu benzerliğin altındaki parçalar "ilgisiz" sayılır |
+| `MIN_SCORE` | `local` 0.30, `hf` 0.40, `gemini` 0.50 (tahmin, ölçülecek) | Bu benzerliğin altındaki parçalar "ilgisiz" sayılır |
 | `GENERAL_CHAT` | `1` | Sohbette belgelerde yanıt yoksa selamlaşma/genel sorulara modelin genel bilgisiyle, "belgelerinden değil" etiketli yanıt. `0` = yalnızca belgeler |
 | `LLM_PROVIDER` | `claude` | Yanıt üreten sağlayıcı: `claude` ya da `groq` |
 | `GROQ_API_KEY` / `GROQ_MODEL` | boş / `openai/gpt-oss-120b` | Groq anahtarı ve modeli |

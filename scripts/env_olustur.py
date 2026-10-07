@@ -18,8 +18,9 @@ APP_ENV=development
 SECRET_KEY={secret_key}
 DATABASE_URL=sqlite:///./data/asistan.db
 
-# Embedding: local (sentence-transformers, ilk seferde model iner) | hf (Hugging Face) | hash (yalnizca deneme)
+# Embedding: local (sentence-transformers, ilk seferde model iner) | gemini (Google, bulut) | hf (Hugging Face) | hash (yalnizca deneme)
 EMBEDDING_BACKEND=local
+GEMINI_API_KEY=
 MAX_UPLOAD_MB=500
 MAX_CHUNKS_PER_DOCUMENT=20000
 

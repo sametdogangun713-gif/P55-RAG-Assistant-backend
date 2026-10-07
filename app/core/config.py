@@ -62,7 +62,7 @@ ALLOWED_EXTENSIONS = (".txt", ".pdf", ".docx")
 INDEX_BUDGET_SECONDS = float(os.getenv("INDEX_BUDGET_SECONDS") or ("60" if ON_VERCEL else "0"))
 
 # --- Hafta 7: embedding ve vektor arama ---
-EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local")      # "local" | "hf" | "hash"
+EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local")      # "local" | "hf" | "gemini" | "hash"
 # "local": kucuk MiniLM bilgisayarda calisir. "hf": Hugging Face sunucusunda BAAI/bge-m3 (Vercel'de torch sigmaz).
 # MiniLM sunucuda metni 128 token'da kesiyordu: Turkce 600 karakterlik parcanin ikinci yarisi aranamiyordu.
 # bge-m3 8192 token alir ve Turkcede dogru parcayi daha iyi bulur (olcum: docs/istem-deneyleri.md). Anahtar yalnizca .env'de.
@@ -71,6 +71,15 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL") or _DEFAULT_MODEL.get(EMBEDDING_B
 HF_TOKEN = os.getenv("HF_TOKEN", "").strip()
 HF_BASE_URL = os.getenv("HF_BASE_URL", "https://router.huggingface.co/hf-inference")
 HF_TIMEOUT_SECONDS = float(os.getenv("HF_TIMEOUT_SECONDS", "60"))
+# "gemini": Google Gemini API (gemini-embedding-001). Hugging Face'in ucretsiz aylik kredisi buyuk PDF'lerde
+# bitiyordu (402). Gemini'nin ucretsiz katmani kartsiz; sinirlari dakika/gun basina (429 gelince beklenir).
+# Model adi EMBEDDING_MODEL'den ayri tutuldu: Vercel'de kalmis EMBEDDING_MODEL=BAAI/bge-m3 Gemini'yi bozmasin.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()                 # yalnizca .env / Vercel paneli
+GEMINI_BASE_URL = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
+GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
+GEMINI_EMBEDDING_DIM = int(os.getenv("GEMINI_EMBEDDING_DIM", "768"))     # 3072'ye kadar; 768 yeterli ve kucuk
+GEMINI_BATCH_SIZE = int(os.getenv("GEMINI_BATCH_SIZE", "64"))            # bir istekte kac parca
+GEMINI_TIMEOUT_SECONDS = float(os.getenv("GEMINI_TIMEOUT_SECONDS", "60"))
 SEARCH_TOP_K = int(os.getenv("SEARCH_TOP_K", "5"))
 
 # --- Hafta 9: harici API (Claude) ---
@@ -94,7 +103,8 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "800"))
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "4"))
 # Esik yalnizca belgeyle HIC ilgisi olmayan sorulari ayiklar; "yanit belgede var mi" karari modelindir (BILGI_YOK).
 # hf (bge-m3) olcumu: belgede olan sorularda en iyi skor >= 0,55; ilgisizlerde 0,3-0,56 -> 0,40 hicbir dogru soruyu kesmez.
-_DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.40", "hash": "0.15"}
+# gemini: 0,50 su an bir TAHMIN (Gemini benzerlikleri genelde daha yuksek baslar); gercek anahtarla olculup guncellenecek.
+_DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.40", "gemini": "0.50", "hash": "0.15"}
 MIN_SCORE = float(os.getenv("MIN_SCORE") or _DEFAULT_MIN_SCORE.get(EMBEDDING_BACKEND, "0.30"))
 MAX_QUESTION_CHARS = 1000
 # Sohbette belgelerde yanit yoksa (selamlasma, genel soru) model genel bilgisiyle kisa yanit verir; yanit
