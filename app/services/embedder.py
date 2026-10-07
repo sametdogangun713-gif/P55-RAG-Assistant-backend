@@ -198,8 +198,11 @@ class GeminiEmbedder(Embedder):
     - Belge parcalari taskType=RETRIEVAL_DOCUMENT, soru RETRIEVAL_QUERY ile gonderilir (arama icin ayarli vektorler).
     - outputDimensionality 3072'den kucukse vektorler normalize gelmez -> burada normalize edilir.
     - Anahtar URL'de degil baslikta; hata mesajina asla yazilmaz.
+    - 403 PERMISSION_DENIED gecici sayilir: olcumde (2026-10-07) GECERLI anahtarla isteklerin ~%12'si nedensiz 403
+      dondu (25'te 3). Ilk surumde 403 = "anahtar gecersiz" diye hemen vazgeciliyordu; buyuk belge yarida kaliyordu.
+      Gercekten gecersiz anahtar 400 API_KEY_INVALID (ya da 401) doner; o hemen bildirilir.
     """
-    RETRY_STATUS = {429, 500, 502, 503, 504}
+    RETRY_STATUS = {403, 429, 500, 502, 503, 504}
     MAX_WAIT = 30.0
 
     def __init__(self, model_name=None, api_key=None, base_url=None, dim=None, batch_size=None, timeout=None,
@@ -249,14 +252,19 @@ class GeminiEmbedder(Embedder):
                     return json.loads(resp.read().decode("utf-8"))
             except urllib.error.HTTPError as e:
                 wait, daily, bad_key = self._error_info(e.read())
-                if bad_key or e.code in (401, 403):
+                if bad_key or e.code == 401:
                     raise EmbeddingError("Gemini API anahtarı (GEMINI_API_KEY) geçersiz veya yetkisiz") from None
                 if e.code == 429 and daily:
                     raise EmbeddingError("Gemini'nin günlük ücretsiz kullanım sınırı doldu (429). İndekslenen parçalar "
                                          "kaydedildi; yarın 'Devam et' ile kalan yerden sürer") from None
                 if e.code in self.RETRY_STATUS and not last:
-                    self._sleep(min(wait if wait is not None else 2 ** (attempt + 2), self.MAX_WAIT))
+                    if wait is None:                     # 403/5xx: kisa bekle (1, 2 sn); 429: Google sure vermediyse 4, 8 sn
+                        wait = 2 ** attempt if e.code != 429 else 2 ** (attempt + 2)
+                    self._sleep(min(wait, self.MAX_WAIT))
                     continue
+                if e.code == 403:
+                    raise EmbeddingError("Gemini isteği tekrar tekrar reddetti (403). Anahtarın Generative Language API "
+                                         "izni olduğundan emin ol; indekslenenler kaydedildi, 'Devam et' ile sürer") from None
                 if e.code == 429:
                     raise EmbeddingError("Gemini'nin dakikalık kullanım sınırına takıldı (429). İndekslenen parçalar "
                                          "kaydedildi; bir dakika sonra 'Devam et'e bas") from None

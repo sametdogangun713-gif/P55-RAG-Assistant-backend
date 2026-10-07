@@ -120,7 +120,7 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `SUPABASE_URL` | boş | `https://<proje>.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | boş | Supabase gizli anahtarı (her şeye erişir!). Yalnızca backend'de |
 | `SUPABASE_BUCKET` | `belgeler` | Dosya kovasının adı |
-| `MIN_SCORE` | `local` 0.30, `hf` 0.40, `gemini` 0.50 (tahmin, ölçülecek) | Bu benzerliğin altındaki parçalar "ilgisiz" sayılır |
+| `MIN_SCORE` | `local` 0.30, `hf` 0.40, `gemini` 0.55 | Bu benzerliğin altındaki parçalar "ilgisiz" sayılır |
 | `GENERAL_CHAT` | `1` | Sohbette belgelerde yanıt yoksa selamlaşma/genel sorulara modelin genel bilgisiyle, "belgelerinden değil" etiketli yanıt. `0` = yalnızca belgeler |
 | `LLM_PROVIDER` | `claude` | Yanıt üreten sağlayıcı: `claude` ya da `groq` |
 | `GROQ_API_KEY` / `GROQ_MODEL` | boş / `openai/gpt-oss-120b` | Groq anahtarı ve modeli |

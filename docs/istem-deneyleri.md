@@ -74,6 +74,31 @@ Kalan zayıflıklar (dürüstçe): "Devamsızlık sınırı nedir?" → model "d
 belirtilmemiş" dedi (kısmi). "Servis saatleri nedir?" → kütüphane/laboratuvar saatlerini verdi (soru belirsiz; kaynak gösterdi ama
 ilgisiz). Testler: `tests/test_arama_kalitesi.py`. Canlıdaki eski belgeler yeni modelde görünmez → **Yeniden indeksle**.
 
+## Gemini embedding ölçümü (2026-10-07, Claude Code ile)
+Neden: canlıda büyük bir PDF'te "Hugging Face embedding hatası (402)" — Hugging Face'in ücretsiz aylık kredisi bitti.
+Kullanıcı Google Gemini'yi seçti (`gemini-embedding-001`, 768 boyut). Ölçüm: aynı 7 bölümlük sentetik yönerge, 600 karakterlik
+parçalar, gerçek yükleme + `/search` zinciri (LLM yok), gerçek Gemini API (kullanıcının anahtarı, yerel `.env`).
+
+| | Gemini | bge-m3 (HF, 2026-10-03) |
+|---|---|---|
+| Doğru parça 1. sırada | 10/12 | 10/12 |
+| Doğru parça ilk 4'te | 12/12 | 12/12 |
+| Belgede VAR sorularda en iyi skor | 0,686 – 0,772 | ≥ 0,55 |
+| Belgede YOK sorularda en iyi skor | 0,583 – 0,655 | 0,3 – 0,56 |
+| Selamlaşma ("Merhaba", "Nasılsın?", "Teşekkürler") | 0,585 – 0,609 | — |
+
+Kısa tek cümlelik deneme (`scripts/gemini_dene.py`, 5 + 5 soru): VAR ≥ 0,719, YOK ≤ 0,569.
+
+**Eşik `0,55`:** belgede olan hiçbir soruyu kesmez (en düşüğüyle arada 0,13 pay). Gemini'de skorlar yüksek başladığı için
+ilgisiz sorular ve selamlaşmalar da eşiği geçer; "belgede var mı" kararını model verir (`BILGI_YOK` → genel sohbet). Daha yüksek
+eşik (0,62) selamlaşmayı doğrudan genel sohbete gönderirdi ama doğru yanıtla arasında yalnızca 0,07 pay kalırdı: zor/teknik
+bir belgede doğru yanıtı kesme riski, birkaç saniyelik ek beklemeden daha kötü.
+
+**Gerçek hata (ölçüm sırasında bulundu):** geçerli anahtarla isteklerin ~%12'si (25'te 3) nedensiz `403 PERMISSION_DENIED`
+döndü. İlk sürüm 403'ü "anahtar geçersiz" sayıp hemen vazgeçiyordu: 18 soruluk ölçümde her seferinde 1 soru sonuçsuz kaldı;
+büyük belgede indeksleme neredeyse kesin yarıda kalırdı. Düzeltme: nedensiz 403 geçici sayılır, 1–2 sn bekleyip yeniden denenir;
+gerçekten geçersiz anahtar (`API_KEY_INVALID`, 401) hemen bildirilir. Sonra 18/18 hatasız. Test: `test_nedensiz_403_gecici_sayilir_ve_yeniden_denenir`.
+
 ## Genel sohbet (`genel-v1`, 2026-10-03)
 Belgelerde yanıt yoksa (ilgili parça yok ya da model `BILGI_YOK` dedi) model genel bilgisiyle yanıt verir; durum `general`,
 kaynak yok, arayüzde "belgelerinden değil" notu. Deneme: HF bge-m3 + Groq `gpt-oss-120b`, aynı 7 bölümlük sentetik yönerge.

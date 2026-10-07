@@ -33,6 +33,10 @@ class TestBulutVarsayilanlari(unittest.TestCase):
         self.assertEqual(d["model"], "BAAI/bge-m3")      # 8192 token; MiniLM sunucuda 128'de kesiliyordu
         self.assertEqual(d["esik"], 0.40)                # bge-m3 olcumu: belgede olan sorularda en iyi skor >= 0,55
 
+    def test_gemini_esigi_olcumle_secildi(self):
+        # Gemini olcumu: belgede olan sorularda en iyi skor >= 0,686, ilgisizler 0,58-0,66 -> 0,55 dogru soruyu kesmez
+        self.assertEqual(varsayilanlar("gemini")["esik"], 0.55)
+
     def test_yerel_model_degismedi(self):
         d = varsayilanlar("local")
         self.assertEqual(d["model"], "paraphrase-multilingual-MiniLM-L12-v2")

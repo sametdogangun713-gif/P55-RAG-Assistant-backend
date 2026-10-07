@@ -103,8 +103,9 @@ LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "800"))
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "4"))
 # Esik yalnizca belgeyle HIC ilgisi olmayan sorulari ayiklar; "yanit belgede var mi" karari modelindir (BILGI_YOK).
 # hf (bge-m3) olcumu: belgede olan sorularda en iyi skor >= 0,55; ilgisizlerde 0,3-0,56 -> 0,40 hicbir dogru soruyu kesmez.
-# gemini: 0,50 su an bir TAHMIN (Gemini benzerlikleri genelde daha yuksek baslar); gercek anahtarla olculup guncellenecek.
-_DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.40", "gemini": "0.50", "hash": "0.15"}
+# gemini olcumu (2026-10-07, 600 kr. parca): belgede olan 12 soruda en iyi skor >= 0,686; ilgisiz sorular 0,58-0,66,
+# selamlasmalar 0,59-0,61 (Gemini'de skorlar yuksek baslar). 0,55 hicbir dogru soruyu kesmez; ilgisizleri model ayiklar.
+_DEFAULT_MIN_SCORE = {"local": "0.30", "hf": "0.40", "gemini": "0.55", "hash": "0.15"}
 MIN_SCORE = float(os.getenv("MIN_SCORE") or _DEFAULT_MIN_SCORE.get(EMBEDDING_BACKEND, "0.30"))
 MAX_QUESTION_CHARS = 1000
 # Sohbette belgelerde yanit yoksa (selamlasma, genel soru) model genel bilgisiyle kisa yanit verir; yanit

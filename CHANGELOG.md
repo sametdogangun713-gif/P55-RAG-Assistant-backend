@@ -14,8 +14,13 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
   belge `RETRIEVAL_DOCUMENT` / soru `RETRIEVAL_QUERY`, anahtar `x-goog-api-key` başlığında). Ücretsiz katmanın
   sınırına (429) takılınca Google'ın söylediği süre kadar bekler (en fazla 30 sn, 2 deneme); günlük sınırda beklemez,
   indekslenenler korunur ve "Devam et" kalan yerden sürer. Ayarlar: `GEMINI_API_KEY`, `GEMINI_EMBEDDING_MODEL`,
-  `GEMINI_EMBEDDING_DIM`, `GEMINI_BATCH_SIZE`. `MIN_SCORE` varsayılanı 0,50 (tahmin; `scripts/gemini_dene.py` ile ölçülecek).
-- `tests/test_gemini.py` (10 test, sahte Gemini sunucusu). Backend 330 test.
+  `GEMINI_EMBEDDING_DIM`, `GEMINI_BATCH_SIZE`. `MIN_SCORE` varsayılanı 0,55 (ölçüm: `docs/istem-deneyleri.md`).
+- `tests/test_gemini.py` (11 test, sahte Gemini sunucusu). Backend 332 test.
+- Ölçüm (gerçek Gemini, `docs/istem-deneyleri.md`): doğru parça 10/12 birinci sırada, 12/12 ilk 4'te (bge-m3 ile aynı);
+  belgede olan sorular ≥ 0,686 → eşik 0,55.
+### Düzeltildi (ölçümde bulundu)
+- Geçerli anahtarla isteklerin ~%12'si nedensiz `403 PERMISSION_DENIED` dönüyordu; ilk sürüm bunu "anahtar geçersiz" sayıp
+  vazgeçiyordu. Artık geçici sayılıp 1–2 sn sonra yeniden deneniyor; yalnızca `API_KEY_INVALID` / 401 hemen bildiriliyor.
 
 ## [0.20.0] — 2026-10-07 · Ana sayfa "stüdyo" tasarımı (frontend)
 ### Değişti

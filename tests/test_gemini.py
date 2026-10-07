@@ -120,6 +120,19 @@ class GeminiEmbedderTests(unittest.TestCase):
         self.assertIn("GEMINI_API_KEY", str(cm.exception))
         self.assertNotIn(ANAHTAR, str(cm.exception))
 
+    def test_nedensiz_403_gecici_sayilir_ve_yeniden_denenir(self):
+        # Gercek olcum (2026-10-07): gecerli anahtarla isteklerin ~%12'si nedensiz 403 PERMISSION_DENIED dondu
+        yasak = (403, {"error": {"code": 403, "message": "The caller does not have permission", "status": "PERMISSION_DENIED"}})
+        self.sahte.yanitlar = [yasak]
+        v = self.e.embed_documents(["a"])
+        self.assertEqual(v.shape, (1, 8))
+        self.assertEqual(self.bekleme, [1])                                 # kisa bekleme, sonra basarili
+        self.sahte.yanitlar = [yasak] * 3
+        with self.assertRaises(EmbeddingError) as cm:
+            self.e.embed_documents(["a"])
+        self.assertIn("403", str(cm.exception))
+        self.assertIn("Devam et", str(cm.exception))
+
     def test_anahtar_yoksa_istek_atilmaz(self):
         e = GeminiEmbedder(api_key="", base_url=self.sahte.url, dim=8)
         with self.assertRaises(EmbeddingError):
