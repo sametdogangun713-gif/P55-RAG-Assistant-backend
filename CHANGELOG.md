@@ -5,6 +5,19 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.20.0] — 2026-10-07 · Ana sayfa "stüdyo" tasarımı (frontend)
+### Değişti
+- Ana sayfa, kullanıcının gösterdiği örnekteki (Keychron K4 tanıtım sitesi) yapıya göre yeniden tasarlandı:
+  gri stüdyo degradesi, şeffaf üst bar (noktalı menü, altı çizili "Giriş yap"), solda `001 / 005` sayacı,
+  köşelerde "Kaynak kod" ve "Kaydır", büyük harfli Montserrat başlıklar. Tek vurgu rengi turuncu, yalnızca 3B sahnede.
+- **3B stüdyo** (`public/studio.js`, Three.js 0.186.1, `public/vendor/three/`): klavye gibi bir "belge" — tepsi +
+  60 tuş, her tuş bir parça. Açılışta tuşlar yılan gibi akıp yerine oturur; kaydırdıkça 5 sahne: toplanmış belge →
+  parçalara ayrılır → anlam vektörü (yükseklik) → soruya en yakın 3 parça turuncu → `[1] [2] [3]` kaynaklı yanıt.
+  Tuş konumları her karede `sahne(p) + açılış(intro)` fonksiyonuyla hesaplanır; GSAP yalnızca iki sayıyı değiştirir.
+- Eski SVG "Nasıl çalışır" sahnesi ve hero kaldırıldı (stüdyo aynı 4 adımı anlatıyor); canlı sohbet örneği kaldı.
+- Animasyon kapalıyken, WebGL ya da GSAP yoksa: sahneler alt alta, 3B nesne tek kare (ya da hiç) gösterilir.
+  Giriş yapınca uygulamanın normal üst barı ve renkleri geri gelir.
+
 ## [0.19.0] — 2026-10-07 · Animasyonlu ana sayfa (frontend)
 ### Eklendi
 - Ana sayfa yeniden tasarlandı (siyah-beyaz kalır), animasyonlar **GSAP 3.15** + ScrollTrigger + SplitText ile
