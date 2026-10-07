@@ -2,7 +2,7 @@
 
 Gercek Supabase / Hugging Face'e GIDILMEZ: her ikisi de yerelde calisan sahte bir HTTP sunucusuyla taklit edilir.
 Boylece testler internetsiz ve anahtarsiz calisir; istegin bicimi (adres, baslik, govde) yine de dogrulanir.
-PostgreSQL'e ozel kisim (pgvector aramasi) yalnizca P55_TEST_PG_URL verilince kosar.
+PostgreSQL'e ozel kisim (pgvector aramasi) yalnizca TEST_PG_URL verilince kosar.
 """
 import json
 import threading
@@ -365,7 +365,7 @@ class PgVectorTests(unittest.TestCase):
         """Ayni veriyle pgvector (SQL) ve numpy (Python) aramasi ayni siralamayi ve skorlari vermeli."""
         conn = make_conn()
         if database.dialect(conn) != "postgres":
-            self.skipTest("P55_TEST_PG_URL verilmedi (yalnizca PostgreSQL'de anlamli)")
+            self.skipTest("TEST_PG_URL verilmedi (yalnizca PostgreSQL'de anlamli)")
         from app.db import embeddings as repo
         from app.services import vector_search
         emb = HashingEmbedder()

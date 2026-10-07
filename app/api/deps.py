@@ -21,7 +21,7 @@ def get_db():
 def get_current_user(authorization: Optional[str] = Header(default=None), conn=Depends(get_db)) -> dict:
     """'Authorization: Bearer <token>' basligini dogrular, kullaniciyi VERITABANINDAN okur.
 
-    Iki tur anahtar kabul edilir: giriste verilen JWT (tarayici) ve "p55_" ile baslayan kisisel API anahtari
+    Iki tur anahtar kabul edilir: giriste verilen JWT (tarayici) ve "bsa_" (eski anahtarlarda "p55_") ile baslayan kisisel API anahtari
     (3. parti uygulama). Hangisiyle gelindigi user["auth_method"]'a yazilir (require_session kullanir).
     Rolu token'dan degil veritabanindan aldigimiz icin rol degisikligi hemen gecerli olur.
     """

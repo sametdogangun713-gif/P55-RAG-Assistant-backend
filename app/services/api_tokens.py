@@ -24,8 +24,9 @@ from app.core import config
 from app.db import api_tokens as repo
 from app.db import users
 
-TOKEN_PREFIX = "p55_"            # JWT'ler "eyJ" ile baslar; bu onek iki tur anahtari ayirmamizi saglar
-PREFIX_LENGTH = 12               # listede gosterilen kisim: "p55_" + 8 karakter
+TOKEN_PREFIX = "bsa_"            # JWT'ler "eyJ" ile baslar; bu onek iki tur anahtari ayirmamizi saglar
+LEGACY_PREFIXES = ("p55_",)      # eski adla uretilmis anahtarlar suresi dolana kadar calismaya devam eder
+PREFIX_LENGTH = 12               # listede gosterilen kisim: "bsa_" + 8 karakter
 EXPIRY_DAYS = (7, 30, 90, 365)   # suresiz anahtar yok: unutulan anahtar bir gun kendiliginden olur
 DEFAULT_EXPIRY_DAYS = 90
 MAX_NAME_LENGTH = 60
@@ -54,7 +55,7 @@ def hash_token(token: str) -> str:
 
 
 def looks_like_api_token(token: str) -> bool:
-    return token.startswith(TOKEN_PREFIX)
+    return token.startswith((TOKEN_PREFIX,) + LEGACY_PREFIXES)
 
 
 def _with_status(row: dict, now_text: str) -> dict:

@@ -4,7 +4,7 @@
 > varlıkları ve ilişkileri kendin gözden geçirip doğrula;
 > sözlüde "neden böyle modelledin" diye sorulacak. Hafta 4'te bu modelden `001_init.sql` üretilir.
 
-![P55 ER diyagramı: 9 tablo, ilişki türleri 1-1, 1-N ve N-N](er-diyagrami.svg)
+![ER diyagramı: 9 tablo, ilişki türleri 1-1, 1-N ve N-N](er-diyagrami.svg)
 
 *Çizgilerin iki ucundaki **1**, **N**, **0..1** ilişki türünü gösterir; kesikli çerçeveli `message_sources` N-N
 ilişkisinin ara tablosudur. Aynı şemanın metin (Mermaid) hâli aşağıda.*
@@ -160,4 +160,4 @@ Supabase panelinde **Database → Schema Visualizer** (sol menü) bu tabloları 
   dokunulmuyor. Ekleyeceğim tablo ise yanıt geri bildirimi olurdu (`message_feedback`: kullanıcı yanıtı "doğru / yanlış"
   diye işaretler). Rapordaki kalite ölçüsü şu an yalnızca yanıtın kaynağa dayalı olup olmadığına bakıyor, doğru olup
   olmadığını ölçmüyor ("kaynağa dayalı ≠ doğru"). Çok belgeli kullanımda belgeleri gruplamak için bir `collections`
-  (klasör) tablosu da işe yarardı; P55 künyesindeki "kurumsal bilgi tabanı" genişletmesine de uyuyor.
+  (klasör) tablosu da işe yarardı; ders paketindeki proje künyesinde geçen "kurumsal bilgi tabanı" genişletmesine de uyuyor.

@@ -29,7 +29,7 @@ class AnahtarServisiTests(unittest.TestCase):
     def test_anahtar_onekli_ve_yalnizca_ozeti_saklanir(self):
         yeni = api_tokens.create_token(self.conn, self.user, "Postman")
         token = yeni["token"]
-        self.assertTrue(token.startswith("p55_"))
+        self.assertTrue(token.startswith("bsa_"))
         self.assertGreaterEqual(len(token), 40)
         self.assertEqual(yeni["prefix"], token[:12])
         satir = repo.get_by_hash(self.conn, api_tokens.hash_token(token))
@@ -49,7 +49,17 @@ class AnahtarServisiTests(unittest.TestCase):
         token = api_tokens.create_token(self.conn, self.user, "Betik")["token"]
         self.assertEqual(api_tokens.authenticate(self.conn, token)["id"], self.user["id"])
         self.assertIsNone(api_tokens.authenticate(self.conn, token[:-1] + ("A" if token[-1] != "A" else "B")))
-        self.assertIsNone(api_tokens.authenticate(self.conn, "p55_"))
+        self.assertIsNone(api_tokens.authenticate(self.conn, "bsa_"))
+
+    def test_eski_p55_onekli_anahtar_calismaya_devam_eder(self):
+        # Proje adi degismeden once uretilen anahtarlar "p55_" ile basliyordu; sahipleri yeniden uretmek zorunda kalmasin
+        eski = "p55_" + "a" * 43
+        simdi = api_tokens._now()
+        repo.create_token(self.conn, self.user["id"], "Eski", eski[:12], api_tokens.hash_token(eski),
+                          api_tokens._text(simdi), api_tokens._text(simdi + GUN))
+        self.assertTrue(api_tokens.looks_like_api_token(eski))
+        self.assertEqual(api_tokens.authenticate(self.conn, eski)["id"], self.user["id"])
+        self.assertFalse(api_tokens.looks_like_api_token("eyJhbGciOi"))   # JWT anahtar sanilmaz
 
     def test_suresi_dolan_anahtar_gecersiz(self):
         simdi = 1_800_000_000
@@ -180,7 +190,7 @@ class AnahtarHttpTests(unittest.TestCase):
         self.assertEqual(r.status_code, 200, r.text)
         self.assertEqual(self.c.get("/auth/me", headers=anahtar).status_code, 401)
         self.assertEqual(self.c.delete(f"/auth/tokens/{yeni['id']}", headers=self.oturum).status_code, 404)
-        self.assertEqual(self.c.get("/auth/me", headers={"Authorization": "Bearer p55_uydurma"}).status_code, 401)
+        self.assertEqual(self.c.get("/auth/me", headers={"Authorization": "Bearer bsa_uydurma"}).status_code, 401)
 
     def test_anahtarla_hesap_yonetilemez(self):
         """Sizan anahtar yeni anahtar uretemez, parolayi degistiremez, hesabi silemez, yonetim yapamaz."""

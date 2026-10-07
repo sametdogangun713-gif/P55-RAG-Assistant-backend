@@ -54,7 +54,7 @@ Amaç: iskeletin ayakta olduğunu kanıtlamak.
 
 **`app/core/config.py`** — `os.getenv("ADI", varsayılan)` ortam değişkenini okur; yoksa varsayılanı kullanır.
 `load_dotenv()` `.env` dosyasındaki satırları ortam değişkenine çevirir. Böylece gizli değerler koda girmez.
-`db_path()` `sqlite:///./data/p55.db` biçimindeki adresten dosya yolunu ayıklar.
+`db_path()` `sqlite:///./data/asistan.db` biçimindeki adresten dosya yolunu ayıklar.
 
 **Katman klasörleri** — `api` (HTTP), `services` (iş kuralları), `db` (SQL). Bağımlılık yönü api → services → db.
 

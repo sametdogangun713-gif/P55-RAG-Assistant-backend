@@ -11,7 +11,7 @@ import os
 from datetime import datetime, timezone
 from xml.sax.saxutils import escape
 
-FONT, FONT_BOLD = "P55Sans", "P55Sans-Bold"
+FONT, FONT_BOLD = "AsistanSans", "AsistanSans-Bold"
 
 STATUS_LABELS = {
     "answered": "Kaynaklı yanıt", "no_context": "İlgili bölüm bulunamadı", "no_info": "Yeterli bilgi yok",
@@ -91,7 +91,7 @@ def report_to_pdf(report: dict, owner: str = "", now=None) -> bytes:
 
     p, t = report["period"], report["totals"]
     story = [
-        Paragraph("P55 · Kullanım ve Kaynak Raporu", h1),
+        Paragraph("Kullanım ve Kaynak Raporu", h1),
         Paragraph(escape(
             f"Kapsam: {'Tüm sistem' if report['scope'] == 'all' else 'Benim kullanımım'}"
             f"  ·  Dönem: {_date_tr(report['from'])} – {_date_tr(report['to'])} ({report['days']} gün)"
@@ -158,12 +158,12 @@ def report_to_pdf(report: dict, owner: str = "", now=None) -> bytes:
         canvas.saveState()
         canvas.setFont(FONT, 7.5)
         canvas.setFillColor(grey)
-        canvas.drawString(18 * mm, 10 * mm, "P55 — Belge Tabanlı Soru-Cevap Asistanı")
+        canvas.drawString(18 * mm, 10 * mm, "Belge Tabanlı Soru Asistanı")
         canvas.drawRightString(A4[0] - 18 * mm, 10 * mm, f"Sayfa {doc.page}")
         canvas.restoreState()
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=18 * mm, rightMargin=18 * mm, topMargin=16 * mm,
-                            bottomMargin=18 * mm, title="P55 Kullanım Raporu", author="P55")
+                            bottomMargin=18 * mm, title="Belge Tabanlı Soru Asistanı · Kullanım Raporu", author="Belge Tabanlı Soru Asistanı")
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     return buf.getvalue()

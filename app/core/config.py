@@ -15,8 +15,8 @@ except ImportError:  # pragma: no cover
 # Vercel kendi sunucularinda VERCEL=1 tanimlar. Orada disk kalici degildir; yalnizca /tmp yazilabilir.
 ON_VERCEL = bool(os.getenv("VERCEL"))
 
-# Yerel: sqlite:///./data/p55.db   Bulut (Supabase): postgresql://...:6543/postgres (Supabase -> Connect -> Transaction pooler)
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/p55.db").strip()   # panele yapistirirken sona Enter kacabiliyor
+# Yerel: sqlite:///./data/asistan.db   Bulut (Supabase): postgresql://...:6543/postgres (Supabase -> Connect -> Transaction pooler)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/asistan.db").strip()   # panele yapistirirken sona Enter kacabiliyor
 DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", "10"))
 UPLOAD_DIR = os.getenv("UPLOAD_DIR") or ("/tmp/uploads" if ON_VERCEL else "./uploads")
 
@@ -26,7 +26,7 @@ def is_postgres() -> bool:
 
 
 def db_path() -> str:
-    """'sqlite:///./data/p55.db' -> './data/p55.db' (':memory:' da desteklenir)."""
+    """'sqlite:///./data/asistan.db' -> './data/asistan.db' (':memory:' da desteklenir)."""
     prefix = "sqlite:///"
     if not DATABASE_URL.startswith(prefix):
         raise ValueError("DATABASE_URL bir SQLite adresi değil ('sqlite:///' ile başlamalı).")

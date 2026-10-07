@@ -64,7 +64,7 @@ flowchart LR
 - `vector_search` → soruyu `embedder` ile vektöre çevirir, yalnızca o kullanıcının vektörlerini `embeddings`'ten okur, skorlayıp döndürür.
 
 ### Arayüz
-`app.js` — `P55.request()` her istekte `Authorization: Bearer` başlığını ekler, 401 gelirse oturumu kapatır, hata mesajını gösterir.
+`app.js` — `App.request()` her istekte `Authorization: Bearer` başlığını ekler, 401 gelirse oturumu kapatır, hata mesajını gösterir.
 Token `sessionStorage`'da tutulur (sekme kapanınca silinir; `localStorage` kalıcıdır ve XSS durumunda daha riskli).
 **Sunucudan gelen metinler hiçbir yerde `innerHTML` ile yazılmaz**, `textContent`/`createTextNode` kullanılır → bir belgenin adı `<script>...` olsa bile çalışmaz (testle denetleniyor).
 `docs.js` — belge tablosu, yükleme (`FormData`), silme, yeniden indeksleme ve arama sonuçlarını çizer.

@@ -1,6 +1,6 @@
 # Teknik Dokümantasyon
 
-P55 – Belge Tabanlı Soru-Cevap Asistanı (RAG). Bu belge sistemi **başka bir geliştiricinin** anlayıp değiştirebileceği
+Belge Tabanlı Soru Asistanı (RAG). Bu belge sistemi **başka bir geliştiricinin** anlayıp değiştirebileceği
 ayrıntıda anlatır. Kurulum: [`../README.md`](../README.md) · Bulut: [`dagitim.md`](dagitim.md) · ER diyagramı: [`er-diyagrami.md`](er-diyagrami.md).
 
 ## 1. Genel yapı
@@ -23,7 +23,7 @@ flowchart TD
 | `app/main.py` | FastAPI uygulaması: açılışta migration, yükleme boyutu ön kontrolü (gövde okunmadan 413), CORS, router'lar |
 | `app/core/config.py` | Tüm ayarlar; `is_postgres()`, `check_secret_key()` (üretimde zayıf anahtarla açılmaz) |
 | `app/core/security.py` | scrypt parola özeti, JWT üretme/doğrulama |
-| `app/api/deps.py` | Ortak bağımlılıklar: istek başına veritabanı bağlantısı, `get_current_user` (JWT ya da `p55_` API anahtarı; rol her istekte DB'den), `require_session` (hesap yönetimi yalnızca giriş oturumuyla), `require_admin`, `get_llm` |
+| `app/api/deps.py` | Ortak bağımlılıklar: istek başına veritabanı bağlantısı, `get_current_user` (JWT ya da `bsa_` API anahtarı; rol her istekte DB'den), `require_session` (hesap yönetimi yalnızca giriş oturumuyla), `require_admin`, `get_llm` |
 | `app/api/auth.py` | Kayıt, giriş, `/auth/me`, Hesabım, API anahtarları, şifremi unuttum / sıfırla |
 | `app/services/api_tokens.py` | Kişisel API anahtarı: `secrets` ile üretim, SHA-256 özetle saklama, süre/sayı sınırı, doğrulama, iptal |
 | `app/api/documents.py` | Yükleme (doğrudan ve depo üzerinden), listeleme, parçalar, silme, yeniden indeksleme, sınırlar |
@@ -61,7 +61,7 @@ Tarih sütunları iki veritabanında da `'YYYY-MM-DD HH:MM:SS'` (UTC) metnidir; 
 Ayrıntı ve diyagram: [`er-diyagrami.md`](er-diyagrami.md).
 
 ## 4. API uç noktaları
-Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒) ya da 3. parti uygulamalar için `Authorization: Bearer p55_…` (kişisel API anahtarı, aynı başlık). 🔑 = yalnızca giriş oturumu (JWT); API anahtarıyla 403. Yönetici gerektirenler 👑 (yönetim işlemleri de yalnızca oturumla). Canlı belge: `/docs` (Swagger).
+Kimlik doğrulama: `Authorization: Bearer <JWT>` (🔒) ya da 3. parti uygulamalar için `Authorization: Bearer bsa_…` (kişisel API anahtarı, aynı başlık). 🔑 = yalnızca giriş oturumu (JWT); API anahtarıyla 403. Yönetici gerektirenler 👑 (yönetim işlemleri de yalnızca oturumla). Canlı belge: `/docs` (Swagger).
 
 | Yöntem | Yol | | Açıklama |
 |---|---|---|---|
@@ -139,7 +139,7 @@ Supabase'te RLS açık, gizli anahtar yalnızca backend'de, depo yolları kullan
 ## 7. Testler
 `tests/` — birim testleri (servisler, parçalama, güvenlik), entegrasyon testleri (FastAPI `TestClient` ile gerçek HTTP),
 harici servisler için yerel sahte HTTP sunucuları (LLM, Hugging Face, Supabase Storage). Varsayılan veritabanı bellekteki
-SQLite; `P55_TEST_PG_URL` verilirse **aynı testler PostgreSQL'e karşı** koşar. Arayüz testleri frontend deposundadır.
+SQLite; `TEST_PG_URL` verilirse **aynı testler PostgreSQL'e karşı** koşar. Arayüz testleri frontend deposundadır.
 Sonuçlar: [`test-raporu.md`](test-raporu.md).
 
 ## 8. Bilinen sınırlar

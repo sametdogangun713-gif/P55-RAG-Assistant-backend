@@ -1,4 +1,4 @@
-# P55 – Belge Tabanlı Soru-Cevap Asistanı (RAG) · Backend
+# Belge Tabanlı Soru Asistanı (RAG) · Backend
 
 Yüklenen belgelere dayanarak **kaynaklı** yanıt veren bir soru-cevap asistanının **sunucu (API) tarafı**.
 Ders: Bilgisayar Uygulamaları I (Bingöl Üniversitesi, Bilgisayar Programcılığı) · Öğr. Gör. Mustafa NARİN
@@ -28,7 +28,7 @@ dayanarak**, `[1]`, `[2]` gibi kaynak numaralarıyla üretir (RAG). Belgede bilg
 ## İki çalışma biçimi
 | | Yerel (kendi bilgisayarın) | Bulut |
 |---|---|---|
-| Veritabanı | SQLite dosyası (`data/p55.db`) | Supabase PostgreSQL + pgvector |
+| Veritabanı | SQLite dosyası (`data/asistan.db`) | Supabase PostgreSQL + pgvector |
 | Dosyalar | Sunucu diski (`uploads/`), en fazla 500 MB | Supabase Storage (gizli kova), en fazla 50 MB |
 | Embedding | `sentence-transformers` (yerel, ücretsiz) | Aynı model, Hugging Face Inference API |
 | Kurulum | [Adım adım kurulum](#adım-adım-kurulum-komutlarla) | [`docs/dagitim.md`](docs/dagitim.md) |
@@ -93,7 +93,7 @@ pytest --cov=app
 Testler internet ve API anahtarı gerektirmez: embedding için hızlı yedek model, dil modeli / Hugging Face / Supabase Storage
 için yerel sahte sunucular kullanılır. Varsayılan veritabanı bellekteki SQLite'tır. **Aynı testler PostgreSQL'e karşı da koşar:**
 ```bat
-set P55_TEST_PG_URL=postgresql://kullanici@localhost:5432/veritabani
+set TEST_PG_URL=postgresql://kullanici@localhost:5432/veritabani
 pytest
 ```
 Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
@@ -103,7 +103,7 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 |---|---|---|
 | `SECRET_KEY` | (üretilir) | Oturum token'larını imzalar. En az 32 karakter. `APP_ENV=production` iken zayıfsa uygulama başlamaz |
 | `APP_ENV` | `development` | `production` = sıkı güvenlik kontrolleri (bulutta mutlaka) |
-| `DATABASE_URL` | `sqlite:///./data/p55.db` | SQLite dosyası **ya da** `postgresql://…` (Supabase, Transaction pooler, port 6543) |
+| `DATABASE_URL` | `sqlite:///./data/asistan.db` | SQLite dosyası **ya da** `postgresql://…` (Supabase, Transaction pooler, port 6543) |
 | `ALLOWED_ORIGINS` | `http://localhost:5500,http://127.0.0.1:5500` | Backend'e istek atabilecek arayüz adresleri (CORS), virgülle |
 | `UPLOAD_DIR` | `./uploads` (Vercel'de `/tmp/uploads`) | Yüklenen/geçici dosyaların klasörü |
 | `MAX_UPLOAD_MB` | `500` | En büyük dosya. Bulutta **50** (Supabase ücretsiz plan sınırı) |
@@ -136,7 +136,7 @@ Yazılmayan her ayar `app/core/config.py`'deki varsayılanı kullanır · Bulut 
 |---|---|
 | `python` tanınmıyor | `py -3` kullanın veya Python'u "Add to PATH" ile yeniden kurun |
 | Arayüz "Sunucuya ulaşılamadı" diyor | Backend çalışıyor mu (`http://127.0.0.1:8000/health`)? Arayüzün adresi `ALLOWED_ORIGINS` içinde mi? |
-| Port 8000 dolu | Diğer pencereyi kapatın, veya `set P55_PORT=8001` (o zaman frontend `public/config.js`'teki adresi de değiştirin) |
+| Port 8000 dolu | Diğer pencereyi kapatın, veya `uvicorn app.main:app --port 8001` (o zaman frontend `public/config.js`'teki adresi de değiştirin) |
 | `SECRET_KEY zayıf` uyarısı | `python -m scripts.env_olustur` (yeni `.env` için önce eskisini silin) |
 | Sohbet "GROQ_API_KEY ayarlı değil" diyor | `.env` içine anahtarı yazın ve backend'i yeniden başlatın |
 | Bulutta yükleme "Dosya deposu ayarlı değil" | Vercel'de `STORAGE_BACKEND=supabase`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` tanımlı mı? |

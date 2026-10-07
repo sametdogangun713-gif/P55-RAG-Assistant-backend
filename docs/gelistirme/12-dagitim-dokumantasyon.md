@@ -28,7 +28,7 @@ Projeyi başka birinin kurup çalıştırabileceği, belgelenmiş ve buluta taş
 ### Çalıştırma ve demo
 Yerel: backend `uvicorn app.main:app` (API, http://127.0.0.1:8000/docs) + frontend `python -m http.server 5500 --directory public` (http://localhost:5500).
 Bulut: [`../dagitim.md`](../dagitim.md).
-Testler: `pytest` (SQLite) · `set P55_TEST_PG_URL=… && pytest` (PostgreSQL) · frontend: `python -m unittest discover -s tests`.
+Testler: `pytest` (SQLite) · `set TEST_PG_URL=… && pytest` (PostgreSQL) · frontend: `python -m unittest discover -s tests`.
 
 ### Kendi yapacakların
 1. **Temiz ortamda kurulum:** README'yi hiç bilmeyen biri gibi takip et (başka bir klasöre `git clone`, README'deki kurulum komutları). Takıldığın her yeri README'ye ekle.

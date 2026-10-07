@@ -1,6 +1,6 @@
 # Vize demo senaryosu (yaklaşık 5 dakika)
 
-**Hazırlık (demodan önce):** temiz bir veritabanı (`data\p55.db` sil), `.env` içinde `EMBEDDING_BACKEND=local` (ya da hızlı olsun diye `hash`),
+**Hazırlık (demodan önce):** temiz bir veritabanı (`data\asistan.db` sil), `.env` içinde `EMBEDDING_BACKEND=local` (ya da hızlı olsun diye `hash`),
 2 kısa **sentetik** belge hazırla (kişisel veri yok): biri "vektör arama", biri başka bir konu hakkında. Sunucu açık: `uvicorn app.main:app --reload`.
 
 1. **(30 sn) Mimari:** `docs/mimari.md` şemasını göster: api → services → db.

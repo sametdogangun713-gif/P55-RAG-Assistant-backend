@@ -6,7 +6,7 @@ Sayılar gerçek çalıştırmadan alındı (Windows 11, Python 3.12.10, FastAPI
 | Takım | Veritabanı | Sonuç | Kapsam (`--cov=app`) |
 |---|---|---|---|
 | Backend `pytest` | SQLite (bellekte, varsayılan) | **319 geçti, 2 atlandı, 0 başarısız** | **%92** |
-| Backend `pytest` + `P55_TEST_PG_URL` | PostgreSQL 16.2 + pgvector (yerel, `pgserver` paketi) | **320 geçti, 1 atlandı, 0 başarısız** | **%95** |
+| Backend `pytest` + `TEST_PG_URL` | PostgreSQL 16.2 + pgvector (yerel, `pgserver` paketi) | **320 geçti, 1 atlandı, 0 başarısız** | **%95** |
 | Frontend `python -m unittest discover -s tests` | — | **26 geçti** | — |
 
 - 2026-10-03 → 10-04 arasında eklenen testler: e-posta doğrulama, Hesabım, arama kalitesi, parça parça indeksleme, genel

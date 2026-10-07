@@ -1,5 +1,5 @@
 @echo off
-rem P55 - otomatik testleri calistirir (Windows). Cift tikla.
+rem Belge Tabanli Soru Asistani - otomatik testleri calistirir (Windows). Cift tikla.
 chcp 65001 >nul
 cd /d "%~dp0"
 

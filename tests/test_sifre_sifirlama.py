@@ -157,7 +157,7 @@ class EpostaTests(unittest.TestCase):
     def test_smtp_hatasi_uygulamayi_cokertmez(self):
         ayar = dict(SMTP_HOST="smtp.example.com", SMTP_PORT=587, SMTP_USER="u@example.com", SMTP_PASSWORD="x")
         with Ayar(**ayar), mock.patch("smtplib.SMTP", side_effect=OSError("baglanti yok")):
-            with self.assertLogs("p55.mailer", level="ERROR"):
+            with self.assertLogs("asistan.mailer", level="ERROR"):
                 mailer.send_reset_code("alici@example.com", "111111")
 
 

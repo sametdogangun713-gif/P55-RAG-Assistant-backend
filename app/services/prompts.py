@@ -20,8 +20,8 @@ KURALLAR:
 
 # Belgelerde yanit bulunamayinca (sohbette) kullanilir: selamlasma ve genel sorular. Yanit kaynaksiz, "general"
 # durumuyla kaydedilir ve arayuzde "belgelerinden degil" diye etiketlenir; uydurma riski bu yuzden gizlenmez.
-GENERAL_PROMPT_VERSION = "genel-v1"
-GENERAL_SYSTEM_PROMPT = """Sen P55 adlı belge asistanının sohbet tarafısın. Kullanıcının yüklediği belgelerde bu mesajla ilgili bilgi BULUNAMADI.
+GENERAL_PROMPT_VERSION = "genel-v2"
+GENERAL_SYSTEM_PROMPT = """Sen Belge Tabanlı Soru Asistanı'nın sohbet tarafısın. Kullanıcının yüklediği belgelerde bu mesajla ilgili bilgi BULUNAMADI.
 
 KURALLAR:
 1. Mesaj selamlaşma, teşekkür, hal hatır ya da "ne yapabilirsin" gibi bir sohbetse kısa, samimi ve doğal yanıt ver. Gerekirse belgeleri hakkında soru sorabileceğini hatırlat.

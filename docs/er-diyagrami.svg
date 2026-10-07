@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1130" width="1180" height="1130" font-family="Segoe UI, Helvetica, Arial, sans-serif">
 <rect width="1180" height="1130" fill="#ffffff"/>
-<text x="30" y="1092" font-size="13" fill="#555">P55 – Belge Tabanlı Soru-Cevap Asistanı · veritabanı (SQLite 001–006 = PostgreSQL/Supabase 001–003) · tüm yabancı anahtarlar ON DELETE CASCADE</text>
+<text x="30" y="1092" font-size="13" fill="#555">Belge Tabanlı Soru Asistanı · veritabanı (SQLite 001–006 = PostgreSQL/Supabase 001–003) · tüm yabancı anahtarlar ON DELETE CASCADE</text>
 <polyline points="465,86 390,86 390,122 310,122" fill="none" stroke="#111" stroke-width="1.6"/>
 <text x="451" y="79" font-size="15" font-weight="700" fill="#111" text-anchor="middle">1</text>
 <text x="324" y="115" font-size="15" font-weight="700" fill="#111" text-anchor="middle">N</text>

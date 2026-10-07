@@ -81,7 +81,7 @@ Her hata için: **belirti → neden → nasıl bulundu → düzeltme → doğrul
 ### PostgreSQL testleriyle bulunan - İkili/bozuk metin dosyası bulutta 500 hatası veriyordu
 - **Belirti** (2026-10-03, testler yerel PostgreSQL 16'ya karşı ilk kez koşulunca): `test_ikili_cop_veri_txt_olarak_cokmez` SQLite'ta geçiyor, PostgreSQL'de `psycopg.DataError: PostgreSQL text fields cannot contain NUL (0x00) bytes` ile düşüyordu. Bulutta (Supabase) bu, kullanıcıya 500 hatası demekti.
 - **Neden:** SQLite metin sütununa NUL karakterini (`\x00`) kabul ediyor, PostgreSQL etmiyor. İkili veri `.txt` olarak yüklenince çözülen metinde NUL kalıyordu.
-- **Nasıl bulundu:** Aynı test takımının iki veritabanında da koşabilmesi sağlandı (`P55_TEST_PG_URL`); yalnızca bu test ve SQLite'a özgü bir şema testi farklı davrandı.
+- **Nasıl bulundu:** Aynı test takımının iki veritabanında da koşabilmesi sağlandı (`TEST_PG_URL`); yalnızca bu test ve SQLite'a özgü bir şema testi farklı davrandı.
 - **Düzeltme** (`app/services/parser.py`): `parse_file` her biçimden çıkan metindeki NUL karakterlerini atıyor (metin için anlamsızdırlar).
 - **Doğrulama:** Test PostgreSQL'de kırmızıdan yeşile döndü; SQLite'ta yeşil kaldı. Tüm takım iki veritabanında da geçiyor.
 

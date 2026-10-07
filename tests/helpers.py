@@ -1,9 +1,9 @@
 """Testlerde ortak kullanilan yardimcilar (gercek kisisel veri YOK, hepsi sentetik).
 
 Varsayilan: her test bellekte temiz bir SQLite veritabani kullanir (kurulum gerektirmez).
-P55_TEST_PG_URL ortam degiskeni verilirse ayni testler PostgreSQL'e karsi kosar (Supabase'e giden kodu
+TEST_PG_URL ortam degiskeni verilirse ayni testler PostgreSQL'e karsi kosar (Supabase'e giden kodu
 dogrulamak icin). Her make_conn() cagrisi kendi semasini (schema) acar; testler birbirini etkilemez.
-Ornek:  set P55_TEST_PG_URL=postgresql://postgres@localhost:55432/postgres  &&  pytest
+Ornek:  set TEST_PG_URL=postgresql://postgres@localhost:55432/postgres  &&  pytest
 """
 import os
 import shutil
@@ -13,7 +13,7 @@ import uuid
 from app.core import config
 from app.db import database, users
 
-PG_URL = os.getenv("P55_TEST_PG_URL", "")
+PG_URL = os.getenv("TEST_PG_URL", "")
 _pg_ready = False
 
 
@@ -51,7 +51,7 @@ class TempUploads:
     """UPLOAD_DIR'i gecici bir klasore yonlendirir (with blogu ile kullanilir)."""
 
     def __enter__(self):
-        self.dir = tempfile.mkdtemp(prefix="p55_uploads_")
+        self.dir = tempfile.mkdtemp(prefix="asistan_uploads_")
         self._old = config.UPLOAD_DIR
         config.UPLOAD_DIR = self.dir
         return self.dir

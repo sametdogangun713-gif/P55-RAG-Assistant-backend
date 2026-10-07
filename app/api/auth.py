@@ -162,7 +162,7 @@ def delete_me(body: AccountDelete, user: dict = Depends(require_session), conn=D
     return {"detail": "Hesabın ve tüm verilerin silindi."}
 
 
-# --- Kisisel API anahtarlari: 3. parti uygulamalar "Authorization: Bearer p55_..." ile baglanir ---
+# --- Kisisel API anahtarlari: 3. parti uygulamalar "Authorization: Bearer bsa_..." ile baglanir ---
 @router.get("/tokens")
 def list_tokens(user: dict = Depends(require_session), conn=Depends(get_db)):
     """Anahtarlarin adi, ilk 12 karakteri ve tarihleri. Anahtarin kendisi bir daha gosterilmez."""

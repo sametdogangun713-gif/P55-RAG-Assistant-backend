@@ -24,7 +24,7 @@
 | Veri konumu (KVKK) | Supabase ve Vercel bölgesi Frankfurt (AB). Demo verisi yine sentetik |
 
 ## Kişisel API anahtarları (3. parti uygulamalar)
-- Anahtar `p55_` + 32 rastgele bayt (`secrets`). Veritabanında yalnızca **SHA-256 özeti** saklanır; anahtar yalnızca
+- Anahtar `bsa_` + 32 rastgele bayt (eski adla üretilmiş `p55_` anahtarları süresi dolana kadar geçerli) (`secrets`). Veritabanında yalnızca **SHA-256 özeti** saklanır; anahtar yalnızca
   üretildiği yanıtta bir kez gösterilir. Parolada yavaş scrypt kullanılır çünkü parolalar kısa ve tahmin edilebilir;
   256 bitlik rastgele anahtarda kaba kuvvet imkânsız olduğu için hızlı özet yeterlidir (her istekte çalışır).
 - Her anahtarın son kullanma tarihi var (en fazla 1 yıl), tek tek silinebilir; silinen/süresi dolan anahtar 401 alır.

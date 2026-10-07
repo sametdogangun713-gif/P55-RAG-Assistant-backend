@@ -59,7 +59,7 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
    Beklenen çıktı: `Migration: 001_init, 002_name_and_email_verification` ve `Dosya kovası 'belgeler': oluşturuldu (gizli)`. Supabase panelinde
    **Table Editor**'da (şema: `public`) 8 tablo (hepsinde "RLS enabled"; `email_codes` dahil, `schema_migrations` ile 9), **Database → Schema Visualizer**'da ilişki diyagramı, **Storage**'da gizli `belgeler` kovası görünmeli.
    `create_admin` bulut veritabanında yönetici hesabını açar.
-5. Yerel çalışmaya dönmek için `.env`'deki bu satırları eski hâline getir (`DATABASE_URL=sqlite:///./data/p55.db`,
+5. Yerel çalışmaya dönmek için `.env`'deki bu satırları eski hâline getir (`DATABASE_URL=sqlite:///./data/asistan.db`,
    `STORAGE_BACKEND=local`, `MAX_UPLOAD_MB=500`). Bulut değerleri artık yalnızca Vercel'de duracak.
 
 > `create extension vector` hatası alırsan: Supabase → **Database → Extensions → vector → Enable**, sonra 4. adımı tekrarla.
@@ -155,8 +155,8 @@ bellek 2 GB, Python paketi 500 MB. **Supabase Free** — veritabanı 500 MB, dos
 ## 8. Yerelde PostgreSQL ile deneme (isteğe bağlı)
 Testlerin PostgreSQL'e karşı da geçtiğini görmek için bir PostgreSQL (pgvector'lü) sunucusu gerekir. Örnek (Docker varsa):
 ```bat
-docker run -d --name p55-pg -e POSTGRES_PASSWORD=yerel -p 5432:5432 pgvector/pgvector:pg16
-set P55_TEST_PG_URL=postgresql://postgres:yerel@localhost:5432/postgres
+docker run -d --name asistan-pg -e POSTGRES_PASSWORD=yerel -p 5432:5432 pgvector/pgvector:pg16
+set TEST_PG_URL=postgresql://postgres:yerel@localhost:5432/postgres
 pytest
 ```
 Bu projede 2026-10-03'te Docker yerine `pgserver` Python paketinin içindeki PostgreSQL 16 + pgvector kullanıldı (yalnızca test için, geçici klasörde).

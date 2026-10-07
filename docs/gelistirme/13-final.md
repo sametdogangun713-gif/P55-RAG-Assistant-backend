@@ -17,7 +17,7 @@
 1. [`../../CHANGELOG.md`](../../CHANGELOG.md) → `[1.0.0]` bölümünü son hâliyle doldur.
 2. İki depoda da etiket:
    ```bat
-   git tag -a v1.0-final -m "P55 final sürümü"
+   git tag -a v1.0-final -m "Final sürümü"
    git push origin v1.0-final
    ```
 
@@ -35,7 +35,7 @@ Vize senaryosunun ([`../demo-senaryosu.md`](../demo-senaryosu.md)) devamı. Öne
 Yedek plan: bulut çalışmazsa yerel sürüm; internet yoksa ekran görüntüleri.
 
 ### 4. Sunum taslağı (8–10 slayt)
-1. Başlık: P55 – Belge Tabanlı Soru-Cevap Asistanı · Samet DOĞANGÜN · Öğr. Gör. Mustafa NARİN
+1. Başlık: Belge Tabanlı Soru Asistanı · Samet DOĞANGÜN · Öğr. Gör. Mustafa NARİN
 2. Problem ve hedef
 3. Ne yapar? (özellik tablosu)
 4. Mimari: tarayıcı → frontend (Vercel) → backend (Vercel, FastAPI) → Supabase (PostgreSQL + pgvector, Storage), Hugging Face, Groq ([`../dagitim.md`](../dagitim.md) diyagramı)

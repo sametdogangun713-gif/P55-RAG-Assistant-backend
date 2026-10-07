@@ -27,11 +27,11 @@ Gösterilecek: şema, örnek veriyle dolu veritabanı, birkaç CRUD sorgusu, kı
 
 ### Kendi yapacakların
 1. `documents.size_bytes` için `CHECK (size_bytes >= 0)` kısıtını kendin yaz. **İki veritabanı var:**
-   SQLite'ta `app/db/migrations/001_init.sql` içine (yerel `data\p55.db`'yi silip yeniden oluştur);
+   SQLite'ta `app/db/migrations/001_init.sql` içine (yerel `data\asistan.db`'yi silip yeniden oluştur);
    PostgreSQL'de bulut veritabanı zaten kurulduğu için 001'i değiştirmek işe yaramaz → **yeni** migration yaz:
    `app/db/migrations/postgres/002_size_check.sql` → `ALTER TABLE documents ADD CONSTRAINT documents_size_nonneg CHECK (size_bytes >= 0);`
    (Sözlüde iyi soru: neden çalışan bir veritabanında eski migration dosyası değiştirilmez?)
-   (`data\p55.db` dosyasını silip uygulamayı/seed'i yeniden çalıştır; veri sentetik olduğu için sorun olmaz.)
+   (`data\asistan.db` dosyasını silip uygulamayı/seed'i yeniden çalıştır; veri sentetik olduğu için sorun olmaz.)
 2. Bu kısıt için `test_veritabani.py` içine kendi testini ekle.
 3. Bir ilişkiyi (örn. `chunks → documents`) ve bir kısıtı sözlüde elle anlatabilecek hâle gel (bu belgenin "Kod açıklaması" bölümü).
 4. `docs/ai-kullanim-gunlugu.md` boş alanlarını doldur.

@@ -14,7 +14,7 @@ from email.message import EmailMessage
 
 from app.core import config
 
-log = logging.getLogger("p55.mailer")
+log = logging.getLogger("asistan.mailer")
 
 
 def smtp_configured() -> bool:
@@ -36,16 +36,16 @@ def _message(to: str, subject: str, body: str) -> EmailMessage:
 
 
 def build_reset_message(to: str, code: str) -> EmailMessage:
-    return _message(to, "P55 parola sıfırlama kodu", (
-        f"Merhaba,\n\nP55 Belge Soru-Cevap Asistanı için parola sıfırlama kodun: {code}\n\n"
+    return _message(to, "Belge Tabanlı Soru Asistanı: parola sıfırlama kodu", (
+        f"Merhaba,\n\nBelge Tabanlı Soru Asistanı için parola sıfırlama kodun: {code}\n\n"
         f"Kod {config.RESET_CODE_MINUTES} dakika geçerlidir. Bu isteği sen yapmadıysan bu e-postayı yok say; "
         "parolan değişmez.\n"
     ))
 
 
 def build_verification_message(to: str, code: str) -> EmailMessage:
-    return _message(to, "P55 e-posta doğrulama kodu", (
-        f"Merhaba,\n\nP55 Belge Soru-Cevap Asistanı'na kaydını tamamlamak için doğrulama kodun: {code}\n\n"
+    return _message(to, "Belge Tabanlı Soru Asistanı: e-posta doğrulama kodu", (
+        f"Merhaba,\n\nBelge Tabanlı Soru Asistanı'na kaydını tamamlamak için doğrulama kodun: {code}\n\n"
         f"Kod {config.VERIFY_CODE_MINUTES} dakika geçerlidir. Bu kaydı sen yapmadıysan bu e-postayı yok say; "
         "kod girilmeden hesap kullanılamaz.\n"
     ))
@@ -60,16 +60,16 @@ def _token_lines(token: dict) -> str:
 
 def build_token_created_message(to: str, token: dict) -> EmailMessage:
     """Anahtarin KENDISI e-postaya yazilmaz (e-posta kutusu sizarsa anahtar da sizmasin): token = public_info."""
-    return _message(to, "P55 hesabında yeni API anahtarı oluşturuldu", (
-        "Merhaba,\n\nP55 hesabında yeni bir API anahtarı oluşturuldu:\n\n" + _token_lines(token) +
+    return _message(to, "Belge Tabanlı Soru Asistanı: yeni API anahtarı oluşturuldu", (
+        "Merhaba,\n\nBelge Tabanlı Soru Asistanı hesabında yeni bir API anahtarı oluşturuldu:\n\n" + _token_lines(token) +
         "\nBunu sen yaptıysan bir şey yapmana gerek yok.\n"
         "Sen yapmadıysan: hemen giriş yap, Hesabım > API anahtarları bölümünden bu anahtarı sil ve parolanı değiştir.\n"
     ))
 
 
 def build_token_revoked_message(to: str, token: dict) -> EmailMessage:
-    return _message(to, "P55 API anahtarın yönetici tarafından iptal edildi", (
-        "Merhaba,\n\nP55 hesabındaki şu API anahtarı yönetici tarafından iptal edildi:\n\n" + _token_lines(token) +
+    return _message(to, "Belge Tabanlı Soru Asistanı: API anahtarın yönetici tarafından iptal edildi", (
+        "Merhaba,\n\nBelge Tabanlı Soru Asistanı hesabındaki şu API anahtarı yönetici tarafından iptal edildi:\n\n" + _token_lines(token) +
         "\nBu anahtarı kullanan uygulamalar artık bağlanamaz. Gerekirse Hesabım > API anahtarları bölümünden "
         "yeni bir anahtar oluşturabilirsin.\n"
     ))
@@ -81,7 +81,7 @@ def _send(msg: EmailMessage, label: str, to: str, detail: str) -> None:
     if not smtp_configured():
         if config.APP_ENV != "production":
             # ASCII: Windows konsolunun kod sayfasi Turkce harfleri bozabiliyor (olcum: "s?f?rlama" goruldu)
-            print(f"[P55] {label} (gelistirme modu, SMTP ayari yok): {to} -> {detail}", flush=True)
+            print(f"[Asistan] {label} (gelistirme modu, SMTP ayari yok): {to} -> {detail}", flush=True)
         return
     try:
         if config.SMTP_PORT == 465:

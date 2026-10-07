@@ -12,11 +12,11 @@ import sys
 from pathlib import Path
 
 SABLON = """\
-# P55 yerel ayarlari. Bu dosya git'e GIRMEZ (.gitignore). Gercek anahtarlarini yalnizca buraya yaz.
+# Belge Tabanli Soru Asistani yerel ayarlari. Bu dosya git'e GIRMEZ (.gitignore). Gercek anahtarlarini yalnizca buraya yaz.
 # Tum ayarlar ve varsayilanlari: README.md -> "Ortam degiskenleri"
 APP_ENV=development
 SECRET_KEY={secret_key}
-DATABASE_URL=sqlite:///./data/p55.db
+DATABASE_URL=sqlite:///./data/asistan.db
 
 # Embedding: local (sentence-transformers, ilk seferde model iner) | hf (Hugging Face) | hash (yalnizca deneme)
 EMBEDDING_BACKEND=local

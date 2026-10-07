@@ -43,7 +43,7 @@ Bağımlılık yönü tek yönlüdür: api → services → db. Alt katman üst 
   sunucusu açmadan doğrudan fonksiyon olarak test edebiliyorum. Böylece ders paketindeki "her şeyi tek katmanda toplamak"
   hatasına da düşmüyorum. Eksisi: küçük bir özellik için bile çoğu zaman üç dosyaya (api, services, db) dokunmak gerekiyor.
 - **SQLite'ı neden seçtim (yerel) ve bulutta neden PostgreSQL'e (Supabase) geçtim:** SQLite kurulum istemiyor, Python'la
-  birlikte geliyor ve veritabanı tek bir dosya (`data/p55.db`). Geliştirirken ve testlerde her test saniyeler içinde kendi
+  birlikte geliyor ve veritabanı tek bir dosya (`data/asistan.db`). Geliştirirken ve testlerde her test saniyeler içinde kendi
   boş veritabanını açabiliyor. Saf SQL yazdığım için tabloları, kısıtları ve migration'ları doğrudan görüyorum. Bulutta
   ise Vercel'in diski kalıcı değil (yalnızca `/tmp`, her açılışta silinebilir); SQLite dosyası orada yaşayamaz.
   Supabase ücretsiz planda hem PostgreSQL hem pgvector (vektör aramasını veritabanının içinde `<=>` ile yapmak) hem de

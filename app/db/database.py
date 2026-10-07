@@ -1,7 +1,7 @@
 """Veritabani baglantisi ve migration (surum gecisi) calistirici.
 
 Iki veritabani desteklenir, hangisi kullanilacagini DATABASE_URL secer:
-- sqlite:///./data/p55.db      -> yerel gelistirme ve testler (kurulum gerektirmez)
+- sqlite:///./data/asistan.db      -> yerel gelistirme ve testler (kurulum gerektirmez)
 - postgresql://...             -> bulut (Supabase). Vercel'in diski kalici olmadigi icin SQLite dosyasi orada yasayamaz.
 
 Depo (repository) modulleri iki veritabaninda da AYNI SQL'i kullanir: `?` yer tutucusu, `RETURNING id`,

@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="P55 - Belge Tabanli Soru-Cevap Asistani (RAG)", version="0.18.1", lifespan=lifespan)
+app = FastAPI(title="Belge Tabanlı Soru Asistanı (RAG)", version="0.18.2", lifespan=lifespan)
 MULTIPART_OVERHEAD = 1024 * 1024     # form sinirlari ve basliklar icin pay (dosyanin kendisi degil)
 
 
@@ -38,7 +38,7 @@ async def upload_size_guard(request: Request, call_next):
     return await call_next(request)
 
 
-# CORS: arayuz baska bir adreste (orn. p55-frontend.vercel.app) oldugu icin tarayici, backend'e istek atmadan
+# CORS: arayuz baska bir adreste (orn. p55-rag-assistant-frontend.vercel.app) oldugu icin tarayici, backend'e istek atmadan
 # once "bu adrese izin veriyor musun?" diye sorar. Yalnizca ALLOWED_ORIGINS'teki adreslere izin verilir.
 # Cerez kullanilmiyor (token Authorization basliginda), bu yuzden allow_credentials gerekmez.
 # Bu ara katman size_guard'dan SONRA eklendigi icin en distadir: 413 yanitina da CORS basliklari eklenir.
@@ -65,4 +65,4 @@ def health():
 @app.get("/", include_in_schema=False)
 def index():
     """Backend'in kendi arayuzu yok; adresi tarayicida acan kisiye ne oldugunu soyler."""
-    return {"name": "P55 RAG Assistant API", "docs": "/docs", "health": "/health"}
+    return {"name": "Belge Tabanli Soru Asistani API", "docs": "/docs", "health": "/health"}

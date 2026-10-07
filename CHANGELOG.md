@@ -5,6 +5,19 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ## [1.0.0] — final (henüz yayımlanmadı)
 - *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
 
+## [0.18.2] — 2026-10-07 · Ürün adı: Belge Tabanlı Soru Asistanı
+### Değişti
+- Arayüzde, e-postalarda, PDF raporunda, API başlığında ve belgelerde "P55" yerine **Belge Tabanlı Soru Asistanı**.
+  Depo adları (`P55-RAG-Assistant-…`) ve ders formları (`docs/raporlar/`, AI günlüğü, vize raporu) değişmedi:
+  P55 dersin verdiği proje numarası.
+- Kişisel API anahtarı öneki `p55_` → `bsa_`. **Eski `p55_` anahtarları süresi dolana kadar çalışır**
+  (`api_tokens.LEGACY_PREFIXES`, test: `test_eski_p55_onekli_anahtar_calismaya_devam_eder`).
+- Yerel veritabanı dosyası `data/p55.db` → `data/asistan.db` (`.env`'de `DATABASE_URL` elle yazılıysa o satır da değişmeli).
+- Test ortam değişkeni `P55_TEST_PG_URL` → `TEST_PG_URL`; günlük (logger) adı `p55.mailer` → `asistan.mailer`;
+  genel sohbet istemi `genel-v1` → `genel-v2` (yalnızca kendini tanıttığı ad değişti).
+- Frontend: JS ad alanı `P55` → `App`, `P55_CONFIG` → `APP_CONFIG`, tarayıcı anahtarları `p55_token`/`p55_theme` →
+  `asistan_token`/`asistan_theme` (yayından sonra herkes bir kez yeniden giriş yapar, tema bir kez sistem ayarına döner).
+
 ## [0.18.1] — 2026-10-04 · API anahtarı bildirimi ve yönetici denetimi
 ### Eklendi
 - Anahtar oluşturulunca hesap sahibine **bildirim e-postası** (ad, ilk 12 karakter, tarihler; anahtarın kendisi yok):
