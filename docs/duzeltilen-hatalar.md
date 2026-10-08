@@ -85,8 +85,35 @@ Her hata için: **belirti → neden → nasıl bulundu → düzeltme → doğrul
 - **Düzeltme** (`app/services/parser.py`): `parse_file` her biçimden çıkan metindeki NUL karakterlerini atıyor (metin için anlamsızdırlar).
 - **Doğrulama:** Test PostgreSQL'de kırmızıdan yeşile döndü; SQLite'ta yeşil kaldı. Tüm takım iki veritabanında da geçiyor.
 
+---
+
+## Canlı sitede geliştirici tarafından bulunan hatalar
+Bu iki hatayı Samet DOĞANGÜN canlı siteyi kullanırken buldu ve bildirdi; düzeltme Claude Code ile birlikte yapıldı.
+
+## Hata 9 - Canlıda belge yüklenince "Hugging Face embedding hatası (402)"
+- **Belirti** (2026-10-07, canlı site): "1_2_Mikro Bölüm 1.pdf" yüklenince belge indekslenmedi, ekranda "Gömme üretilemedi: Hugging Face embedding hatası (402)" yazdı.
+- **Nasıl bulundu:** Geliştirici canlı sitede belge yüklerken gördü ve bildirdi.
+- **Neden:** HTTP 402 (*Payment Required*), Hugging Face Inference API'nin ücretsiz aylık kredisinin bittiğini gösteriyordu. Kodda bir yanlışlık yoktu; sorun servis sınırıydı. Ancak hata mesajı bu nedeni ve çözümü söylemiyordu.
+- **Düzeltme:**
+  1. Hata mesajı artık nedeni ve çözümü söylüyor.
+  2. Geliştiricinin seçimiyle yeni embedding servisi eklendi: `GeminiEmbedder` (`app/services/embedder.py`; Google `gemini-embedding-001`, 768 boyut), `EMBEDDING_BACKEND=gemini`. `MIN_SCORE` gerçek ölçümle 0,55 seçildi (`docs/istem-deneyleri.md`).
+  3. Ölçüm sırasında ikinci bir sorun bulundu: geçerli anahtarla isteklerin yaklaşık %12'si nedensiz `403 PERMISSION_DENIED` dönüyordu. Bu yanıt artık geçici sayılıyor ve 1–2 sn sonra yeniden deneniyor.
+  4. Yayından sonra canlıda hâlâ Hugging Face kullanılıyordu: Vercel'de `EMBEDDING_BACKEND` değeri `hf` kalmıştı. Geliştirici bu değeri `gemini` olarak düzeltti ve yeniden yayınladı.
+  5. Aynı PDF bu kez Gemini'nin dakikalık sınırına (429) takıldı. Ölçüm: ücretsiz katman toplu istekteki her metni ayrı sayıyor (64 + 64 metin → 429, 64 + 30 → başarılı). `GeminiEmbedder` artık son 60 sn'de gönderdiği metni sayıp sınırı aşmadan bekliyor (`GEMINI_TEXTS_PER_MINUTE=90`).
+- **Doğrulama:** `tests/test_gemini.py` (sahte Gemini sunucusuna karşı; 403, 429 ve hız sınırı senaryoları). Canlıda aynı PDF (185 parça) indekslendi, `/search` 200 döndü.
+- **Ders:** Ücretsiz servislerin sınırları da kod kadar önemli; hata mesajı kullanıcıya nedeni söylemeli; bir ortam değişkeni değiştirildiğinde canlıdaki değer ayrıca kontrol edilmeli.
+
+## Hata 10 - CSV rapor Excel'de bozuk açılıyordu
+- **Belirti** (2026-10-03): Rapor sekmesinden indirilen CSV dosyası Excel'de açılınca Türkçe karakterler bozuk görünüyor, her satır tek bir hücreye yığılıyordu.
+- **Nasıl bulundu:** Geliştirici dosyayı kendi bilgisayarında Excel'de açınca fark etti.
+- **Neden:** (1) Arayüz dosyayı `res.text()` ile okuyup yeniden oluşturuyordu; bu sırada UTF-8 BOM işareti siliniyor, Excel de dosyanın UTF-8 olduğunu anlayamıyordu. (2) Türkçe bölgesel ayarlı Excel liste ayracı olarak `;` bekliyor; `,` ile ayrılmış satır tek hücreye yığılıyordu.
+- **İlk düzeltme:** Dosya blob olarak indiriliyor (BOM korunuyor), ayraç `;`, ondalık ayraç virgül, etiketler Türkçe.
+- **Sonuç ve karar:** Excel'in bölgesel ayarlarına bağlı sorunlar sürdü. Geliştirici raporun PDF olarak indirilmesine karar verdi: `GET /reports/usage.pdf`, `app/services/report_pdf.py` (reportlab). Türkçe harfler için reportlab içindeki Vera yazı tipi kullanılıyor (varsayılan Helvetica Türkçe harfleri basamıyor). CSV ucu API'de kaldı; arayüzdeki düğme "PDF indir" oldu.
+- **Doğrulama:** `tests/test_rapor_pdf.py`; örnek PDF görsel olarak incelendi (siyah zemin üzerinde siyah başlık ve grafik taşması bulunup düzeltildi); canlıda düğme ve uç yayında (girişsiz istek 401).
+- **Ders:** Görünümü açıldığı programın ayarlarına bağlı bir biçim yerine, her yerde aynı görünen bir biçim (PDF) rapor için daha güvenilir.
+
 ## Açık kalanlar (bilinçli olarak bırakıldı)
 | Sorun | Nerede | Not |
 |---|---|---|
-| Soru sayısı 0 iken grafik etiketi "en yüksek: 1" | frontend `public/report.js` | `Math.max(1, ...)` sıfıra bölmeyi önlüyor (doğru), ama aynı değer etikete de yazılıyor. **Öğrencinin kendi hata ayıklama örneği için ayrıldı** (`docs/gelistirme/11-test-hata-ayiklama.md` → Kendi yapacakların). |
+| Soru sayısı 0 iken grafik etiketi "en yüksek: 1" | frontend `public/report.js` | `Math.max(1, ...)` sıfıra bölmeyi önlüyor (doğru), ama aynı değer etikete de yazılıyor. Öğrencinin hata ayıklama örneği için ayrılmıştı; onun yerine canlıda bulunan Hata 9 ve 10 kaydedildi. Hâlâ açık. |
 | Anahtar yokken son kullanıcıya teknik mesaj | `app/services/llm_client.py` / sohbet arayüzü | Adım 12 kullanılabilirlik iyileştirmesi adayı (senin görevin 3 için uygun). |

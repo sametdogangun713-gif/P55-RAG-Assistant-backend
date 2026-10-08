@@ -46,7 +46,7 @@ Durum işaretleri: ✅ yapıldı · 🟡 kısmen · ⬜ yapılmadı · 💬 öğ
 | 10 | Çalışan yapay zekâ bileşeni · AI kullanım günlüğü | ✅ | `rag.py`, `prompts.py` (`rag-v2`) · `docs/istem-deneyleri.md` (gerçek LLM sonuçları) | ⬜ kendi `SYSTEM_PROMPT` denemen |
 | 11 | Çalışan sohbet geçmişi ve bağlam · kod + kısa açıklama | ✅ | `chat.py` (özetleme, `CHAT_HISTORY_CHARS=4000`) · [`09-sohbet-gecmisi.md`](../gelistirme/09-sohbet-gecmisi.md) | ⬜ kullanıcı başına 50 sohbet kuralı + test |
 | 12 | Çalışan rapor/pano · (varsa) bildirim | ✅ | `app/services/reports.py`, `report_pdf.py` (PDF), CSV ucu · frontend `public/report.js` · bildirim yok (PDF'te "varsa") | ⬜ kendi metriğin |
-| 13 | Test dosyaları · test sonuç raporu · düzeltilen hata listesi | ✅ | backend `tests/` (24 test dosyası) · frontend `tests/test_arayuz.py` · `docs/test-raporu.md` · `docs/duzeltilen-hatalar.md` | ⬜ `tests/test_benim.py` + "en yüksek: 1" hatasını ayıklayıp **Hata 9** olarak yazman |
+| 13 | Test dosyaları · test sonuç raporu · düzeltilen hata listesi | ✅ | backend `tests/` (24 test dosyası) · frontend `tests/test_arayuz.py` · `docs/test-raporu.md` · `docs/duzeltilen-hatalar.md` | 🟡 Kendi bulduğun hatalar **Hata 9** (Hugging Face 402) ve **Hata 10** (CSV / Excel) yazıldı · `tests/test_benim.py` yok |
 | 14 | Tamamlanmış README · teknik dokümantasyon · güncellenmiş arayüz | ✅ | iki depoda `README.md` · `docs/teknik-dokumantasyon.md` (tüm API uçları) · `docs/dagitim.md` · frontend `public/*` (koyu/açık tema, mobil, ARIA) | ⬜ kurulumu temiz ortamda kendin doğrulaman |
 | 15 | Final sürüm (etiketli) · final teknik dokümantasyon · sunum ve demo | 🟡 | `docs/gelistirme/13-final.md` (demo akışı + 10 slaytlık taslak) · `CHANGELOG.md` | ⬜ `v1.0-final` etiketi yok · `[1.0.0]` boş · sunum dosyası yok · prova yok |
 
@@ -57,7 +57,7 @@ Durum işaretleri: ✅ yapıldı · 🟡 kısmen · ⬜ yapılmadı · 💬 öğ
 | Gizli anahtar depoda yok | ✅ | 2026-10-08 taraması temiz; `.env` git-ignore'da |
 | Gerçek kişisel veri yok (KVKK) | 🟡 | Depodaki veri sentetik. **Ancak canlı veritabanında kendi CV / SGK belgelerin var.** Demodan önce sil. |
 | Ekran görüntüleri | 🟡 | `docs/ekran-goruntuleri/` (10 adet). `01-ana-sayfa.jpg` eski ana sayfayı gösteriyor. |
-| AI kullanım günlüğü (Form 8) | 🟡 | `docs/ai-kullanim-gunlugu.md` var. "Kendi yaptığım değişiklik" alanlarının çoğu boş 💬 |
+| AI kullanım günlüğü (Form 8) | ✅ / 💬 | `docs/ai-kullanim-gunlugu.md`: "Kendi yaptığım değişiklik" alanları 08.10'da senin onayladığın listeye göre dolduruldu. Kalan 💬: "Açıklar mı? (E/H)" sütunu ve 10 kayıttaki "Neden bu çözümü kullandım" alanı |
 | Haftalık ilerleme raporu + kontrol listesi + öz değerlendirme (Form 9/3/5) | ⬜ | `docs/raporlar/haftalik/` içinde yalnızca `_sablon.md` var |
 | Proje öneri formu | 🟡 | `docs/raporlar/hafta-02-proje-oneri-formu.md`. 💬 alanları ve hoca onayı bekliyor |
 | Risk analizi · proje takvimi · izleme formu · GitHub kontrol listesi | ✅ / 🟡 | `docs/raporlar/`. Risk puanlarını gözden geçirmen gerekiyor |
@@ -195,8 +195,8 @@ Durum işaretleri: ✅ yapıldı · 🟡 kısmen · ⬜ yapılmadı · 💬 öğ
 ## 5. Eksikler (öncelik sırasıyla)
 
 **Teslimden önce mutlaka (puanı doğrudan etkiler):**
-1. 💬 **Kendi yapacakların** görevleri: 13 adımda toplam 57 görev, hiçbiri işaretli değil. En önemlileri: `tests/test_benim.py` + Hata 9 (H13), rol değiştirme ucu (H5), `size_bytes` kısıtı (H4).
-2. 💬 **AI günlüğünün "Kendi yaptığım değişiklik" alanları**: çoğu boş.
+1. 💬 **Kendi yapacakların** kod görevleri yapılmadı (karar: senin; AI günlüğünde de böyle yazıyor). Hata ayıklama örneği olarak Hata 9 ve 10 kaydedildi. Hocan bu bölümlerden puan kırabilir.
+2. 💬 **AI günlüğü:** "Açıklar mı? (E/H)" sütunu (yalnızca sen yazabilirsin) ve "Neden bu çözümü kullandım" alanları (10 kayıt).
 3. **`v1.0-final` etiketi** (iki depoda) + `CHANGELOG.md` `[1.0.0]` bölümü.
 4. 💬 **Sunum** (taslak: [`13-final.md`](../gelistirme/13-final.md) §4) ve en az 2 demo provası.
 5. **Canlıdaki gerçek kişisel belgeler** (CV, SGK dökümü): demodan önce sil, demoyu sentetik belgeyle yap (KVKK).
