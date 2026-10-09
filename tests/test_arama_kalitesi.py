@@ -1,4 +1,4 @@
-"""Bulutta arama/yanit kalitesi icin secilen varsayilanlar (olcum: docs/istem-deneyleri.md, "Bulut kalitesi").
+"""Bulutta arama/yanit kalitesi icin secilen varsayilanlar (olcum: docs/istem-deneyleri/istem-deneyleri.md, "Bulut kalitesi").
 
 Gercek hata: Hugging Face MiniLM'i 128 token'da kesiyordu; Turkce 600 karakterlik parcanin ikinci yarisi
 aranamiyordu ve "Odev teslim tarihi ne zaman?" sorusu belgede yazdigi halde "bilgi bulamadim" aliyordu.

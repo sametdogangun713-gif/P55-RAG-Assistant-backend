@@ -3,7 +3,23 @@
 Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 2026.
 
 ## [1.0.0] — final (henüz yayımlanmadı)
-- *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final.md`.)*
+- *(Final öncesi son değişiklikler buraya; bkz. `docs/gelistirme/13-final/13-final.md`.)*
+
+## [0.22.0] — 2026-10-09 · 3. parti API: Vikipedi + klasör düzeni
+### Eklendi
+- **Vikipedi'den belge ekleme** (3. parti API, ücretsiz, anahtarsız): `GET /wikipedia/search`, `POST /wikipedia/import`.
+  `app/services/wikipedia.py` MediaWiki Action API'yi `urllib` ile çağırır (tanıtıcı `User-Agent`), makalenin düz
+  metnini çeker; `documents.import_text_document` metni `.txt` belgesi gibi parçalar ve indeksler (dosya saklanmaz).
+  Belgenin ilk satırlarında kaynak adresi ve lisans (CC BY-SA 4.0). Hatalar: 400 geçersiz girdi, 404 makale yok, 502
+  Vikipedi'ye ulaşılamadı. Ayarlar: `WIKIPEDIA_API_URL`, `WIKIPEDIA_TIMEOUT_SECONDS`.
+- `tests/test_vikipedi.py` (9 test, sahte Vikipedi sunucusu). Backend 345 test. Gerçek Vikipedi'ye karşı 2 istekle
+  denendi ("fotosentez": 3 sonuç, makale 13 636 karakter).
+- Frontend: Belgelerim → "Vikipedi'den ekle" (`public/wiki/wiki.js`).
+### Değişti
+- **Her belge kendi klasöründe:** `docs/mimari.md` → `docs/mimari/mimari.md`, `docs/gelistirme/08-rag.md` →
+  `docs/gelistirme/08-rag/08-rag.md` vb. (33 dosya, `git mv` ile; tüm bağlantılar güncellendi). Frontend'de de her
+  dosya kendi klasöründe (`public/docs/docs.js`, `public/style/style.css`).
+- Sözlü sınav soruları ve cevap iskeleti ayrı dosyada: `docs/sozlu-sorular/sozlu-sorular.md` (+ 3. parti API ek soruları).
 
 ## [0.21.1] — 2026-10-07 · Gemini dakikalık sınır
 ### Düzeltildi (canlıda bulundu)
@@ -21,9 +37,9 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
   belge `RETRIEVAL_DOCUMENT` / soru `RETRIEVAL_QUERY`, anahtar `x-goog-api-key` başlığında). Ücretsiz katmanın
   sınırına (429) takılınca Google'ın söylediği süre kadar bekler (en fazla 30 sn, 2 deneme); günlük sınırda beklemez,
   indekslenenler korunur ve "Devam et" kalan yerden sürer. Ayarlar: `GEMINI_API_KEY`, `GEMINI_EMBEDDING_MODEL`,
-  `GEMINI_EMBEDDING_DIM`, `GEMINI_BATCH_SIZE`. `MIN_SCORE` varsayılanı 0,55 (ölçüm: `docs/istem-deneyleri.md`).
+  `GEMINI_EMBEDDING_DIM`, `GEMINI_BATCH_SIZE`. `MIN_SCORE` varsayılanı 0,55 (ölçüm: `docs/istem-deneyleri/istem-deneyleri.md`).
 - `tests/test_gemini.py` (11 test, sahte Gemini sunucusu). Backend 332 test.
-- Ölçüm (gerçek Gemini, `docs/istem-deneyleri.md`): doğru parça 10/12 birinci sırada, 12/12 ilk 4'te (bge-m3 ile aynı);
+- Ölçüm (gerçek Gemini, `docs/istem-deneyleri/istem-deneyleri.md`): doğru parça 10/12 birinci sırada, 12/12 ilk 4'te (bge-m3 ile aynı);
   belgede olan sorular ≥ 0,686 → eşik 0,55.
 ### Düzeltildi (ölçümde bulundu)
 - Geçerli anahtarla isteklerin ~%12'si nedensiz `403 PERMISSION_DENIED` dönüyordu; ilk sürüm bunu "anahtar geçersiz" sayıp
@@ -119,7 +135,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 ### Düzeltildi
 - **Canlı sitede sohbet, belgede yazan sorulara "bilgi bulamadım" diyordu.** Kök neden: Hugging Face MiniLM'i 128 token'da
   kesiyor, Türkçe 600 karakterlik parçanın ikinci yarısı vektöre girmiyordu. Bulutta embedding modeli **BAAI/bge-m3**
-  (8192 token); `hf` için `MIN_SCORE` varsayılanı 0,40. Ölçüm: `docs/istem-deneyleri.md` → "Bulut kalitesi".
+  (8192 token); `hf` için `MIN_SCORE` varsayılanı 0,40. Ölçüm: `docs/istem-deneyleri/istem-deneyleri.md` → "Bulut kalitesi".
 - İstem `rag-v2`: kaynakta yanıt (kısmen ya da başka kelimelerle) varsa verilir; `BILGI_YOK` yalnızca kaynakların hiçbiri
   ilgili değilse. `GROQ_REASONING_EFFORT` varsayılanı `medium` (low çok sık "bilgi yok" diyordu).
 - Bulutta önerilen `MAX_CHUNKS_PER_DOCUMENT` 3000 → 2000 (bge-m3 ~10 parça/sn, Vercel sınırı 300 sn).
@@ -154,7 +170,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 - **Supabase Storage** ile yükleme: `POST /documents/upload-url`, `POST /documents/complete`; arayüz `upload_mode`'a göre seçer.
 - **CORS** (`ALLOWED_ORIGINS`), Vercel ayarları (`vercel.json`, `.python-version`, `.vercelignore`), `scripts/supabase_kurulum.py`.
 - Şifremi unuttum (e-postayla 6 haneli kod), ana sayfa, koyu/açık tema, 500 MB'a kadar akışlı yükleme (yerel).
-- Belgeler: `docs/teknik-dokumantasyon.md`, `docs/dagitim.md`, `docs/yol-haritasi.md`; haftalık belgeler `docs/` altında birleşti.
+- Belgeler: `docs/teknik-dokumantasyon/teknik-dokumantasyon.md`, `docs/dagitim/dagitim.md`, `docs/yol-haritasi/yol-haritasi.md`; haftalık belgeler `docs/` altında birleşti.
 - Testler: `tests/test_bulut.py`; tüm testler `P55_TEST_PG_URL` ile PostgreSQL'e karşı da koşabiliyor.
 ### Değişti
 - `requirements.txt` sunucu için (torch'suz); yerel model `requirements-local.txt`'te.
@@ -165,7 +181,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/). Tarihler 20
 - Supabase yeni gizli anahtarları (`sb_secret_…`) `apikey` başlığıyla gönderiliyor (Bearer olarak reddedilir).
 
 ## [0.13.0] — test ve hata ayıklama
-Sınır durumu testleri; 6 gerçek hata düzeltildi (uzun dosya adında uzantı kaybı, `verify_password(None)`, sınırsız başarısız giriş sayacı, üretimde zayıf `SECRET_KEY`, DOCX sıkıştırma bombası, sınırsız arama sorgusu). Ayrıntı: `docs/duzeltilen-hatalar.md`.
+Sınır durumu testleri; 6 gerçek hata düzeltildi (uzun dosya adında uzantı kaybı, `verify_password(None)`, sınırsız başarısız giriş sayacı, üretimde zayıf `SECRET_KEY`, DOCX sıkıştırma bombası, sınırsız arama sorgusu). Ayrıntı: `docs/duzeltilen-hatalar/duzeltilen-hatalar.md`.
 
 ## [0.12.0] — rapor ve yönetim
 Kullanım/kaynak raporu, günlük grafik, CSV (formül enjeksiyonu önlemli), yönetici paneli.

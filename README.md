@@ -31,7 +31,7 @@ dayanarak**, `[1]`, `[2]` gibi kaynak numaralarıyla üretir (RAG). Belgede bilg
 | Veritabanı | SQLite dosyası (`data/asistan.db`) | Supabase PostgreSQL + pgvector |
 | Dosyalar | Sunucu diski (`uploads/`), en fazla 500 MB | Supabase Storage (gizli kova), en fazla 50 MB |
 | Embedding | `sentence-transformers` (yerel, ücretsiz) | Google Gemini `gemini-embedding-001` (ücretsiz katman) |
-| Kurulum | [Adım adım kurulum](#adım-adım-kurulum-komutlarla) | [`docs/dagitim.md`](docs/dagitim.md) |
+| Kurulum | [Adım adım kurulum](#adım-adım-kurulum-komutlarla) | [`docs/dagitim/dagitim.md`](docs/dagitim/dagitim.md) |
 
 Hangisinin kullanılacağına kod değil **ayarlar** (`.env` / Vercel ortam değişkenleri) karar verir. Kod aynıdır.
 
@@ -79,10 +79,10 @@ Anahtar yoksa sohbet çökmez, "GROQ_API_KEY ayarlı değil" mesajı gösterir.
 **Anahtarı asla depoya, ekran görüntüsüne veya mesaja koymayın.** `.env` dosyası `.gitignore`'dadır, GitHub'a gitmez.
 
 ## Bulut (Supabase + Vercel)
-Adım adım: **[`docs/dagitim.md`](docs/dagitim.md)**. Özet:
+Adım adım: **[`docs/dagitim/dagitim.md`](docs/dagitim/dagitim.md)**. Özet:
 1. Supabase'te proje (Frankfurt) → `python -m scripts.supabase_kurulum` (tablolar + gizli dosya kovası).
 2. Vercel'de bu depo → ortam değişkenleri (`DATABASE_URL`, `SECRET_KEY`, `HF_TOKEN`, `SUPABASE_*`, `GROQ_API_KEY`, `ALLOWED_ORIGINS` …).
-3. Vercel'de frontend deposu → `public/config.js` içine backend adresi.
+3. Vercel'de frontend deposu → `public/config/config.js` içine backend adresi.
 
 ## Testler
 ```bat
@@ -96,7 +96,7 @@ için yerel sahte sunucular kullanılır. Varsayılan veritabanı bellekteki SQL
 set TEST_PG_URL=postgresql://kullanici@localhost:5432/veritabani
 pytest
 ```
-Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
+Son ölçüm ve ayrıntı: [`docs/test-raporu/test-raporu.md`](docs/test-raporu/test-raporu.md).
 
 ## Ayarlar (`.env`)
 | Değişken | Varsayılan | Açıklama |
@@ -133,14 +133,14 @@ Son ölçüm ve ayrıntı: [`docs/test-raporu.md`](docs/test-raporu.md).
 | `MAX_API_TOKENS_PER_USER` | `10` | Bir kullanıcının aynı anda en fazla kaç kişisel API anahtarı olabilir |
 | `SEND_EMAIL_INLINE` | Vercel'de `1` | E-postayı yanıttan önce gönder (Vercel işlevi yanıttan sonra durdurabilir) |
 
-Yazılmayan her ayar `app/core/config.py`'deki varsayılanı kullanır · Bulut için hangi değerin nereye yazılacağı: [`docs/dagitim.md`](docs/dagitim.md).
+Yazılmayan her ayar `app/core/config.py`'deki varsayılanı kullanır · Bulut için hangi değerin nereye yazılacağı: [`docs/dagitim/dagitim.md`](docs/dagitim/dagitim.md).
 
 ## Sık karşılaşılan sorunlar
 | Belirti | Çözüm |
 |---|---|
 | `python` tanınmıyor | `py -3` kullanın veya Python'u "Add to PATH" ile yeniden kurun |
 | Arayüz "Sunucuya ulaşılamadı" diyor | Backend çalışıyor mu (`http://127.0.0.1:8000/health`)? Arayüzün adresi `ALLOWED_ORIGINS` içinde mi? |
-| Port 8000 dolu | Diğer pencereyi kapatın, veya `uvicorn app.main:app --port 8001` (o zaman frontend `public/config.js`'teki adresi de değiştirin) |
+| Port 8000 dolu | Diğer pencereyi kapatın, veya `uvicorn app.main:app --port 8001` (o zaman frontend `public/config/config.js`'teki adresi de değiştirin) |
 | `SECRET_KEY zayıf` uyarısı | `python -m scripts.env_olustur` (yeni `.env` için önce eskisini silin) |
 | Sohbet "GROQ_API_KEY ayarlı değil" diyor | `.env` içine anahtarı yazın ve backend'i yeniden başlatın |
 | Bulutta yükleme "Dosya deposu ayarlı değil" | Vercel'de `STORAGE_BACKEND=supabase`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` tanımlı mı? |
@@ -155,8 +155,8 @@ scripts/       yönetici oluşturma, .env oluşturma, Supabase kurulumu, örnek 
 tests/         tüm otomatik testler
 docs/          tüm belgeler: mimari, geliştirme adımları, AI günlüğü, test raporu, dağıtım
 ```
-Mimari: `api → services → db` (tek yönlü bağımlılık). Ayrıntı: [`docs/mimari.md`](docs/mimari.md) ·
-Teknik dokümantasyon (tüm uç noktalar): [`docs/teknik-dokumantasyon.md`](docs/teknik-dokumantasyon.md) ·
+Mimari: `api → services → db` (tek yönlü bağımlılık). Ayrıntı: [`docs/mimari/mimari.md`](docs/mimari/mimari.md) ·
+Teknik dokümantasyon (tüm uç noktalar): [`docs/teknik-dokumantasyon/teknik-dokumantasyon.md`](docs/teknik-dokumantasyon/teknik-dokumantasyon.md) ·
 Belgelerin dizini: [`docs/README.md`](docs/README.md).
 Ekran görüntüleri (sentetik veriyle): [`docs/ekran-goruntuleri/`](docs/ekran-goruntuleri/README.md).
 
@@ -165,7 +165,7 @@ Ekran görüntüleri (sentetik veriyle): [`docs/ekran-goruntuleri/`](docs/ekran-
 ## Güvenlik ve gizlilik
 Anahtarlar ve parolalar depoya yüklenmez; gizli değerler `.env`'de (yerel) ve Vercel ortam değişkenlerinde (bulut) tutulur.
 Parolalar scrypt ile özetlenir. Supabase tablolarında Row Level Security açıktır (Supabase'in kendi REST API'sinden erişilemez).
-Testlerde ve demoda yalnızca **sentetik** veri kullanılır. Ayrıntı: [`docs/guvenlik-notu.md`](docs/guvenlik-notu.md).
+Testlerde ve demoda yalnızca **sentetik** veri kullanılır. Ayrıntı: [`docs/guvenlik-notu/guvenlik-notu.md`](docs/guvenlik-notu/guvenlik-notu.md).
 
 ## Bilinen sınırlar
 Başarısız giriş sayacı bellekte tutulur (yeniden başlatınca sıfırlanır; bulutta her sunucu örneğinin kendi sayacı var) ·
@@ -174,4 +174,4 @@ bulutta dosya en fazla 50 MB · Supabase ücretsiz projesi 1 hafta kullanılmazs
 "kaynağa dayalı" yanıt, yanıtın doğru olduğunu kanıtlamaz, yalnızca geçerli bir kaynak gösterdiğini söyler.
 
 ## İlerleme
-Ders planındaki adımlar, durumları ve kalan işler: [`docs/yol-haritasi.md`](docs/yol-haritasi.md) · Değişiklikler: [`CHANGELOG.md`](CHANGELOG.md).
+Ders planındaki adımlar, durumları ve kalan işler: [`docs/yol-haritasi/yol-haritasi.md`](docs/yol-haritasi/yol-haritasi.md) · Değişiklikler: [`CHANGELOG.md`](CHANGELOG.md).

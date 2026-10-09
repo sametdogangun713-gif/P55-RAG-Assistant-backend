@@ -20,7 +20,7 @@ Listesi** ve **5. Öğrenci Öz Değerlendirme Formu**. 💬 işaretli alanları
 -
 
 ### Yapay zekâ kullanımı özeti (günlüğe atıf)
-- [`../../ai-kullanim-gunlugu.md`](../../ai-kullanim-gunlugu.md) → Adım NN, Kayıt ...
+- [`../../ai-kullanim-gunlugu.md`](../../ai-kullanim-gunlugu/ai-kullanim-gunlugu.md) → Adım NN, Kayıt ...
 
 ### Sonraki hafta planı
 -

@@ -2,44 +2,47 @@
 
 Projenin bütün yazılı belgeleri bu klasörde. Kod iki depoda (backend + frontend), belgeler yalnızca burada.
 
+Düzen: **her belge kendi adını taşıyan klasörde** (`mimari/mimari.md`, `gelistirme/08-rag/08-rag.md`). Belgeye ait görsel de aynı klasörde durur (`er-diyagrami/er-diyagrami.svg`).
+
 ## Başlangıç
 | Belge | Ne var? |
 |---|---|
-| [`yol-haritasi.md`](yol-haritasi.md) | Ders planındaki adımlar, hangisi bitti, ne kaldı, kimin işi |
-| [`teknik-dokumantasyon.md`](teknik-dokumantasyon.md) | Modüller, veri modeli, **tüm API uç noktaları**, ana akışlar |
-| [`dagitim.md`](dagitim.md) | Supabase + Hugging Face + Vercel kurulumu, ortam değişkenleri, sorun giderme |
-| [`mimari.md`](mimari.md) · [`er-diyagrami.md`](er-diyagrami.md) | Katmanlı mimari, veritabanı diyagramı |
-| [`guvenlik-notu.md`](guvenlik-notu.md) | Güvenlik önlemleri ve bilinen sınırlar |
+| [`yol-haritasi.md`](yol-haritasi/yol-haritasi.md) | Ders planındaki adımlar, hangisi bitti, ne kaldı, kimin işi |
+| [`teknik-dokumantasyon.md`](teknik-dokumantasyon/teknik-dokumantasyon.md) | Modüller, veri modeli, **tüm API uç noktaları**, ana akışlar |
+| [`dagitim.md`](dagitim/dagitim.md) | Supabase + Hugging Face + Vercel kurulumu, ortam değişkenleri, sorun giderme |
+| [`mimari.md`](mimari/mimari.md) · [`er-diyagrami.md`](er-diyagrami/er-diyagrami.md) | Katmanlı mimari, veritabanı diyagramı |
+| [`guvenlik-notu.md`](guvenlik-notu/guvenlik-notu.md) | Güvenlik önlemleri ve bilinen sınırlar |
 
 ## Geliştirme adımları (ders planı sırasıyla)
 Her dosya: o adımda ne yapıldı, kodun açıklaması, **sözlü sınav soruları** ve **senin yapacakların**.
 
 | Adım | Belge | Ders planında |
 |---|---|---|
-| 1 | [Kurulum, mimari ve ER diyagramı](gelistirme/01-kurulum-mimari.md) | Hafta 3 |
-| 2 | [Veritabanı şeması, migration ve CRUD](gelistirme/02-veritabani.md) | Hafta 4 |
-| 3 | [Kimlik doğrulama ve roller](gelistirme/03-kimlik-dogrulama.md) | Hafta 5 |
-| 4 | [Belge yükleme, ayrıştırma ve parçalama](gelistirme/04-belge-isleme.md) | Hafta 6 |
-| 5 | [Embedding ve vektör arama](gelistirme/05-embedding-arama.md) | Hafta 7 |
-| 6 | [Entegrasyon ve web arayüzü (vize)](gelistirme/06-entegrasyon-arayuz.md) | Hafta 8 |
-| 7 | [Harici LLM API istemcisi](gelistirme/07-llm-istemcisi.md) | Hafta 9 |
-| 8 | [RAG: kaynaklı yanıt](gelistirme/08-rag.md) | Hafta 10 |
-| 9 | [Sohbet geçmişi ve bağlam](gelistirme/09-sohbet-gecmisi.md) | Hafta 11 |
-| 10 | [Kullanım raporu ve yönetim](gelistirme/10-rapor-yonetim.md) | Hafta 12 |
-| 11 | [Test ve hata ayıklama](gelistirme/11-test-hata-ayiklama.md) | Hafta 13 |
-| 12 | [Dokümantasyon, arayüz, dağıtım (Supabase + Vercel)](gelistirme/12-dagitim-dokumantasyon.md) | Hafta 14 |
-| 13 | [Final entegrasyon ve sunum](gelistirme/13-final.md) | Hafta 15 |
+| 1 | [Kurulum, mimari ve ER diyagramı](gelistirme/01-kurulum-mimari/01-kurulum-mimari.md) | Hafta 3 |
+| 2 | [Veritabanı şeması, migration ve CRUD](gelistirme/02-veritabani/02-veritabani.md) | Hafta 4 |
+| 3 | [Kimlik doğrulama ve roller](gelistirme/03-kimlik-dogrulama/03-kimlik-dogrulama.md) | Hafta 5 |
+| 4 | [Belge yükleme, ayrıştırma ve parçalama](gelistirme/04-belge-isleme/04-belge-isleme.md) | Hafta 6 |
+| 5 | [Embedding ve vektör arama](gelistirme/05-embedding-arama/05-embedding-arama.md) | Hafta 7 |
+| 6 | [Entegrasyon ve web arayüzü (vize)](gelistirme/06-entegrasyon-arayuz/06-entegrasyon-arayuz.md) | Hafta 8 |
+| 7 | [Harici LLM API istemcisi](gelistirme/07-llm-istemcisi/07-llm-istemcisi.md) | Hafta 9 |
+| 8 | [RAG: kaynaklı yanıt](gelistirme/08-rag/08-rag.md) | Hafta 10 |
+| 9 | [Sohbet geçmişi ve bağlam](gelistirme/09-sohbet-gecmisi/09-sohbet-gecmisi.md) | Hafta 11 |
+| 10 | [Kullanım raporu ve yönetim](gelistirme/10-rapor-yonetim/10-rapor-yonetim.md) | Hafta 12 |
+| 11 | [Test ve hata ayıklama](gelistirme/11-test-hata-ayiklama/11-test-hata-ayiklama.md) | Hafta 13 |
+| 12 | [Dokümantasyon, arayüz, dağıtım (Supabase + Vercel)](gelistirme/12-dagitim-dokumantasyon/12-dagitim-dokumantasyon.md) | Hafta 14 |
+| 13 | [Final entegrasyon ve sunum](gelistirme/13-final/13-final.md) | Hafta 15 |
 
 ## Raporlar ve kayıtlar
 | Belge | Ne var? |
 |---|---|
 | [`raporlar/`](raporlar/README.md) | **Ders formları:** proje öneri formu, risk analizi, proje takvimi, proje izleme formu, GitHub kontrol listesi ve **haftalık raporlar** (her hafta güncellenir) |
-| [`ai-kullanim-gunlugu.md`](ai-kullanim-gunlugu.md) | Her adımda yapay zekânın nasıl kullanıldığı ("kendi" alanlarını geliştirici doldurur) |
-| [`test-raporu.md`](test-raporu.md) | Test sayıları, kapsam, hangi senaryolar neden test edildi |
-| [`duzeltilen-hatalar.md`](duzeltilen-hatalar.md) | Testlerle bulunan ve düzeltilen gerçek hatalar |
-| [`istem-deneyleri.md`](istem-deneyleri.md) | Gerçek LLM ile istem (prompt) denemeleri |
+| [`ai-kullanim-gunlugu.md`](ai-kullanim-gunlugu/ai-kullanim-gunlugu.md) | Her adımda yapay zekânın nasıl kullanıldığı ("kendi" alanlarını geliştirici doldurur) |
+| [`test-raporu.md`](test-raporu/test-raporu.md) | Test sayıları, kapsam, hangi senaryolar neden test edildi |
+| [`duzeltilen-hatalar.md`](duzeltilen-hatalar/duzeltilen-hatalar.md) | Testlerle bulunan ve düzeltilen gerçek hatalar |
+| [`istem-deneyleri.md`](istem-deneyleri/istem-deneyleri.md) | Gerçek LLM ile istem (prompt) denemeleri |
 | [`ekran-goruntuleri/`](ekran-goruntuleri/README.md) | Uygulamanın ekran görüntüleri (güncel sürüm + ilk sürüm), sentetik veriyle |
-| [`demo-senaryosu.md`](demo-senaryosu.md) · [`vize-sozlu-hazirlik.md`](vize-sozlu-hazirlik.md) · [`ilerleme-raporu-vize.md`](ilerleme-raporu-vize.md) | Vize demosu ve hazırlığı |
+| [`sozlu-sorular.md`](sozlu-sorular/sozlu-sorular.md) | **Sözlü sınav soruları ve cevap iskeleti** (13 hafta × 5 soru + 3. parti API ek soruları) |
+| [`demo-senaryosu.md`](demo-senaryosu/demo-senaryosu.md) · [`vize-sozlu-hazirlik.md`](vize-sozlu-hazirlik/vize-sozlu-hazirlik.md) · [`ilerleme-raporu-vize.md`](ilerleme-raporu-vize/ilerleme-raporu-vize.md) | Vize demosu ve hazırlığı |
 | [`../CHANGELOG.md`](../CHANGELOG.md) | Sürüm değişiklikleri |
 
 ## Eski klasör düzeninden geçiş (2026-10-03)
@@ -61,7 +64,7 @@ testler `tests/` klasörüne taşındı. Eski adlarla karşılaşırsan (ör. AI
 | `hafta-13/test_h13_sinir_durumlari.py` | `tests/test_sinir_durumlari.py` |
 | `hafta-13/test_h13_benim.py` (senin yazacağın) | `tests/test_benim.py` |
 | `hafta-14/test_h14_*.py` | `tests/test_buyuk_yukleme.py`, `test_kurulum.py`, `test_sifre_sifirlama.py` (+ frontend `test_arayuz.py`) |
-| `hafta-XX/README.md` + `aciklama.md` | `docs/gelistirme/NN-*.md` |
-| `hafta-XX/ai-log.md` | `docs/ai-kullanim-gunlugu.md` |
+| `hafta-XX/README.md` + `aciklama.md` | `docs/gelistirme/NN-*/NN-*.md` |
+| `hafta-XX/ai-log.md` | `docs/ai-kullanim-gunlugu/ai-kullanim-gunlugu.md` |
 | `hafta-XX/GITHUB.md` | kaldırıldı (haftalık yükleme planıydı) |
 | Yeni (bulut) | `tests/test_bulut.py` |
