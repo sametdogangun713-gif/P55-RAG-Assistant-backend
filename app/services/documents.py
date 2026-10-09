@@ -152,6 +152,29 @@ def complete_storage_upload(conn, user: dict, path: str, filename, mime_type=Non
         tmp.unlink(missing_ok=True)                   # asil dosya depoda; gecici kopya silinir
 
 
+# --- 3. parti kaynaktan (Vikipedi) gelen metin ---
+def import_text_document(conn, user: dict, filename, text: str, embedder=None) -> dict:
+    """Bir API'den cekilen duz metni .txt belgesi gibi isler (ayristir, parcala, indeksle).
+
+    Dosya kalici olarak saklanmaz (stored_name bos): metin zaten parcalarda ve kaynagi belgenin ilk satirinda.
+    Gecici dosya yalnizca parser'in ayni yolu kullanmasi icin yazilir ve hemen silinir.
+    """
+    name, ext = _check_name(filename)
+    if ext != ".txt":
+        raise DocumentValidationError("Metin içe aktarımı yalnızca .txt adıyla yapılır")
+    data = (text or "").encode("utf-8")
+    if not data.strip():
+        raise DocumentValidationError("Metin boş")
+    if len(data) > config.MAX_UPLOAD_MB * 1024 * 1024:
+        raise FileTooLargeError(f"Metin {config.MAX_UPLOAD_MB} MB sınırını aşıyor")
+    tmp = _temp_path(ext)
+    tmp.write_bytes(data)
+    try:
+        return _process(conn, user, name, ext, tmp, None, "text/plain", len(data), embedder)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
 def _process(conn, user, name, ext, path: Path, stored_name, mime_type, size, embedder) -> dict:
     """Diskteki dosyayi ayristirir, parcalar ve indeksler; belge kaydini dondurur."""
     doc = documents_repo.create_document(conn, user["id"], name, stored_name, mime_type, size)

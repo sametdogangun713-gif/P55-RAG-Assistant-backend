@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import admin, ask, auth, conversations, documents, reports, search
+from app.api import admin, ask, auth, conversations, documents, reports, search, wikipedia
 from app.core import config
 from app.db import database
 
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Belge Tabanlı Soru Asistanı (RAG)", version="0.21.1", lifespan=lifespan)
+app = FastAPI(title="Belge Tabanlı Soru Asistanı (RAG)", version="0.22.0", lifespan=lifespan)
 MULTIPART_OVERHEAD = 1024 * 1024     # form sinirlari ve basliklar icin pay (dosyanin kendisi degil)
 
 
@@ -53,6 +53,7 @@ app.include_router(search.router)
 app.include_router(ask.router)
 app.include_router(conversations.router)
 app.include_router(reports.router)
+app.include_router(wikipedia.router)
 
 @app.get("/health")
 def health():

@@ -65,7 +65,7 @@ INDEX_BUDGET_SECONDS = float(os.getenv("INDEX_BUDGET_SECONDS") or ("60" if ON_VE
 EMBEDDING_BACKEND = os.getenv("EMBEDDING_BACKEND", "local")      # "local" | "hf" | "gemini" | "hash"
 # "local": kucuk MiniLM bilgisayarda calisir. "hf": Hugging Face sunucusunda BAAI/bge-m3 (Vercel'de torch sigmaz).
 # MiniLM sunucuda metni 128 token'da kesiyordu: Turkce 600 karakterlik parcanin ikinci yarisi aranamiyordu.
-# bge-m3 8192 token alir ve Turkcede dogru parcayi daha iyi bulur (olcum: docs/istem-deneyleri.md). Anahtar yalnizca .env'de.
+# bge-m3 8192 token alir ve Turkcede dogru parcayi daha iyi bulur (olcum: docs/istem-deneyleri/istem-deneyleri.md). Anahtar yalnizca .env'de.
 _DEFAULT_MODEL = {"hf": "BAAI/bge-m3"}
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL") or _DEFAULT_MODEL.get(EMBEDDING_BACKEND, "paraphrase-multilingual-MiniLM-L12-v2")
 HF_TOKEN = os.getenv("HF_TOKEN", "").strip()
@@ -95,7 +95,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()                     # yalni
 GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")              # llama modelleri Groq'tan kaldirildi (2026-10)
 # Dusunen modeller icin: low|medium|high, bos = gonderme. "low" belgede yazan cevaplarda bile sik sik BILGI_YOK
-# diyordu; "medium" ~1-3 sn daha yavas ama belirgin dogru (olcum: docs/istem-deneyleri.md).
+# diyordu; "medium" ~1-3 sn daha yavas ama belirgin dogru (olcum: docs/istem-deneyleri/istem-deneyleri.md).
 GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "medium")
 
 LLM_TIMEOUT_SECONDS = float(os.getenv("LLM_TIMEOUT_SECONDS", "60"))
@@ -140,6 +140,15 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/")                
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()   # GIZLI: yalnizca .env / Vercel paneli
 SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "belgeler")
 STORAGE_TIMEOUT_SECONDS = float(os.getenv("STORAGE_TIMEOUT_SECONDS", "60"))
+
+# --- 3. parti veri kaynagi: Vikipedi (MediaWiki Action API, anahtarsiz, ucretsiz) ---
+# {lang} yerine dil kodu konur. Testler bu adresi yerel sahte sunucuya cevirir.
+WIKIPEDIA_API_URL = os.getenv("WIKIPEDIA_API_URL", "https://{lang}.wikipedia.org/w/api.php").strip()
+WIKIPEDIA_LANGS = ("tr", "en")
+WIKIPEDIA_TIMEOUT_SECONDS = float(os.getenv("WIKIPEDIA_TIMEOUT_SECONDS", "20"))
+# Wikimedia her istekte kim oldugunu ve iletisim adresini soyleyen bir User-Agent ister (yoksa engelleyebilir).
+WIKIPEDIA_USER_AGENT = ("BelgeTabanliSoruAsistani/0.22 "
+                        "(https://github.com/sametdogangun713-gif/P55-RAG-Assistant-backend) python-urllib")
 
 # --- Hafta 14: parola sifirlama ---
 RESET_CODE_MINUTES = int(os.getenv("RESET_CODE_MINUTES", "15"))    # kodun gecerlilik suresi
